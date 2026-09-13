@@ -1,3 +1,13 @@
+# Isle Live Map 2.0.1
+
+## Sửa kiểm tra Npcap trên Windows
+
+- Nhận diện Npcap bằng cả thư viện native và danh sách adapter thực tế, không chỉ dựa vào trạng thái service.
+- Tự tìm `wpcap.dll` và `Packet.dll` trong các thư mục System32/SysWOW64 chuẩn, đồng thời nạp native library ổn định hơn.
+- Làm mới danh sách adapter thay vì dùng singleton có thể bị stale sau khi người dùng cài Npcap trong lúc app đang mở.
+- Phân biệt rõ thiếu DLL, không có adapter, thiếu quyền và lỗi native để người dùng biết cách xử lý.
+- Nếu cài đặt thành công nhưng process hiện tại chưa nạp được DLL, app báo cần mở lại thay vì báo cài đặt thất bại.
+
 # Isle Live Map 2.0.0
 
 ## Stats, Việt hóa và thao tác nhanh
