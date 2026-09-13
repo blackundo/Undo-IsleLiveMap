@@ -7,7 +7,8 @@ public sealed class TeamCoordinator : IAsyncDisposable
 {
     private static readonly TimeSpan PublishInterval = TimeSpan.FromMilliseconds(100);
 
-    private readonly TeamRelayClient _client;
+    private TeamRelayClient _client;
+    private readonly SemaphoreSlim _relayGate = new(1, 1);
     private readonly CancellationTokenSource _shutdown = new();
     private readonly object _telemetryGate = new();
     private readonly Task _publishTask;
@@ -20,9 +21,10 @@ public sealed class TeamCoordinator : IAsyncDisposable
     private TeamRelayConnectionState _lastConnectionState;
     private bool _disposed;
 
-    public TeamCoordinator(TeamRelayClient? client = null)
+    public TeamCoordinator(TeamRelayEndpoint? endpoint = null)
     {
-        _client = client ?? new TeamRelayClient();
+        CurrentEndpoint = endpoint ?? TeamRelayEndpoints.Default;
+        _client = new TeamRelayClient(CurrentEndpoint.BaseUri);
         _client.StateChanged += Client_StateChanged;
         _publishTask = PublishLoopAsync(_shutdown.Token);
     }
@@ -30,6 +32,49 @@ public sealed class TeamCoordinator : IAsyncDisposable
     public event EventHandler<TeamRelayState>? StateChanged;
 
     public TeamRelayState CurrentState => _client.CurrentState;
+
+    public TeamRelayEndpoint CurrentEndpoint { get; private set; }
+
+    public async Task SwitchRelayAsync(
+        TeamRelayEndpoint endpoint,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(endpoint);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        await _relayGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        TeamRelayClient? previous = null;
+        try
+        {
+            if (CurrentEndpoint.Provider == endpoint.Provider)
+            {
+                return;
+            }
+
+            if (_client.CurrentState.HasActiveSession)
+            {
+                throw new InvalidOperationException("Hãy rời nhóm trước khi đổi relay.");
+            }
+
+            previous = _client;
+            previous.StateChanged -= Client_StateChanged;
+            _client = new TeamRelayClient(endpoint.BaseUri);
+            _client.StateChanged += Client_StateChanged;
+            CurrentEndpoint = endpoint;
+            _activeTeamId = null;
+            _lastConnectionState = TeamRelayConnectionState.None;
+        }
+        finally
+        {
+            _relayGate.Release();
+        }
+
+        if (previous is not null)
+        {
+            await previous.DisposeAsync().ConfigureAwait(false);
+        }
+
+        StateChanged?.Invoke(this, _client.CurrentState);
+    }
 
     public Task<TeamSession> CreateAsync(
         string displayName,
@@ -95,6 +140,7 @@ public sealed class TeamCoordinator : IAsyncDisposable
 
         await _client.DisposeAsync().ConfigureAwait(false);
         _shutdown.Dispose();
+        _relayGate.Dispose();
     }
 
     private async Task PublishLoopAsync(CancellationToken cancellationToken)

@@ -32,5 +32,10 @@ public sealed class HomeTeamPanelTests
             " ",
             document.Descendants().Select(element => (string?)element.Attribute("Text")));
         Assert.Contains("Tắt app là nhóm tự hủy", allText, StringComparison.Ordinal);
+        Assert.NotNull(Control("UndoIsleRelayRadio"));
+        Assert.NotNull(Control("KLongDevRelayRadio"));
+        Assert.Contains("15 người · Khuyên dùng", allText, StringComparison.Ordinal);
+        Assert.Contains("10 người · Tương thích", allText, StringComparison.Ordinal);
+        Assert.Contains("Khuyên dùng relay Undo-Isle", allText, StringComparison.Ordinal);
     }
 }

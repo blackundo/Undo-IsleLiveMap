@@ -31,4 +31,8 @@ public static class AppPaths
         Root,
         "release-highlights.json");
 
+    public static string TeamRelayPreferences { get; } = Path.Combine(
+        Root,
+        "team-relay.json");
+
 }

@@ -8,7 +8,7 @@ namespace TheIsleOverlay.TeamRelay;
 
 public sealed class TeamRelayClient : IAsyncDisposable
 {
-    public static readonly Uri DefaultBaseUri = new("https://isle-relay.klong.dev/");
+    public static readonly Uri DefaultBaseUri = new("https://isle-relay.modundo.com/");
     public static readonly TimeSpan SessionStartTimeout = TimeSpan.FromSeconds(12);
     private static readonly TimeSpan FailedSessionCleanupTimeout = TimeSpan.FromSeconds(3);
 

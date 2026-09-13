@@ -95,6 +95,51 @@
             <Setter Property="BorderBrush" Value="{DynamicResource HomeLineStrong}" />
             <Setter Property="FontSize" Value="11.5" />
         </Style>
+
+        <Style x:Key="TeamRelayOption" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource HomeMuted}" />
+            <Setter Property="Background" Value="{DynamicResource HomeInputSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource HomeLine}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="OptionCard" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3" Padding="10,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid Width="14" Height="14" VerticalAlignment="Center" Margin="0,0,8,0">
+                                    <Ellipse Stroke="{TemplateBinding BorderBrush}" StrokeThickness="1.5" />
+                                    <Ellipse x:Name="CheckDot" Width="6" Height="6" Fill="{DynamicResource HomeAccent}"
+                                             Visibility="Collapsed" />
+                                </Grid>
+                                <ContentPresenter Grid.Column="1" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OptionCard" Property="Background" Value="{DynamicResource HomeHover}" />
+                                <Setter TargetName="OptionCard" Property="BorderBrush" Value="{DynamicResource HomeLineStrong}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="OptionCard" Property="Background" Value="{DynamicResource HomeAccentDeep}" />
+                                <Setter TargetName="OptionCard" Property="BorderBrush" Value="{DynamicResource HomeAccent}" />
+                                <Setter TargetName="CheckDot" Property="Visibility" Value="Visible" />
+                                <Setter Property="Foreground" Value="{DynamicResource HomeAccentBright}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="OptionCard" Property="Opacity" Value="0.55" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Border Margin="12" Background="{DynamicResource HomeSurface}" BorderBrush="{DynamicResource HomeShellLine}" BorderThickness="1" CornerRadius="7">
@@ -214,7 +259,7 @@
                                     </Grid>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                    <TextBlock Text="TEAM LINK / TẠM THỜI" Foreground="{DynamicResource HomeBone}"
+                                    <TextBlock x:Name="TeamRelayHeaderLabel" Text="TEAM LINK · UNDO-ISLE" Foreground="{DynamicResource HomeBone}"
                                                FontFamily="Bahnschrift SemiCondensed" FontSize="13" FontWeight="SemiBold" />
                                     <TextBlock Text="Tắt app là nhóm tự hủy · Không lưu dữ liệu"
                                                Foreground="{DynamicResource HomeSubtle}" FontSize="10.5" FontWeight="Medium" />
@@ -227,40 +272,76 @@
                             </Grid>
 
                             <StackPanel x:Name="TeamInactivePanel" Grid.Row="1" Margin="0,13,0,0">
-                                <Grid>
+                                <TextBlock Text="CHỌN MÁY CHỦ NHÓM" Foreground="{DynamicResource HomeSubtle}"
+                                           FontFamily="Bahnschrift SemiCondensed" FontSize="9.5" FontWeight="SemiBold" />
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <RadioButton x:Name="UndoIsleRelayRadio" GroupName="TeamRelay" Tag="UndoIsle"
+                                                 Style="{StaticResource TeamRelayOption}" Checked="TeamRelayRadio_Checked">
+                                        <StackPanel>
+                                            <TextBlock Text="UNDO-ISLE" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
+                                            <TextBlock Text="15 người · Khuyên dùng" Foreground="{DynamicResource HomeAccent}" FontSize="9.5" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </RadioButton>
+                                    <RadioButton x:Name="KLongDevRelayRadio" Grid.Column="1" GroupName="TeamRelay" Tag="KLongDev"
+                                                 Style="{StaticResource TeamRelayOption}" Margin="7,0,0,0" Checked="TeamRelayRadio_Checked">
+                                        <StackPanel>
+                                            <TextBlock Text="KLONGDEV CŨ" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
+                                            <TextBlock Text="10 người · Tương thích" Foreground="{DynamicResource HomeSubtle}" FontSize="9.5" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </RadioButton>
+                                </Grid>
+                                <TextBlock x:Name="TeamRelayRecommendationLabel"
+                                           Text="Khuyên dùng relay Undo-Isle: nhóm 15 người và được ưu tiên hỗ trợ."
+                                           Foreground="{DynamicResource HomeAccent}" FontSize="10.5" FontWeight="Medium"
+                                           TextWrapping="Wrap" Margin="0,7,0,13" />
+
+                                <TextBlock Text="TẠO NHÓM MỚI" Foreground="{DynamicResource HomeBone}"
+                                           FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" />
+                                <TextBlock Text="Tên hiển thị của bạn" Foreground="{DynamicResource HomeSubtle}"
+                                           FontSize="9.5" Margin="0,5,0,4" />
+                                <Border Background="{DynamicResource HomeInputSurface}" BorderBrush="{DynamicResource HomeLine}" BorderThickness="1" CornerRadius="2">
+                                    <TextBox x:Name="TeamDisplayNameTextBox" Style="{StaticResource TeamInput}"
+                                             Text="Survivor" MaxLength="32" ToolTip="Tên đồng đội sẽ nhìn thấy" />
+                                </Border>
+                                <Button x:Name="CreateTeamButton" Style="{StaticResource TeamPrimaryButton}"
+                                        Content="TẠO NHÓM MỚI" Margin="0,7,0,0" Click="CreateTeamButton_Click" />
+
+                                <Grid Margin="0,12,0,10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Border Background="{DynamicResource HomeInputSurface}" BorderBrush="{DynamicResource HomeLine}" BorderThickness="1" CornerRadius="2" Margin="0,0,8,0">
-                                        <TextBox x:Name="TeamDisplayNameTextBox" Style="{StaticResource TeamInput}"
-                                                 Text="Survivor" MaxLength="32" ToolTip="Tên đồng đội sẽ nhìn thấy" />
-                                    </Border>
-                                    <Button x:Name="CreateTeamButton" Grid.Column="1" Style="{StaticResource TeamPrimaryButton}"
-                                            Content="TẠO NHÓM" Click="CreateTeamButton_Click" />
+                                    <Border BorderBrush="{DynamicResource HomeLine}" BorderThickness="0,1,0,0" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="HOẶC" Foreground="{DynamicResource HomeSubtle}"
+                                               FontFamily="Bahnschrift SemiCondensed" FontSize="9" Margin="10,0" />
+                                    <Border Grid.Column="2" BorderBrush="{DynamicResource HomeLine}" BorderThickness="0,1,0,0" VerticalAlignment="Center" />
                                 </Grid>
 
-                                <Grid Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Border Background="{DynamicResource HomeInputSurface}" BorderBrush="{DynamicResource HomeLineStrong}" BorderThickness="1" CornerRadius="2" Margin="0,0,8,0">
-                                        <Grid>
-                                            <TextBlock x:Name="InviteCodePlaceholder" Text="MÃ MỜI 6 KÝ TỰ"
-                                                       Foreground="{DynamicResource HomeSubtle}" FontFamily="Bahnschrift SemiCondensed"
-                                                       FontSize="10.5" FontWeight="SemiBold" Margin="10,0"
-                                                       VerticalAlignment="Center" IsHitTestVisible="False" />
-                                            <TextBox x:Name="InviteCodeTextBox" Style="{StaticResource TeamInput}"
-                                                     Text="" MaxLength="6" CharacterCasing="Upper"
-                                                     TextChanged="InviteCodeTextBox_TextChanged"
-                                                     ToolTip="Nhập mã mời 6 ký tự" />
-                                        </Grid>
-                                    </Border>
-                                    <Button x:Name="JoinTeamButton" Grid.Column="1" Style="{StaticResource TeamPrimaryButton}"
-                                            Content="NHẬP MÃ" BorderBrush="{DynamicResource HomeLineStrong}" Foreground="{DynamicResource HomeAccentBright}"
-                                            Click="JoinTeamButton_Click" />
-                                </Grid>
+                                <TextBlock Text="VÀO NHÓM BẰNG MÃ MỜI" Foreground="{DynamicResource HomeBone}"
+                                           FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" />
+                                <TextBlock Text="Mã gồm 6 chữ hoặc số" Foreground="{DynamicResource HomeSubtle}"
+                                           FontSize="9.5" Margin="0,5,0,4" />
+                                <Border Background="{DynamicResource HomeInputSurface}" BorderBrush="{DynamicResource HomeLineStrong}" BorderThickness="1" CornerRadius="2">
+                                    <Grid>
+                                        <TextBlock x:Name="InviteCodePlaceholder" Text="NHẬP MÃ MỜI"
+                                                   Foreground="{DynamicResource HomeSubtle}" FontFamily="Bahnschrift SemiCondensed"
+                                                   FontSize="10.5" FontWeight="SemiBold" Margin="10,0"
+                                                   VerticalAlignment="Center" IsHitTestVisible="False" />
+                                        <TextBox x:Name="InviteCodeTextBox" Style="{StaticResource TeamInput}"
+                                                 Text="" MaxLength="6" CharacterCasing="Upper"
+                                                 TextChanged="InviteCodeTextBox_TextChanged"
+                                                 ToolTip="Nhập mã mời 6 ký tự" />
+                                    </Grid>
+                                </Border>
+                                <Button x:Name="JoinTeamButton" Style="{StaticResource TeamPrimaryButton}"
+                                        Content="VÀO NHÓM" Margin="0,7,0,0"
+                                        BorderBrush="{DynamicResource HomeLineStrong}" Foreground="{DynamicResource HomeAccentBright}"
+                                        Click="JoinTeamButton_Click" />
                             </StackPanel>
 
                             <StackPanel x:Name="TeamActivePanel" Grid.Row="1" Margin="0,13,0,0" Visibility="Collapsed">
@@ -279,7 +360,7 @@
                                             <TextBlock x:Name="ActiveInviteCodeLabel" Text="— — — — — —" Foreground="{DynamicResource HomeAccentBright}"
                                                        FontFamily="Bahnschrift" FontSize="19" FontWeight="Bold" />
                                         </StackPanel>
-                                        <TextBlock x:Name="TeamMemberCountLabel" Grid.Column="2" Text="1 / 10 NGƯỜI"
+                                        <TextBlock x:Name="TeamMemberCountLabel" Grid.Column="2" Text="1 / 15 NGƯỜI"
                                                    Foreground="{DynamicResource HomeMuted}" FontFamily="Bahnschrift SemiCondensed" FontSize="10"
                                                    VerticalAlignment="Center" HorizontalAlignment="Right" Margin="8,0" />
                                         <Button Grid.Column="3" Style="{StaticResource HomeChromeButton}" Content="COPY"

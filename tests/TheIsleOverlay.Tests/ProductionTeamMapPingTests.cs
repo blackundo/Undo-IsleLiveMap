@@ -16,8 +16,12 @@ public sealed class ProductionTeamMapPingTests
             return;
         }
 
-        await using var owner = new TeamRelayClient();
-        await using var peer = new TeamRelayClient();
+        var configuredBaseUri = Environment.GetEnvironmentVariable("ISLELIVEMAP_RELAY_BASE_URL");
+        var baseUri = string.IsNullOrWhiteSpace(configuredBaseUri)
+            ? null
+            : new Uri(configuredBaseUri, UriKind.Absolute);
+        await using var owner = new TeamRelayClient(baseUri);
+        await using var peer = new TeamRelayClient(baseUri);
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         var ownerSession = await owner.CreateAsync("Integration Owner", timeout.Token);
         await peer.JoinAsync(ownerSession.InviteCode, "Integration Peer", timeout.Token);

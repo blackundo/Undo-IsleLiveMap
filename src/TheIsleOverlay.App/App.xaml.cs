@@ -11,10 +11,13 @@ public partial class App : Application
 
     public App()
     {
-        Team = new TeamCoordinator();
+        TeamRelayPreferences = new TeamRelayPreferenceStore();
+        var endpoint = TeamRelayEndpoints.For(TeamRelayPreferences.Load().Provider);
+        Team = new TeamCoordinator(endpoint);
     }
 
     public TeamCoordinator Team { get; }
+    public TeamRelayPreferenceStore TeamRelayPreferences { get; }
 
     public static App CurrentApp => (App)Current;
 

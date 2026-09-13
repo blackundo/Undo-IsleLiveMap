@@ -170,6 +170,6 @@ public sealed class TeamTelemetryMapperTests
     [Fact]
     public void DefaultEndpoint_UsesProductionRelayDomain()
     {
-        Assert.Equal("https://isle-relay.klong.dev/", TeamRelayClient.DefaultBaseUri.AbsoluteUri);
+        Assert.Equal("https://isle-relay.modundo.com/", TeamRelayClient.DefaultBaseUri.AbsoluteUri);
     }
 }

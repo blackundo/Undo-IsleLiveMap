@@ -11,6 +11,7 @@ public partial class HomeWindow
     private bool _teamPanelInitialized;
     private bool _teamChanging;
     private bool _normalizingInviteCode;
+    private bool _selectingTeamRelay;
     private TeamRelayState _pendingHomeTeamState = new();
     private DispatcherTimer? _homeTeamRenderTimer;
     private volatile bool _homeTeamStateDirty;
@@ -23,6 +24,7 @@ public partial class HomeWindow
         }
 
         _teamPanelInitialized = true;
+        ApplyTeamRelaySelection();
         App.CurrentTeam.StateChanged += TeamCoordinator_StateChanged;
         _pendingHomeTeamState = App.CurrentTeam.CurrentState;
         ApplyTeamState(_pendingHomeTeamState);
@@ -132,6 +134,51 @@ public partial class HomeWindow
         }
     }
 
+    private async void TeamRelayRadio_Checked(object sender, RoutedEventArgs e)
+    {
+        if (_selectingTeamRelay
+            || !_teamPanelInitialized
+            || _teamChanging
+            || sender is not System.Windows.Controls.RadioButton option
+            || !Enum.TryParse<TeamRelayProvider>(option.Tag?.ToString(), out var provider))
+        {
+            return;
+        }
+
+        var endpoint = TeamRelayEndpoints.For(provider);
+        if (endpoint.Provider == App.CurrentTeam.CurrentEndpoint.Provider)
+        {
+            ApplyTeamRelayPresentation(endpoint);
+            return;
+        }
+
+        SetTeamBusy(true, "ĐANG ĐỔI RELAY…");
+        try
+        {
+            await App.CurrentTeam.SwitchRelayAsync(endpoint, _shutdown.Token);
+            App.CurrentApp.TeamRelayPreferences.Save(new TeamRelayPreferences
+            {
+                Provider = endpoint.Provider
+            });
+            ApplyTeamRelayPresentation(endpoint);
+            TeamErrorLabel.Text = endpoint.IsRecommended
+                ? "Đã chuyển sang relay Undo-Isle · tối đa 15 người."
+                : "Đang dùng relay KLongDev cũ · tối đa 10 người. Khuyên chuyển sang Undo-Isle.";
+        }
+        catch (OperationCanceledException) when (_shutdown.IsCancellationRequested)
+        {
+        }
+        catch (Exception exception)
+        {
+            ApplyTeamRelaySelection();
+            TeamErrorLabel.Text = FriendlyTeamError(exception);
+        }
+        finally
+        {
+            SetTeamBusy(false);
+        }
+    }
+
     private void CopyInviteCodeButton_Click(object sender, RoutedEventArgs e)
     {
         var inviteCode = App.CurrentTeam.CurrentState.Session?.InviteCode;
@@ -195,6 +242,7 @@ public partial class HomeWindow
         var active = state.HasActiveSession;
         TeamInactivePanel.Visibility = active ? Visibility.Collapsed : Visibility.Visible;
         TeamActivePanel.Visibility = active ? Visibility.Visible : Visibility.Collapsed;
+        ApplyTeamRelayPresentation(App.CurrentTeam.CurrentEndpoint);
 
         TeamStateLabel.Text = state.ConnectionState switch
         {
@@ -261,21 +309,44 @@ public partial class HomeWindow
         LeaveTeamButton.IsEnabled = !busy;
         TeamDisplayNameTextBox.IsEnabled = !busy;
         InviteCodeTextBox.IsEnabled = !busy;
+        var canSelectRelay = !busy && !App.CurrentTeam.CurrentState.HasActiveSession;
+        UndoIsleRelayRadio.IsEnabled = canSelectRelay;
+        KLongDevRelayRadio.IsEnabled = canSelectRelay;
         if (!string.IsNullOrWhiteSpace(message))
         {
             TeamErrorLabel.Text = message;
         }
     }
 
-    private static string FriendlyTeamError(Exception exception) => exception switch
+    private string FriendlyTeamError(Exception exception) => exception switch
     {
         TeamRelayApiException { Code: "invite_not_found" } => "Không tìm thấy mã mời hoặc nhóm đã tự hết hạn.",
         TeamRelayApiException { Code: "team_full" } => "Nhóm đã đủ thành viên.",
         TeamRelayApiException { Code: "rate_limited" } => "Bạn thao tác quá nhanh. Chờ một chút rồi thử lại.",
         TimeoutException => "Relay không phản hồi trong 12 giây. Nút đã mở lại để bạn thử lại.",
-        HttpRequestException => "Không liên lạc được isle-relay.klong.dev.",
+        HttpRequestException => $"Không liên lạc được {App.CurrentTeam.CurrentEndpoint.BaseUri.Host}.",
         _ => $"Không mở được nhóm: {exception.Message}"
     };
+
+    private void ApplyTeamRelaySelection()
+    {
+        var endpoint = App.CurrentTeam.CurrentEndpoint;
+        _selectingTeamRelay = true;
+        UndoIsleRelayRadio.IsChecked = endpoint.Provider == TeamRelayProvider.UndoIsle;
+        KLongDevRelayRadio.IsChecked = endpoint.Provider == TeamRelayProvider.KLongDev;
+        _selectingTeamRelay = false;
+        ApplyTeamRelayPresentation(endpoint);
+    }
+
+    private void ApplyTeamRelayPresentation(TeamRelayEndpoint endpoint)
+    {
+        TeamRelayHeaderLabel.Text = $"TEAM LINK · {endpoint.DisplayName.ToUpperInvariant()}";
+        TeamRelayRecommendationLabel.Text = endpoint.IsRecommended
+            ? "Khuyên dùng relay Undo-Isle: nhóm 15 người và được ưu tiên hỗ trợ."
+            : "Relay KLongDev cũ chỉ hỗ trợ tối đa 10 người. Khuyên chuyển sang Undo-Isle.";
+        TeamRelayRecommendationLabel.Foreground = HomeBrush(
+            endpoint.IsRecommended ? "#37D4C6" : "#E7B74E");
+    }
 
     private static string NormalizeInviteCode(string? value) => new(
         (value ?? string.Empty)
