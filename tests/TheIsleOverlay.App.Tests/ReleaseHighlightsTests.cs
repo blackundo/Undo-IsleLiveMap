@@ -18,7 +18,7 @@ public sealed class ReleaseHighlightsTests
             source,
             StringComparison.Ordinal);
         Assert.Contains(
-            "proPresentation.HasCurrentProAccess",
+            "proPresentation.IsVerified",
             source,
             StringComparison.Ordinal);
         Assert.Contains(

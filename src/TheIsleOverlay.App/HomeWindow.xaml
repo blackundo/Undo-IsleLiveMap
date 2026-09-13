@@ -185,7 +185,7 @@
                                 <TextBlock Text="Xin 1 star GitHub" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontWeight="SemiBold" FontSize="19" Margin="0,3,0,0" />
                                 <TextBlock Text="* Chia sẻ thêm cho người khác để Long được nhiều người biết đến hơn. Source công khai nên bạn có thể tự kiểm tra virus và cách app vận hành." Foreground="{DynamicResource HomeMuted}" FontSize="11.5" FontWeight="Medium" TextWrapping="Wrap" MaxWidth="330" Margin="0,6,0,0" />
                             </StackPanel>
-                            <Button Grid.Column="1" Style="{StaticResource HomeChromeButton}" Tag="https://github.com/klong-dev/IsleLiveMap" Click="OpenLink_Click"
+                            <Button Grid.Column="1" Style="{StaticResource HomeChromeButton}" Tag="https://github.com/blackundo/Undo-IsleLiveMap" Click="OpenLink_Click"
                                     Content="GITHUB  ★" Foreground="{DynamicResource HomeAccentBright}" BorderBrush="{DynamicResource HomeLineStrong}" Padding="12,8" VerticalAlignment="Center" Margin="12,0,0,0" />
                         </Grid>
                     </Border>
@@ -390,7 +390,7 @@
                                         <TextBlock x:Name="ProTierLabel" Text="FREE / CHƯA KIỂM TRA"
                                                    Foreground="{DynamicResource HomeAccentBright}" FontFamily="Bahnschrift SemiCondensed"
                                                    FontSize="10" FontWeight="SemiBold" />
-                                        <TextBlock x:Name="ProAccountLabel" Text="  ·  CHƯA ĐĂNG NHẬP STEAM"
+                                        <TextBlock x:Name="ProAccountLabel" Text="  ·  CHƯA NHẬP KEY"
                                                    Foreground="{DynamicResource HomeSubtle}" FontFamily="Bahnschrift SemiCondensed"
                                                    FontSize="10" FontWeight="SemiBold" />
                                     </StackPanel>
@@ -398,12 +398,12 @@
                                                FontFamily="Bahnschrift SemiCondensed" FontSize="15"
                                                FontWeight="SemiBold" Margin="0,2,0,0" />
                                     <TextBlock x:Name="ProAccessDetailLabel"
-                                               Text="Đăng nhập Steam để kiểm tra quyền theo tài khoản"
+                                               Text="Nhập key để kích hoạt Pro trên máy này"
                                                Foreground="{DynamicResource HomeMuted}" FontSize="10.5" FontWeight="Medium"
                                                TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
                                 <TextBlock x:Name="ProAccessActionLabel" Grid.Column="2"
-                                           Text="ĐĂNG NHẬP  →" Foreground="{DynamicResource HomeAccentBright}"
+                                           Text="NHẬP KEY  →" Foreground="{DynamicResource HomeAccentBright}"
                                            FontFamily="Bahnschrift SemiCondensed" FontSize="12"
                                            FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0,0,0" />
                             </Grid>
@@ -419,7 +419,7 @@
                                        Foreground="{DynamicResource HomeSubtle}" FontSize="10.5" TextWrapping="Wrap"
                                        VerticalAlignment="Center" />
                             <Button x:Name="LogoutProButton" Grid.Column="1"
-                                    Style="{StaticResource HomeChromeButton}" Content="ĐĂNG XUẤT PRO"
+                                    Style="{StaticResource HomeChromeButton}" Content="XÓA KÍCH HOẠT PRO"
                                     Padding="10,5" Margin="10,0,0,0" Visibility="Collapsed"
                                     Click="LogoutProButton_Click" />
                         </Grid>

@@ -38,6 +38,17 @@ public sealed class ProReleaseManager : IDisposable
             publicKeyPem ?? EmbeddedProUpdatePublicKey.Load());
     }
 
+    public async Task<ProAgentInstallation> EnsureAvailableAsync(
+        string hostVersion,
+        string accessToken,
+        CancellationToken cancellationToken = default)
+    {
+        // Activation can start the compatible local agent without waiting for updates.
+        var installed = await LoadInstalledAsync(hostVersion, cancellationToken).ConfigureAwait(false);
+        return installed ?? await EnsureLatestAsync(hostVersion, accessToken, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     public async Task<ProAgentInstallation> EnsureLatestAsync(
         string hostVersion,
         string accessToken,

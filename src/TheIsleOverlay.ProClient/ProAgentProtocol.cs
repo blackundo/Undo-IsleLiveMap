@@ -13,7 +13,10 @@ internal static class ProAgentProtocol
 internal sealed record HostHello(
     int IpcApiMajor,
     string HostVersion,
-    string OfflineLicenseToken);
+    string OfflineLicenseToken,
+    string? ActivationMode = null,
+    string? ActivationKey = null,
+    bool ProbeOnly = false);
 
 internal sealed record AgentHello(
     bool Accepted,
@@ -21,7 +24,8 @@ internal sealed record AgentHello(
     string AgentVersion,
     string? SteamId64,
     string? ErrorCode,
-    string? ErrorMessage);
+    string? ErrorMessage,
+    string? ActivationMode = null);
 
 internal sealed record AgentError(string Code, string Message, bool Fatal);
 

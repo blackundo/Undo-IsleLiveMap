@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\TheIsleOverlay.Core\TheIsleOverlay.Core.csproj" />
@@ -40,4 +40,12 @@
     <ApplicationIcon>Assets\IsleLiveMap.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <Target Name="CopyLocalProAgent" AfterTargets="Build" Condition="'$(ProAgentDirectory)' != ''">
+    <Error Condition="!Exists('$(ProAgentDirectory)/IsleLiveMap.Pro.Agent.exe')" Text="ProAgentDirectory must contain a published Pro Agent." />
+    <ItemGroup><LocalAgentFiles Include="$(ProAgentDirectory)/**/*" /></ItemGroup>
+    <Copy SourceFiles="@(LocalAgentFiles)" DestinationFiles="@(LocalAgentFiles->'$(TargetDir)ProAgent/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="PublishLocalProAgent" AfterTargets="Publish" DependsOnTargets="CopyLocalProAgent" Condition="'$(ProAgentDirectory)' != ''">
+    <Copy SourceFiles="@(LocalAgentFiles)" DestinationFiles="@(LocalAgentFiles->'$(PublishDir)ProAgent/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

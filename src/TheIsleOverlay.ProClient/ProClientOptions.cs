@@ -6,6 +6,9 @@ public sealed record ProClientOptions
 
     public Uri BaseUri { get; init; } = ProductionBaseUri;
 
+    public string LocalAgentPath { get; init; } = Path.Combine(
+        AppContext.BaseDirectory, "ProAgent", "IsleLiveMap.Pro.Agent.exe");
+
     public string InstallationRoot { get; init; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "KLongDev",

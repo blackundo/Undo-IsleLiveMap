@@ -121,7 +121,7 @@
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <Button Style="{StaticResource QuietButton}" Content="ĐỂ SAU" Padding="6,10" Click="CloseButton_Click" AutomationProperties.Name="Đóng và xem sau" />
                         <TextBlock Grid.Column="1" Text="PRO THEO STEAMID64" Foreground="#6F8A83" FontFamily="Bahnschrift SemiCondensed" FontSize="9.5" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        <Button x:Name="ActivateProButton" Grid.Column="2" Style="{StaticResource PrimaryButton}" Content="KÍCH HOẠT PRO NGAY" Height="43" Padding="17,0" IsDefault="True" AutomationProperties.Name="Mở trang kích hoạt Pro" Click="ActivateProButton_Click" />
+                        <Button x:Name="ActivateProButton" Grid.Column="2" Style="{StaticResource PrimaryButton}" Content="NHẬP KEY KÍCH HOẠT" Height="43" Padding="17,0" IsDefault="True" AutomationProperties.Name="Nhập key kích hoạt Pro" Click="ActivateProButton_Click" />
                     </Grid>
                 </Grid>
             </Grid>

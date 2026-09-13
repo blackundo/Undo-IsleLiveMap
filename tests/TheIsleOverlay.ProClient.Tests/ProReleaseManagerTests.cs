@@ -8,6 +8,78 @@ namespace TheIsleOverlay.ProClient.Tests;
 
 public sealed class ProReleaseManagerTests
 {
+    [Theory]
+    [InlineData("1.5.2", true, true)]
+    [InlineData("1.5.1", true, false)]
+    [InlineData("2.0.0", true, false)]
+    [InlineData("1.5.2", false, false)]
+    public async Task EnsureAvailableAsync_UsesCompatibleLocalAgentWithoutNetwork(
+        string hostVersion, bool executableExists, bool expectedLocal)
+    {
+        var root = TemporaryDirectory();
+        var handler = new UnavailableReleaseHandler();
+        using var httpClient = new HttpClient(handler);
+        using var key = RSA.Create(2048);
+        try
+        {
+            var versionRoot = Path.Combine(root, "versions", "0.3.22");
+            Directory.CreateDirectory(versionRoot);
+            var executable = Path.Combine(versionRoot, "IsleLiveMap.Pro.Agent.exe");
+            if (executableExists)
+            {
+                await File.WriteAllTextAsync(executable, "local-agent", TestContext.Current.CancellationToken);
+            }
+
+            await File.WriteAllTextAsync(Path.Combine(root, "current.json"),
+                System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    version = "0.3.22",
+                    ipcApiMajor = ProReleaseManager.IpcApiMajor,
+                    minHostVersion = "1.5.2",
+                    maxHostVersionExclusive = "2.0.0",
+                    artifactSha256 = new string('a', 64),
+                    artifactSignature = "installed-signature"
+                }), TestContext.Current.CancellationToken);
+            using var manager = new ProReleaseManager(
+                new ProApiClient(httpClient, new Uri("https://isle.test/")),
+                root, key.ExportSubjectPublicKeyInfoPem());
+
+            if (expectedLocal)
+            {
+                var installation = await manager.EnsureAvailableAsync(
+                    hostVersion, "access-token", TestContext.Current.CancellationToken);
+                Assert.Equal("0.3.22", installation.Version);
+                Assert.Equal(executable, installation.ExecutablePath);
+                Assert.Equal(0, handler.RequestCount);
+            }
+            else
+            {
+                await Assert.ThrowsAsync<ProApiException>(() => manager.EnsureAvailableAsync(
+                    hostVersion, "access-token", TestContext.Current.CancellationToken));
+                Assert.Equal(1, handler.RequestCount);
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(root))
+            {
+                Directory.Delete(root, recursive: true);
+            }
+        }
+    }
+
+    private sealed class UnavailableReleaseHandler : HttpMessageHandler
+    {
+        public int RequestCount { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            RequestCount++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
+        }
+    }
+
     [Fact]
     public async Task EnsureLatestAsync_InstallsSignedCompatibleArtifact()
     {

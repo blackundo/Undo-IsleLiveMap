@@ -1,3 +1,7 @@
+# Undo Isle Live Map
+
+Phát triển độc lập từ [klong-dev/IsleLiveMap](https://github.com/klong-dev/IsleLiveMap), giữ nguyên lịch sử commit và giấy phép MIT của phần public. Source Pro Agent được quản lý riêng trong repo private. Repo này build được bản Free mà không cần source Pro.
+
 # Isle Live Map
 
 Ứng dụng overlay miễn phí, mã nguồn mở cho **The Isle Evrima**. Isle Live Map chạy ngoài process game, luôn nổi trên màn hình và hiển thị minimap Gateway bằng telemetry inbound/outbound đọc trực tiếp trên máy người chơi.
@@ -34,7 +38,7 @@ Texture Gateway được đóng gói trong app dưới dạng JPEG tương thíc
 - Resize đồng nhất toàn bộ HUD 65–175%, kéo trực tiếp trong Edit Mode và tự lưu kích thước/vị trí.
 - Lời mời ủng hộ, hướng dẫn phím tắt và bảng “Có gì mới” theo phiên bản đều có thể đóng ngay.
 - Auto-update qua GitHub Releases bằng Velopack.
-- Đăng nhập Steam để app tự nhận quyền Pro theo SteamID64; license hỗ trợ vĩnh viễn hoặc có thời hạn và không giới hạn thiết bị.
+- Nhập key để kích hoạt Pro trên máy; ứng dụng kiểm tra Agent đi kèm trước khi báo sẵn sàng.
 
 ## Nhóm sinh tồn
 
@@ -67,12 +71,7 @@ Các phím tắt hoạt động kể cả khi game hoặc ứng dụng khác đa
 
 Live Map Free không yêu cầu đăng nhập website. Npcap chỉ thu UDP gắn với process game và không inject DLL hay đọc memory game.
 
-Phiên Pro cũng đăng nhập qua Steam. Refresh token được mã hóa bằng Windows DPAPI,
-gói Pro chỉ được cài sau khi app kiểm tra chữ ký RSA và SHA-256, sau đó giao tiếp
-với app Free qua named pipe giới hạn cho tài khoản Windows hiện tại. Source public
-không chứa decoder hoặc thuật toán nhận diện player/AI của module Pro. Backend chỉ
-trả manifest và artifact Pro khi JWT thuộc SteamID64 có entitlement đang hoạt động;
-Agent tiếp tục tự kiểm tra license RS256 trước khi bật telemetry.
+Bản local-key dùng key do Pro Agent xác thực để kích hoạt Pro trên máy, không đăng nhập Steam. Agent đi kèm trong thư mục `ProAgent` và tự xác thực key qua named pipe trước khi bắt đầu telemetry. Xem [hướng dẫn build và phạm vi kiểm thử](PRO_LOCAL_KEY.md).
 
 ## Yêu cầu chạy
 
@@ -80,7 +79,7 @@ Agent tiếp tục tự kiểm tra license RS256 trước khi bật telemetry.
 - Microsoft Edge WebView2 Runtime (đã có sẵn trên hầu hết Windows 10/11 hiện tại).
 - Game ở Borderless hoặc Windowed; Exclusive Fullscreen có thể che overlay WPF.
 
-Tải installer mới nhất trong [GitHub Releases](https://github.com/klong-dev/IsleLiveMap/releases/latest).
+Tải installer mới nhất trong [GitHub Releases](https://github.com/blackundo/Undo-IsleLiveMap/releases/latest).
 
 ## Build từ source
 
@@ -121,7 +120,7 @@ Texture nền Gateway được nhúng vào ứng dụng. Các provider chỉ l�
 - Marker nhóm chỉ được vẽ khi hai người đang ở cùng server; status khác server vẫn hiện trong danh sách.
 - Nhóm là phiên tạm thời, tối đa 10 người và phải tạo lại sau khi đóng app.
 - Mất Internet không ảnh hưởng texture, zone hay vùng thức ăn local; đăng nhập, heatmap live và cập nhật quyền Pro cần backend tương ứng hoạt động.
-- Isle Live Map Pro cần SteamID64 đang có quyền hợp lệ; app giữ license offline ngắn hạn để chịu được gián đoạn mạng tạm thời.
+- Bản local-key cần mã kích hoạt hợp lệ và thư mục ProAgent đi kèm ứng dụng.
 - Texture Gateway local được cập nhật theo từng bản phát hành của ứng dụng khi map game thay đổi.
 - Bản phát hành chưa được ký bằng chứng thư thương mại, vì vậy Windows SmartScreen có thể cảnh báo ở lần chạy đầu.
 

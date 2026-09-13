@@ -6,7 +6,7 @@ namespace TheIsleOverlay.App;
 
 public sealed class GitHubUpdateService
 {
-    public const string RepositoryUrl = "https://github.com/klong-dev/IsleLiveMap";
+    public const string RepositoryUrl = "https://github.com/blackundo/Undo-IsleLiveMap";
     private static readonly TimeSpan UpdateCheckTimeout = TimeSpan.FromSeconds(15);
 
     private UpdateManager? _manager;

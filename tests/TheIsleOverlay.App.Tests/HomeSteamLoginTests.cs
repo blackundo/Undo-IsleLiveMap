@@ -30,7 +30,7 @@ public sealed class HomeSteamLoginTests
         Assert.Equal("MỞ LIVE MAP", (string?)liveMapTitle.Attribute("Text"));
         Assert.Equal("ĐĂNG XUẤT STEAM", (string?)logoutSteamButton.Attribute("Content"));
         Assert.Equal("LogoutSteamButton_Click", (string?)logoutSteamButton.Attribute("Click"));
-        Assert.Equal("ĐĂNG XUẤT PRO", (string?)logoutProButton.Attribute("Content"));
+        Assert.Equal("XÓA KÍCH HOẠT PRO", (string?)logoutProButton.Attribute("Content"));
         Assert.DoesNotContain(
             document.Descendants(),
             element => new[] { "EraSourceButton", "PandoraSourceButton" }
@@ -51,12 +51,12 @@ public sealed class HomeSteamLoginTests
     }
 
     [Fact]
-    public void ProActivationModal_LeadsWithPriceAndSteamIdLicenseTerms()
+    public void ProActivationModal_OffersKeyWithoutSteam()
     {
         var document = XDocument.Load(Path.Combine(
             AppContext.BaseDirectory,
             "TestAssets",
-            "ProSteamLoginWindow.xaml"));
+            "ProKeyActivationWindow.xaml"));
 
         var allCopy = string.Join(
             " ",
@@ -67,10 +67,9 @@ public sealed class HomeSteamLoginTests
                 (string?)element.Attribute("Title")
             }));
 
-        Assert.Contains("CHỈ TỪ 28K", allCopy, StringComparison.Ordinal);
-        Assert.Contains("KÍCH HOẠT STEAM / PRO ACCESS", allCopy, StringComparison.Ordinal);
-        Assert.Contains("SteamID64", allCopy, StringComparison.Ordinal);
-        Assert.DoesNotContain("XÁC MINH STEAM / PRO ACCESS", allCopy, StringComparison.Ordinal);
+        Assert.Contains("Không cần đăng nhập Steam.", allCopy, StringComparison.Ordinal);
+        Assert.Contains("KÍCH HOẠT PRO", allCopy, StringComparison.Ordinal);
+        Assert.DoesNotContain("SteamID64", allCopy, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -99,7 +98,7 @@ public sealed class HomeSteamLoginTests
     }
 
     [Fact]
-    public void ProPromotion_LeadsWithPriceAndLinksToLandingPage()
+    public void ProPromotion_OffersKeyActivation()
     {
         var document = XDocument.Load(Path.Combine(
             AppContext.BaseDirectory,
@@ -126,7 +125,7 @@ public sealed class HomeSteamLoginTests
         Assert.Contains("FULL TẤT CẢ SERVER", allCopy, StringComparison.Ordinal);
         Assert.Contains("Không phải hack", allCopy, StringComparison.Ordinal);
         Assert.Equal(
-            "KÍCH HOẠT PRO NGAY",
+            "NHẬP KEY KÍCH HOẠT",
             (string?)Control("ActivateProButton").Attribute("Content"));
         Assert.Contains(
             document.Descendants(),

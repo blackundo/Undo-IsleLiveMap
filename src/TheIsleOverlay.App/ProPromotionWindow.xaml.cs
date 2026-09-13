@@ -39,23 +39,7 @@ public partial class ProPromotionWindow : Window
 
     private void ActivateProButton_Click(object sender, RoutedEventArgs e)
     {
-        try
-        {
-            Process.Start(new ProcessStartInfo(ProLandingPageUri.AbsoluteUri)
-            {
-                UseShellExecute = true
-            });
-            Close();
-        }
-        catch (Exception exception)
-        {
-            MessageBox.Show(
-                this,
-                $"Không thể mở trang kích hoạt Pro.\n\n{exception.Message}",
-                "Isle Live Map",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-        }
+        DialogResult = true;
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();

@@ -1,0 +1,30 @@
+<Window x:Class="TheIsleOverlay.App.ProKeyActivationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kích hoạt Pro bằng key" Width="510" Height="340"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        Background="#071716" Foreground="#E9F4EE" FontFamily="Segoe UI"
+        Loaded="Window_Loaded" Closed="Window_Closed">
+    <Grid Margin="26">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="KÍCH HOẠT PRO" FontSize="23" FontWeight="Bold" Foreground="#FFE5A0" />
+        <TextBlock Grid.Row="1" Text="Nhập key kích hoạt. Không cần đăng nhập Steam."
+                   Margin="0,10,0,16" Foreground="#9EB3AD" />
+        <TextBox x:Name="KeyInput" Grid.Row="2" Padding="10" FontSize="16" MaxLength="128"
+                 AutomationProperties.Name="Key kích hoạt Pro" />
+        <TextBlock x:Name="StatusLabel" Grid.Row="3" Margin="0,12,0,10" TextWrapping="Wrap"
+                   Foreground="#E7B74E"
+                   Text="Key được lưu trên máy này. Ứng dụng sẽ kiểm tra kết nối Pro Agent khi kích hoạt." />
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="ĐÓNG" Padding="14,8" Margin="0,0,10,0" Click="CloseButton_Click" />
+            <Button x:Name="ActivateButton" Content="KÍCH HOẠT" Padding="14,8" IsDefault="True"
+                    Click="ActivateButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

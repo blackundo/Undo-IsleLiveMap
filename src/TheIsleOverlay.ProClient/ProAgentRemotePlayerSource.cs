@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Pipes;
+using IsleLiveMap.Activation;
 using TheIsleOverlay.Core;
 
 namespace TheIsleOverlay.ProClient;
@@ -18,6 +19,7 @@ public sealed class ProAgentRemotePlayerSource :
     private readonly string _hostVersion;
     private readonly string _steamId64;
     private readonly string _offlineLicenseToken;
+    private readonly bool _localActivation;
     private readonly CancellationTokenSource _disposeCancellation = new();
     private int _watchStarted;
     private int _disposed;
@@ -30,7 +32,8 @@ public sealed class ProAgentRemotePlayerSource :
         string agentExecutablePath,
         string hostVersion,
         string steamId64,
-        string offlineLicenseToken)
+        string offlineLicenseToken,
+        bool localActivation = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(agentExecutablePath);
         ArgumentException.ThrowIfNullOrWhiteSpace(hostVersion);
@@ -40,6 +43,42 @@ public sealed class ProAgentRemotePlayerSource :
         _hostVersion = hostVersion;
         _steamId64 = steamId64;
         _offlineLicenseToken = offlineLicenseToken;
+        _localActivation = localActivation;
+    }
+
+    internal static ProAgentRemotePlayerSource ForLocalKey(string path, string hostVersion, string key) =>
+        new(path, hostVersion, LocalProActivation.Mode, key, localActivation: true);
+
+    private HostHello CreateHello(bool probeOnly = false) => _localActivation
+        ? new(ProAgentProtocol.IpcApiMajor, _hostVersion, string.Empty,
+            LocalProActivation.Mode, _offlineLicenseToken, probeOnly)
+        : new(ProAgentProtocol.IpcApiMajor, _hostVersion, _offlineLicenseToken);
+
+    internal async Task<string> ProbeAsync(CancellationToken cancellationToken)
+    {
+        var pipeName = ProAgentProtocol.PipePrefix + Guid.NewGuid().ToString("N");
+        await using var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1,
+            PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
+        using var process = StartAgent(pipeName);
+        try
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(ConnectionTimeout + HandshakeTimeout);
+            await pipe.WaitForConnectionAsync(timeout.Token).ConfigureAwait(false);
+            await using var ipc = new IpcJsonStream(pipe);
+            await ipc.WriteAsync(CreateHello(probeOnly: true), timeout.Token).ConfigureAwait(false);
+            var response = await ipc.ReadAsync<AgentMessage>(timeout.Token).ConfigureAwait(false);
+            ValidateHandshake(response);
+            return response.Hello!.AgentVersion;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new ProAgentException("The Pro Agent activation timed out.");
+        }
+        finally
+        {
+            if (!process.HasExited) process.Kill(entireProcessTree: true);
+        }
     }
 
     public async IAsyncEnumerable<RemotePlayerTelemetryFrame> WatchAsync(
@@ -147,10 +186,7 @@ public sealed class ProAgentRemotePlayerSource :
 
             await using var ipc = new IpcJsonStream(pipe);
             await ipc.WriteAsync(
-                    new HostHello(
-                        ProAgentProtocol.IpcApiMajor,
-                        _hostVersion,
-                        _offlineLicenseToken),
+                    CreateHello(),
                     cancellationToken)
                 .ConfigureAwait(false);
 
@@ -246,7 +282,9 @@ public sealed class ProAgentRemotePlayerSource :
             hello is null ||
             !hello.Accepted ||
             hello.IpcApiMajor != ProAgentProtocol.IpcApiMajor ||
-            !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal))
+            (_localActivation
+                ? hello.ActivationMode != LocalProActivation.Mode || hello.SteamId64 is not null
+                : !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)))
         {
             throw new ProAgentException(
                 hello?.ErrorCode is { Length: > 0 } code

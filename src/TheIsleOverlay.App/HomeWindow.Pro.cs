@@ -89,12 +89,12 @@ public partial class HomeWindow
         if (_proAccessLoading
             || _connecting
             || _islePilotConnecting
-            || presentation.HasCurrentProAccess)
+            || presentation.IsVerified)
         {
             return;
         }
 
-        var loginWindow = new ProSteamLoginWindow(_proAccessService, CurrentVersion())
+        var loginWindow = new ProKeyActivationWindow(_proAccessService, CurrentVersion())
         {
             Owner = this
         };
@@ -103,11 +103,7 @@ public partial class HomeWindow
             _proAccess = access;
             ApplyProAccessState(access);
             await RefreshProTelemetryWarmupAsync();
-            SourceStatusLabel.Text = access.IsPro
-                ? access.AgentReady
-                    ? "Steam đã xác minh. Player + AI Tracking Pro đã sẵn sàng."
-                    : "Tài khoản có Pro nhưng chưa tải được agent tương thích."
-                : "Steam đã xác minh nhưng tài khoản chưa có quyền Pro.";
+            SourceStatusLabel.Text = access.AgentReady ? "Key đã xác minh. Pro Agent đã kết nối; đang chờ dữ liệu game." : "Key đã lưu nhưng chưa kết nối được Pro Agent. Bấm NHẬP KEY để thử lại.";
         }
 
         RefreshMapLaunchControls();
@@ -204,13 +200,21 @@ public partial class HomeWindow
             return;
         }
 
-        ProAccountLabel.Text = access.IsAuthenticated
-            ? $"  ·  STEAM ••••{access.SteamId64![^4..]}"
-            : "  ·  CHƯA ĐĂNG NHẬP STEAM";
-        LogoutProButton.Visibility = access.IsAuthenticated
+        ProAccountLabel.Text = access.IsPro ? "  ·  KEY ĐÃ KÍCH HOẠT" : "  ·  CHƯA NHẬP KEY";
+        LogoutProButton.Visibility = access.IsAuthenticated || access.IsPro
             ? Visibility.Visible
             : Visibility.Collapsed;
 
+        if (access.StatusCode is "local_agent_unavailable" or "local_agent_rejected")
+        {
+            ProTierLabel.Text = "PRO / KEY ĐÃ LƯU";
+            ProAccessDetailLabel.Text = "Chưa kết nối được Pro Agent; bấm để thử lại";
+            ProAccessActionLabel.Text = "THỬ LẠI →";
+            ProAccessStateBar.Fill = HomeBrush("#E7B74E");
+            ProAccessFootnoteLabel.Text = "Kiểm tra thư mục ProAgent đi kèm ứng dụng rồi thử kích hoạt lại.";
+            SourceStatusLabel.Text = "Key đã lưu; Pro Agent chưa kết nối được.";
+            return;
+        }
         if (presentation.IsVerified)
         {
             ProTierLabel.Text = access.IsOffline ? "PRO / OFFLINE LICENSE" : "PRO / ACTIVE";
@@ -249,9 +253,9 @@ public partial class HomeWindow
             "session_expired" => "Phiên Steam đã hết hạn; đăng nhập lại để kiểm tra quyền",
             "license_service_unavailable" => "Chưa kết nối được dịch vụ cấp phép; Free vẫn hoạt động",
             _ when access.IsAuthenticated => "Tài khoản này chưa được cấp Isle Live Map Pro",
-            _ => "Đăng nhập Steam để kiểm tra quyền theo tài khoản"
+            _ => "Nhập key để kích hoạt Pro trên máy này"
         };
-        ProAccessActionLabel.Text = access.IsAuthenticated ? "KIỂM TRA LẠI  →" : "ĐĂNG NHẬP  →";
+        ProAccessActionLabel.Text = "NHẬP KEY  →";
         ProAccessStateBar.Fill = new SolidColorBrush(Color.FromRgb(111, 109, 85));
         ProAccessFootnoteLabel.Text = "Nâng cấp tùy chọn: phân loại player, AI, loài và cân nặng. Free luôn hoạt động độc lập.";
         SourceStatusLabel.Text = entitlementExpired
@@ -366,7 +370,7 @@ public partial class HomeWindow
             : "  OPEN TELEMETRY CLIENT";
         ProSectionHeading.Text = premium
             ? "PRO ACCESS · ĐÃ KÍCH HOẠT"
-            : "KÍCH HOẠT PRO · CHỈ TỪ 28K";
+            : "KÍCH HOẠT PRO · NHẬP KEY";
         ApplyMapLaunchAccent();
     }
 }

@@ -353,7 +353,10 @@ public partial class HomeWindow : Window
         {
             Owner = this
         };
-        promotionWindow.ShowDialog();
+        if (promotionWindow.ShowDialog() == true)
+        {
+            ProAccessButton_Click(this, new RoutedEventArgs());
+        }
     }
 
     private void ApplyMapLaunchAccent()
@@ -381,9 +384,9 @@ public partial class HomeWindow : Window
         ProAccessButton.IsEnabled = !_proAccessLoading
                                     && !_connecting
                                     && !_islePilotConnecting
-                                    && !proPresentation.HasCurrentProAccess;
+                                    && !proPresentation.IsVerified;
         ProAccessButton.Opacity = 1d;
-        ProAccessButton.Cursor = proPresentation.HasCurrentProAccess
+        ProAccessButton.Cursor = proPresentation.IsVerified
             ? Cursors.Arrow
             : Cursors.Hand;
         LogoutProButton.IsEnabled = !_proAccessLoading;

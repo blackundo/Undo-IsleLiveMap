@@ -11,6 +11,9 @@ public sealed class ProAccessService : IDisposable
     private readonly bool _ownsHttpClient;
     private readonly ProApiClient _apiClient;
     private readonly ProCredentialStore _credentialStore;
+    private readonly LocalProKeyStore _localKeyStore;
+    private readonly string _localAgentPath;
+    private string? _localActivationKey;
     private readonly ProReleaseManager _releaseManager;
     private readonly TimeProvider _timeProvider;
     private StoredProSession? _session;
@@ -29,6 +32,8 @@ public sealed class ProAccessService : IDisposable
         _ownsHttpClient = httpClient is null;
         _apiClient = new ProApiClient(_httpClient, options.BaseUri);
         _credentialStore = new ProCredentialStore(options.CredentialPath);
+        _localKeyStore = new LocalProKeyStore(options.CredentialPath + ".local-key-v2");
+        _localAgentPath = Path.GetFullPath(options.LocalAgentPath);
         _releaseManager = new ProReleaseManager(
             _apiClient,
             options.InstallationRoot,
@@ -57,14 +62,11 @@ public sealed class ProAccessService : IDisposable
         try
         {
             ThrowIfDisposed();
-            var stored = await _credentialStore.LoadAsync(cancellationToken).ConfigureAwait(false);
-            if (stored is null)
-            {
-            return SetState(null, null, ProAccessSnapshot.SignedOut);
-            }
-
-            return await RefreshStoredSessionAsync(stored, hostVersion, cancellationToken)
-                .ConfigureAwait(false);
+            ValidateHostVersion(hostVersion);
+            var key = await _localKeyStore.LoadAsync(cancellationToken).ConfigureAwait(false);
+            if (key is null) return SetState(null, null, ProAccessSnapshot.SignedOut);
+            var snapshot = await VerifyLocalKeyAsync(key, hostVersion, cancellationToken).ConfigureAwait(false);
+            return SetLocalState(key, snapshot, hostVersion);
         }
         finally
         {
@@ -105,6 +107,63 @@ public sealed class ProAccessService : IDisposable
         }
     }
 
+    public async Task<ProAccessSnapshot> ActivateKeyAsync(
+        string key, string hostVersion, CancellationToken cancellationToken = default)
+    {
+        await _operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            ThrowIfDisposed();
+            ValidateHostVersion(hostVersion);
+            if (!LocalProKeyStore.Accepts(key)) throw new ArgumentException("The activation key is invalid.", nameof(key));
+            key = key.Trim();
+            var snapshot = await VerifyLocalKeyAsync(key, hostVersion, cancellationToken).ConfigureAwait(false);
+            if (!snapshot.AgentReady)
+                throw new ProAgentException(snapshot.StatusCode == "local_agent_unavailable"
+                    ? "Không tìm thấy Pro Agent. Hãy cài Agent đi kèm rồi thử lại."
+                    : "Agent từ chối key hoặc chưa kết nối được. Kiểm tra key và thử lại.");
+            await _localKeyStore.ActivateAsync(key, cancellationToken).ConfigureAwait(false);
+            return SetLocalState(key, snapshot, hostVersion);
+        }
+        finally
+        {
+            _operationGate.Release();
+        }
+    }
+
+    private async Task<ProAccessSnapshot> VerifyLocalKeyAsync(
+        string key, string hostVersion, CancellationToken cancellationToken)
+    {
+        string? version = null;
+        var status = "local_agent_unavailable";
+        if (File.Exists(_localAgentPath))
+        {
+            await using var source = ProAgentRemotePlayerSource.ForLocalKey(_localAgentPath, hostVersion, key);
+            try
+            {
+                version = await source.ProbeAsync(cancellationToken).ConfigureAwait(false);
+                status = "local_key_active";
+            }
+            catch (Exception ex) when (ex is ProAgentException or IOException or
+                UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+            {
+                status = "local_agent_rejected";
+            }
+        }
+        return new ProAccessSnapshot(null,
+            version is not null ? new ProEntitlement("pro", "active", null) : ProAccessSnapshot.SignedOut.Entitlement,
+            false, version is not null, version, null, status);
+    }
+
+    private ProAccessSnapshot SetLocalState(string key, ProAccessSnapshot snapshot, string hostVersion)
+    {
+        lock (_stateGate)
+        {
+            var result = SetState(null, null, snapshot, hostVersion);
+            _localActivationKey = snapshot.AgentReady ? key : null;
+            return result;
+        }
+    }
     public async Task LogoutAsync(CancellationToken cancellationToken = default)
     {
         await _operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -112,6 +171,7 @@ public sealed class ProAccessService : IDisposable
         {
             ThrowIfDisposed();
             _credentialStore.Clear();
+            _localKeyStore.Clear();
             SetState(null, null, ProAccessSnapshot.SignedOut);
         }
         finally
@@ -124,6 +184,10 @@ public sealed class ProAccessService : IDisposable
     {
         lock (_stateGate)
         {
+            if (_current.StatusCode == "local_key_active" && _current.AgentReady && _current.IsPro && _localActivationKey is not null)
+            {
+                return ProAgentRemotePlayerSource.ForLocalKey(_localAgentPath, _currentHostVersion, _localActivationKey);
+            }
             if (_session is null ||
                 _installation is null ||
                 !_current.IsPro ||
@@ -217,7 +281,7 @@ public sealed class ProAccessService : IDisposable
         {
             try
             {
-                installation = await _releaseManager.EnsureLatestAsync(
+                installation = await _releaseManager.EnsureAvailableAsync(
                         hostVersion,
                         tokens.AccessToken,
                         cancellationToken)
@@ -279,6 +343,7 @@ public sealed class ProAccessService : IDisposable
     {
         lock (_stateGate)
         {
+            _localActivationKey = null;
             _session = session;
             _installation = installation;
             _current = snapshot;
