@@ -25,6 +25,7 @@ public sealed class LocalVitalsSessionCache
         _path = string.IsNullOrWhiteSpace(path)
             ? Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Undo-Isle",
                 "IsleLiveMap",
                 "direct-vitals-cache.json")
             : Path.GetFullPath(path);

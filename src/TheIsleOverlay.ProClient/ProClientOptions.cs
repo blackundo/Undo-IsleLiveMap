@@ -11,13 +11,13 @@ public sealed record ProClientOptions
 
     public string InstallationRoot { get; init; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "KLongDev",
+        "Undo-Isle",
         "IsleLiveMap",
         "Pro");
 
     public string CredentialPath { get; init; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "KLongDev",
+        "Undo-Isle",
         "IsleLiveMap",
         "pro-access.credential");
 }
