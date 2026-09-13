@@ -82,7 +82,7 @@ public partial class MainWindow
             return;
         }
 
-        TeamPanel.Visibility = Visibility.Visible;
+        RefreshOptionalWidgetVisibility();
         TeamCodeLabel.Text = $"TEAM // {session.InviteCode}";
         TeamCountLabel.Text = $"{state.Members.Count} NGƯỜI";
         TeamConnectionLabel.Text = state.ConnectionState switch

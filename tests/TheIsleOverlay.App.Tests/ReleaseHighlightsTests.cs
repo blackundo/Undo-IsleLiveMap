@@ -50,7 +50,7 @@ public sealed class ReleaseHighlightsTests
     }
 
     [Fact]
-    public void Modal_IsAFiveStep152BriefingWithFinalOptOut()
+    public void Modal_IsAFiveStep200BriefingWithFinalOptOut()
     {
         var document = XDocument.Load(Path.Combine(
             AppContext.BaseDirectory,
@@ -73,17 +73,21 @@ public sealed class ReleaseHighlightsTests
                 (string?)element.Attribute("Content")
             }));
 
-        Assert.Equal("1.5.2", ReleaseHighlightsWindow.ReleaseVersion);
+        Assert.Equal("2.0.0", ReleaseHighlightsWindow.ReleaseVersion);
         Assert.Equal(5, ReleaseHighlightsWindow.PageCount);
-        Assert.Contains("PRO BIẾT MÌNH ĐANG HOẠT ĐỘNG", allCopy, StringComparison.Ordinal);
-        Assert.Contains("CAPTURE HEALTH", allCopy, StringComparison.Ordinal);
-        Assert.Contains("MARKER ÍT NHẤP NHÁY HƠN", allCopy, StringComparison.Ordinal);
-        Assert.Contains("BẢN ĐỒ GỌN HƠN", allCopy, StringComparison.Ordinal);
-        Assert.Contains("FREE · 1.5.2", allCopy, StringComparison.Ordinal);
-        Assert.Contains("MAP TỰ NHỚ CÁCH BẠN DÙNG", allCopy, StringComparison.Ordinal);
+        Assert.Contains("DINO STATS ĐÚNG NGUỒN HƠN", allCopy, StringComparison.Ordinal);
+        Assert.Contains("GACHA", allCopy, StringComparison.Ordinal);
+        Assert.Contains("VIỆT HÓA GAME", allCopy, StringComparison.Ordinal);
+        Assert.Contains("43 MUTATION", allCopy, StringComparison.Ordinal);
+        Assert.Contains("ALT + U", allCopy, StringComparison.Ordinal);
+        Assert.Contains("ĐẶT MỐC, NHẬP XYZ, XÓA NGAY", allCopy, StringComparison.Ordinal);
+        Assert.Contains("ALT + M", allCopy, StringComparison.Ordinal);
+        Assert.Contains("Delete", allCopy, StringComparison.Ordinal);
+        Assert.Contains("PHÍM TẮT RÕ RÀNG, BLOCK TỰ CHỦ", allCopy, StringComparison.Ordinal);
         Assert.Contains("CTRL + SHIFT + O", allCopy, StringComparison.Ordinal);
-        Assert.Contains("ÍT CÔNG VIỆC THỪA TRÊN MỖI FRAME", allCopy, StringComparison.Ordinal);
-        Assert.Contains("Không hiển thị lại thông báo này cho phiên bản 1.5.2", allCopy, StringComparison.Ordinal);
+        Assert.Contains("ALT + P", allCopy, StringComparison.Ordinal);
+        Assert.Contains("FREE / PRO RÕ RÀNG", allCopy, StringComparison.Ordinal);
+        Assert.Contains("Không hiển thị lại thông báo này cho phiên bản 2.0.0", allCopy, StringComparison.Ordinal);
         Assert.Equal(
             "HOÀN TẤT",
             (string?)Control("FinishButton").Attribute("Content"));

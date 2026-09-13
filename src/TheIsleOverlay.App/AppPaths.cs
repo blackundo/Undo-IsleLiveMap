@@ -11,6 +11,10 @@ public static class AppPaths
 
     public static string WebView2Profile { get; } = Path.Combine(Root, "WebView2");
 
+    public static string KLongServicesWebView2Profile { get; } = Path.Combine(
+        Root,
+        "KLongServicesWebView2");
+
     public static string IslePilotCredential { get; } = Path.Combine(
         Root,
         "islepilot-overlay.credential");
@@ -18,6 +22,14 @@ public static class AppPaths
     public static string IslePilotVoiceCredential { get; } = Path.Combine(
         Root,
         "islepilot-voice.credential");
+
+    public static string GachaOverlayCredential { get; } = Path.Combine(
+        Root,
+        "gacha-overlay.credential");
+
+    public static string GachaWebView2Profile { get; } = Path.Combine(
+        Root,
+        "GachaWebView2");
 
     public static string OverlayLayoutSettings { get; } = Path.Combine(
         Root,

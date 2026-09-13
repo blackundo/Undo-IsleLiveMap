@@ -160,6 +160,12 @@ public sealed class LocalVitalsSessionCacheTests
                 "10.0.0.1:7777",
                 partial);
             Assert.Null(otherGame.Vitals.MaxHealth);
+
+            var otherEndpoint = reloaded.Enrich(
+                "84168:123",
+                "10.0.0.2:7777",
+                partial);
+            Assert.Null(otherEndpoint.Vitals.MaxHealth);
         }
         finally
         {

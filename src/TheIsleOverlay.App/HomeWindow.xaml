@@ -121,6 +121,10 @@
                         <TextBlock x:Name="HomeClientModeLabel" Text="  OPEN TELEMETRY CLIENT" Foreground="{DynamicResource HomeSubtle}" FontFamily="Bahnschrift" FontSize="10" FontWeight="Medium" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Style="{StaticResource HomeChromeButton}" Content="PHÍM TẮT"
+                                Height="23" Padding="8,0" Margin="0,0,5,0"
+                                ToolTip="Đổi các tổ hợp phím của overlay"
+                                Click="ShortcutSettingsButton_Click" />
                         <Button Style="{StaticResource HomeChromeButton}" Content="—" Width="27" Height="23" Padding="0" Click="MinimizeButton_Click" />
                         <Button Style="{StaticResource HomeChromeButton}" Content="×" Width="27" Height="23" Padding="0" Margin="5,0,0,0" Click="CloseButton_Click" />
                     </StackPanel>
@@ -187,6 +191,33 @@
                             </StackPanel>
                             <Button Grid.Column="1" Style="{StaticResource HomeChromeButton}" Tag="https://github.com/klong-dev/IsleLiveMap" Click="OpenLink_Click"
                                     Content="GITHUB  ★" Foreground="{DynamicResource HomeAccentBright}" BorderBrush="{DynamicResource HomeLineStrong}" Padding="12,8" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        </Grid>
+                    </Border>
+
+                    <TextBlock Text="NGÔN NGỮ GAME" Foreground="{DynamicResource HomeMuted}" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,9" />
+                    <Border Background="{DynamicResource HomePanel}" BorderBrush="{DynamicResource HomeLineStrong}" BorderThickness="1"
+                            CornerRadius="3" Padding="14,12" Margin="0,0,0,18">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="THE ISLE · LOCALIZATION" Foreground="{DynamicResource HomeAccent}" FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="SemiBold" />
+                                    <TextBlock Text="English hoặc Tiếng Việt" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontSize="16" FontWeight="SemiBold" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Style="{StaticResource HomeChromeButton}" Content="SỔ TAY MUTATION"
+                                        Padding="11,7" Click="MutationGuideButton_Click" />
+                            </Grid>
+                            <Grid Grid.Row="1" Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <Button x:Name="EnglishLocaleButton" Style="{StaticResource TeamPrimaryButton}" Content="ENGLISH"
+                                        Click="EnglishLocaleButton_Click" />
+                                <Button x:Name="VietnameseLocaleButton" Grid.Column="2" Style="{StaticResource TeamPrimaryButton}" Content="TIẾNG VIỆT"
+                                        Click="VietnameseLocaleButton_Click" />
+                            </Grid>
+                            <TextBlock x:Name="LocalizationStatusLabel" Grid.Row="2"
+                                       Text="Đang đọc ngôn ngữ game…" Foreground="{DynamicResource HomeMuted}"
+                                       FontSize="10.5" FontWeight="Medium" TextWrapping="Wrap" Margin="0,9,0,0" />
                         </Grid>
                     </Border>
 
@@ -363,10 +394,28 @@
                         </Button>
                         <TextBlock Text="GPS hoạt động trên mọi server; stats được đồng bộ qua IslePilot khi khả dụng. Npcap phải sẵn sàng trên máy."
                                    Foreground="{DynamicResource HomeSubtle}" FontSize="10.5" TextWrapping="Wrap" />
-                        <Button x:Name="LogoutSteamButton" Style="{StaticResource HomeChromeButton}"
-                                Content="ĐĂNG XUẤT STEAM" Padding="10,5" Margin="0,8,0,0"
-                                HorizontalAlignment="Right" Visibility="Collapsed"
-                                Click="LogoutSteamButton_Click" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="GachaStatsButton" Style="{StaticResource HomeChromeButton}"
+                                    Content="GACHA STATS · KẾT NỐI" Padding="10,5"
+                                    HorizontalAlignment="Left" Click="GachaStatsButton_Click"
+                                    ToolTip="Đăng nhập Steam chính thức tại player.isle.vn để dùng stats trên server Gacha" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button x:Name="LogoutGachaButton" Style="{StaticResource HomeChromeButton}"
+                                        Content="NGẮT GACHA" Padding="10,5" Margin="0,0,7,0"
+                                        Visibility="Collapsed" Click="LogoutGachaButton_Click" />
+                                <Button x:Name="LogoutSteamButton" Style="{StaticResource HomeChromeButton}"
+                                        Content="ĐĂNG XUẤT STEAM" Padding="10,5"
+                                        Visibility="Collapsed" Click="LogoutSteamButton_Click" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock x:Name="GachaStatsStatusLabel"
+                                   Text="Gacha stats là nguồn tùy chọn; không ảnh hưởng GPS và map trên server khác."
+                                   Foreground="{DynamicResource HomeSubtle}" FontSize="10"
+                                   TextWrapping="Wrap" Margin="0,6,0,0" />
                     </StackPanel>
 
                     <Rectangle Height="1" Fill="{DynamicResource HomeLine}" Margin="0,0,0,14" />

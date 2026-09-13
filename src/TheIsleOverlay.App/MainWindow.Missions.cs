@@ -10,7 +10,6 @@ public partial class MainWindow
     private readonly PrimeQuestCompletionTracker _primeQuestCompletionTracker = new();
     private readonly MissionListRenderCache _missionListRenderCache = new();
     private readonly Queue<string> _missionToastQueue = new();
-    private bool _missionsVisible = true;
     private bool _hasMissions;
     private bool _missionToastPumpRunning;
 
@@ -57,12 +56,7 @@ public partial class MainWindow
 
     private void ToggleMissions()
     {
-        _missionsVisible = !_missionsVisible;
-        SaveOverlayLayout();
-        RefreshOptionalWidgetVisibility();
-        RefreshWindowSizeToContent();
-        KeepOverlayVisible();
-        PositionMap();
+        ToggleWidgetPreference(OverlayLayoutRules.PrimeWidget);
     }
 
     private void ToggleHud()
@@ -73,6 +67,7 @@ public partial class MainWindow
             SetClickThrough(true);
         }
 
+        RefreshOptionalWidgetVisibility();
         BeginAnimation(
             OpacityProperty,
             new DoubleAnimation

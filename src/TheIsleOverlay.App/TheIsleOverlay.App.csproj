@@ -3,8 +3,10 @@
   <ItemGroup>
     <ProjectReference Include="..\TheIsleOverlay.Core\TheIsleOverlay.Core.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.EraGaming\TheIsleOverlay.EraGaming.csproj" />
+    <ProjectReference Include="..\TheIsleOverlay.Gacha\TheIsleOverlay.Gacha.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.IslePilot\TheIsleOverlay.IslePilot.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.LocalTelemetry\TheIsleOverlay.LocalTelemetry.csproj" />
+    <ProjectReference Include="..\TheIsleOverlay.Localization\TheIsleOverlay.Localization.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.Pandora\TheIsleOverlay.Pandora.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.ProClient\TheIsleOverlay.ProClient.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.TeamRelay\TheIsleOverlay.TeamRelay.csproj" />
@@ -20,7 +22,18 @@
     <Resource Include="Assets\ProMapPreview.png" />
     <Resource Include="Assets\SetPointTip.png" />
     <Resource Include="Assets\MapZoneTip.png" />
+    <Resource Include="Assets\Advertising\tft.png" />
+    <Resource Include="Assets\Advertising\fco4.jpg" />
+    <Resource Include="Assets\Advertising\nro.jpg" />
+    <Resource Include="Assets\Advertising\hso.jpg" />
+    <Resource Include="Assets\Advertising\vltn.webp" />
     <EmbeddedResource Include="Assets\GatewayMapLayers.json" />
+    <!-- The `.vi` segment is part of the file name, not a satellite-resource
+         culture. Keep the catalog in the main assembly so MutationCatalog can
+         load it consistently in the published app and in tests. -->
+    <EmbeddedResource Include="Assets\MutationCatalog.vi.json"
+                      WithCulture="false"
+                      LogicalName="TheIsleOverlay.App.Assets.MutationCatalog.vi.json" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -35,7 +48,7 @@
     <Product>Isle Live Map</Product>
     <Description>Open-source live map overlay for The Isle Evrima.</Description>
     <Authors>klong-dev</Authors>
-    <Version>1.5.2</Version>
+    <Version>2.0.0</Version>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationIcon>Assets\IsleLiveMap.ico</ApplicationIcon>
   </PropertyGroup>

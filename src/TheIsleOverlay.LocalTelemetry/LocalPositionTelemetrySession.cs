@@ -11,6 +11,7 @@ public sealed class LocalPositionTelemetrySession : ITelemetrySession
     private readonly ILocalMovementSource _localSource;
     private readonly IRemotePlayerTelemetrySource? _remotePlayerSource;
     private readonly string _sourceName;
+    private readonly bool _enableLocalVitals;
     private readonly CancellationTokenSource _disposeCancellation = new();
     private int _watchStarted;
     private int _disposed;
@@ -19,12 +20,16 @@ public sealed class LocalPositionTelemetrySession : ITelemetrySession
         ITelemetrySession? remoteSession = null,
         ILocalMovementSource? localSource = null,
         string sourceName = "LOCAL",
-        IRemotePlayerTelemetrySource? remotePlayerSource = null)
+        IRemotePlayerTelemetrySource? remotePlayerSource = null,
+        bool? enableLocalVitals = null)
     {
         _remoteSession = remoteSession;
         _localSource = localSource ?? new NpcapLocalMovementSource(trackIrisSequenceDiagnostics: false);
         _sourceName = sourceName;
         _remotePlayerSource = remotePlayerSource;
+        _enableLocalVitals = enableLocalVitals
+                              ?? (_localSource as ILocalVitalsFeatureSource)?.LocalVitalsEnabled
+                              ?? LocalVitalsFeature.IsEnabled();
     }
 
     public async IAsyncEnumerable<TelemetrySnapshot> WatchAsync(
@@ -39,9 +44,17 @@ public sealed class LocalPositionTelemetrySession : ITelemetrySession
         using var linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(
             cancellationToken,
             _disposeCancellation.Token);
+        // This is a fan-in for lanes with very different rates and authority.
+        // Do not drop the oldest item here: a local movement sample can be
+        // superseded safely, but evicting a low-rate remote snapshot (for
+        // example Gacha stats) can erase the only state before the merger
+        // observes it. High-rate sources already coalesce/drop upstream, so
+        // waiting here applies bounded backpressure while preserving FIFO.
+        // Every writer uses the linked cancellation token, therefore disposal
+        // and a stopped consumer still unblock a pending write promptly.
         var channel = Channel.CreateBounded<SessionEvent>(new BoundedChannelOptions(32)
         {
-            FullMode = BoundedChannelFullMode.DropOldest,
+            FullMode = BoundedChannelFullMode.Wait,
             SingleReader = true,
             SingleWriter = false
         });
@@ -79,7 +92,9 @@ public sealed class LocalPositionTelemetrySession : ITelemetrySession
                         remote = remoteEvent.Snapshot;
                         break;
                     case LocalMovementEvent localEvent:
-                        local = localEvent.Observation;
+                        local = LocalMovementObservation.Coalesce(
+                            local,
+                            localEvent.Observation);
                         localError = null;
                         break;
                     case LocalFailureEvent failureEvent:
@@ -136,7 +151,8 @@ public sealed class LocalPositionTelemetrySession : ITelemetrySession
                     _sourceName,
                     remotePlayers,
                     verifiedLocalSpeciesId,
-                    usableRemotePlayerFrame);
+                    usableRemotePlayerFrame,
+                    allowLocalVitals: _enableLocalVitals);
                 if (remote is null
                     && local is null
                     && !string.IsNullOrWhiteSpace(localError))
@@ -174,6 +190,7 @@ public sealed class LocalPositionTelemetrySession : ITelemetrySession
         DateTimeOffset now)
     {
         if (local is not { } localObservation
+            || !localObservation.HasMovement
             || now - localObservation.ObservedAt > LocalPositionSnapshotMerger.LocalFreshness
             || string.IsNullOrWhiteSpace(localObservation.ServerEndpoint))
         {

@@ -153,6 +153,131 @@ public sealed class LocalPositionSnapshotMergerTests
     }
 
     [Fact]
+    public void Merge_UsesFreshLocalIrisWhenCanaryEnabledAndProviderHasNoVitals()
+    {
+        var vitals = new ExactVitals
+        {
+            Growth = 0.42,
+            Health = 75,
+            MaxHealth = 100,
+            Stamina = 60,
+            MaxStamina = 120,
+            Hunger = 10,
+            MaxHunger = 40,
+            Thirst = 900,
+            MaxThirst = 1_000
+        };
+        var local = Observation(100, 200, 300, 45) with
+        {
+            DinosaurVitals = new LocalDinosaurVitalsObservation(Now, vitals, 42)
+        };
+
+        var merged = LocalPositionSnapshotMerger.Merge(
+            new TelemetrySnapshot
+            {
+                Source = "ISLEPILOT",
+                SessionState = TelemetrySessionState.UnsupportedServer
+            },
+            local,
+            Now,
+            allowLocalVitals: true);
+
+        Assert.Same(vitals, merged.Player?.ExactVitals);
+        Assert.Equal("LocalIris", merged.Player?.ExactVitalsSource);
+        Assert.Equal(42, merged.Player?.GrowthPercent);
+        Assert.Equal(75, merged.Player?.HealthPercent);
+        Assert.Equal(50, merged.Player?.StaminaPercent);
+        Assert.Equal(25, merged.Player?.HungerPercent);
+        Assert.Equal(90, merged.Player?.ThirstPercent);
+        Assert.Null(merged.Player?.Nutrition);
+        Assert.Null(merged.Player?.Prime);
+        Assert.Null(merged.Player?.Class);
+    }
+
+    [Fact]
+    public void Merge_LocalVitalsFreshnessIsIndependentFromMovementFreshness()
+    {
+        var movementAt = Now.Subtract(LocalPositionSnapshotMerger.LocalFreshness)
+            .Subtract(TimeSpan.FromMilliseconds(1));
+        var vitalsAt = Now.Subtract(TimeSpan.FromMilliseconds(100));
+        var local = Observation(100, 200, 300, 45) with
+        {
+            ObservedAt = movementAt,
+            DinosaurVitals = new LocalDinosaurVitalsObservation(
+                vitalsAt,
+                new ExactVitals { Health = 75, MaxHealth = 100 },
+                42)
+        };
+
+        var merged = LocalPositionSnapshotMerger.Merge(
+            null,
+            local,
+            Now,
+            allowLocalVitals: true);
+
+        Assert.Equal("LocalIris", merged.Player?.ExactVitalsSource);
+        Assert.Equal(75, merged.Player?.HealthPercent);
+        Assert.Null(merged.Player?.Location);
+        Assert.Equal(vitalsAt, merged.UpdatedAt);
+    }
+
+    [Fact]
+    public void Merge_ExpiresLocalVitalsWithoutExpiringFreshMovement()
+    {
+        var local = Observation(100, 200, 300, 45) with
+        {
+            DinosaurVitals = new LocalDinosaurVitalsObservation(
+                Now.Subtract(LocalPositionSnapshotMerger.LocalVitalsFreshness)
+                    .Subtract(TimeSpan.FromMilliseconds(1)),
+                new ExactVitals { Health = 75, MaxHealth = 100 },
+                42)
+        };
+
+        var merged = LocalPositionSnapshotMerger.Merge(
+            null,
+            local,
+            Now,
+            allowLocalVitals: true);
+
+        Assert.Null(merged.Player?.ExactVitals);
+        Assert.Null(merged.Player?.ExactVitalsSource);
+        Assert.Equal(100, merged.Player?.Location?.X);
+    }
+
+    [Fact]
+    public void Merge_ProviderExactVitalsRemainAuthoritativeWhenCanaryEnabled()
+    {
+        var providerVitals = new ExactVitals { Health = 8, MaxHealth = 10 };
+        var local = Observation(100, 200, 300, 45) with
+        {
+            DinosaurVitals = new LocalDinosaurVitalsObservation(
+                Now,
+                new ExactVitals { Health = 1, MaxHealth = 100 },
+                42)
+        };
+        var remote = new TelemetrySnapshot
+        {
+            Player = new PlayerTelemetry
+            {
+                ExactVitals = providerVitals,
+                ExactVitalsSource = "IslePilotOverlayV2",
+                HealthPercent = 80
+            },
+            SessionState = TelemetrySessionState.Live
+        };
+
+        var merged = LocalPositionSnapshotMerger.Merge(
+            remote,
+            local,
+            Now,
+            allowLocalVitals: true);
+
+        Assert.Same(providerVitals, merged.Player?.ExactVitals);
+        Assert.Equal("IslePilotOverlayV2", merged.Player?.ExactVitalsSource);
+        Assert.Equal(80, merged.Player?.HealthPercent);
+    }
+
+    [Fact]
     public void Merge_UsesPacketVerifiedLocalSpeciesForPlayerClassification()
     {
         var remote = new TelemetrySnapshot

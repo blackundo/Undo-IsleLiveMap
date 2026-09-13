@@ -5,6 +5,23 @@ namespace TheIsleOverlay.Tests;
 public sealed class UnrealDinosaurVitalsTrackerTests
 {
     [Fact]
+    public void Track_MalformedPacketDoesNotPreventFollowingValidPackets()
+    {
+        var tracker = new UnrealDinosaurVitalsTracker();
+        var startedAt = DateTimeOffset.Parse("2026-08-28T02:35:44.877Z");
+
+        Assert.False(tracker.TryTrack([0xff, 0x00, 0x13], startedAt, out _));
+        Assert.False(tracker.TryTrack(
+            Convert.FromBase64String(FirstHeartbeat),
+            startedAt.AddMilliseconds(100),
+            out _));
+        Assert.True(tracker.TryTrack(
+            Convert.FromBase64String(SecondHeartbeat),
+            startedAt.AddSeconds(1.1),
+            out _));
+    }
+
+    [Fact]
     public void Track_LearnsOwningHandleAndReadsLiveGasAttributes()
     {
         var tracker = new UnrealDinosaurVitalsTracker();
@@ -144,6 +161,41 @@ public sealed class UnrealDinosaurVitalsTrackerTests
         Assert.Equal(62.79351043701172d, restored.Vitals.MaxHealth);
         Assert.Equal(777.4014282226562d, restored.Vitals.MaxStamina);
         Assert.Equal(20.721858978271484d, restored.Vitals.MaxHunger);
+    }
+
+    [Fact]
+    public void Reset_DropsVerifiedMaximumsEvenWhenActorHandleIsReused()
+    {
+        var tracker = new UnrealDinosaurVitalsTracker();
+        var startedAt = DateTimeOffset.Parse("2026-08-28T15:47:05.722Z");
+        tracker.TryTrack(
+            Convert.FromBase64String(SparseMaximumHeartbeat1),
+            startedAt,
+            out _);
+        tracker.TryTrack(
+            Convert.FromBase64String(SparseMaximumHeartbeat2),
+            startedAt.AddSeconds(1),
+            out _);
+        Assert.True(tracker.TryTrack(
+            Convert.FromBase64String(SparseMaximumAttributes),
+            startedAt.AddSeconds(2),
+            out var complete));
+        Assert.NotNull(complete.Vitals.MaxHealth);
+
+        tracker.Reset();
+        Assert.False(tracker.TryTrack(
+            Convert.FromBase64String(SparseMaximumHeartbeat1),
+            startedAt.AddSeconds(3),
+            out _));
+        Assert.True(tracker.TryTrack(
+            Convert.FromBase64String(SparseMaximumHeartbeat2),
+            startedAt.AddSeconds(4),
+            out var reacquired));
+
+        Assert.Equal(54_816UL, reacquired.NetRefHandle);
+        Assert.Null(reacquired.Vitals.MaxHealth);
+        Assert.Null(reacquired.Vitals.MaxStamina);
+        Assert.Null(reacquired.Vitals.MaxHunger);
     }
 
     [Fact]

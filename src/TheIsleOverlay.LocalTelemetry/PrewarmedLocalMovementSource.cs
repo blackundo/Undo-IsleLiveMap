@@ -7,7 +7,9 @@ namespace TheIsleOverlay.LocalTelemetry;
 /// observation to its single consumer. This prevents the initial GAS snapshot
 /// sent during spawn/reconnect from being lost while the user is still on Home.
 /// </summary>
-public sealed class PrewarmedLocalMovementSource : ILocalMovementSource
+public sealed class PrewarmedLocalMovementSource :
+    ILocalMovementSource,
+    ILocalVitalsFeatureSource
 {
     private readonly ILocalMovementSource _inner;
     private readonly CancellationTokenSource _shutdown = new();
@@ -30,6 +32,10 @@ public sealed class PrewarmedLocalMovementSource : ILocalMovementSource
     {
         _inner = inner ?? new NpcapLocalMovementSource(trackIrisSequenceDiagnostics: false);
     }
+
+    public bool LocalVitalsEnabled =>
+        (_inner as ILocalVitalsFeatureSource)?.LocalVitalsEnabled
+        ?? LocalVitalsFeature.IsEnabled();
 
     public void Start()
     {
@@ -108,12 +114,16 @@ public sealed class PrewarmedLocalMovementSource : ILocalMovementSource
                                .WatchAsync(cancellationToken)
                                .ConfigureAwait(false))
             {
+                LocalMovementObservation latest;
                 lock (_latestGate)
                 {
-                    _latest = observation;
+                    latest = LocalMovementObservation.Coalesce(
+                        _latest,
+                        observation);
+                    _latest = latest;
                 }
 
-                _updates.Writer.TryWrite(observation);
+                _updates.Writer.TryWrite(latest);
             }
 
             _updates.Writer.TryComplete();

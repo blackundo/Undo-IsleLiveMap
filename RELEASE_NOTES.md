@@ -1,4 +1,15 @@
-# Isle Live Map 1.5.2
+# Isle Live Map 2.0.0
+
+## Stats, Việt hóa và thao tác nhanh
+
+- Stats dino cá nhân tiếp tục lấy từ IslePilot; server Gacha có adapter API/WebSocket chính thức riêng và không làm ảnh hưởng GPS/Live Map.
+- Thêm lựa chọn English / Tiếng Việt và sổ tay tra cứu 43 Mutation bằng `Alt + U`; lớp hỗ trợ không inject, không đọc memory và không thay native UI của game.
+- Set point Pro hỗ trợ mở map lớn bằng `Alt + M`, nhập tọa độ XYZ, click mốc cũ để đổi icon hoặc xóa bằng thùng rác / `Delete`.
+- Bổ sung cài đặt phím tắt có kiểm tra xung đột; `Ctrl + Shift + O` mở Edit Mode, `Alt + P` ẩn/hiện toàn HUD.
+- Từng block Map, Status, Team và Prime có thể bật/tắt, resize độc lập; layout, hình map và trạng thái block được lưu lại.
+- Modal cập nhật 2.0.0 gồm 5 trang, phân biệt rõ Free/Pro; checkbox “Không hiển thị lại” chỉ xuất hiện sau khi xem đến trang cuối.
+
+## Nền tảng từ 1.5.2
 
 ## Overlay nhẹ hơn, ổn định hơn
 
@@ -27,7 +38,7 @@
 - Tài khoản Pro còn hiệu lực hoặc lifetime không bị làm phiền bởi modal quảng bá.
 - Tài khoản Free, chưa đăng nhập hoặc đã hết hạn Pro sẽ nhận lại modal Kích hoạt Pro ở lần mở app tiếp theo.
 - Nếu quyền hết hạn trong lúc app đang chạy, Home tự chuyển về Free và hiện lời mời kích hoạt lại ngay lúc đó.
-- Modal cập nhật 1.5.2 gồm 5 trang; tùy chọn “Không hiển thị lại” chỉ xuất hiện ở trang cuối.
+- Modal cập nhật 1.5.3 gồm 5 trang; tùy chọn “Không hiển thị lại” chỉ xuất hiện ở trang cuối.
 
 ## Kỳ vọng sử dụng
 

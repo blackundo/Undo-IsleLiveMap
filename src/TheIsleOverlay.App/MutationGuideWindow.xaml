@@ -1,0 +1,98 @@
+<Window x:Class="TheIsleOverlay.App.MutationGuideWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sổ tay Mutation" Width="900" Height="690"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Topmost="True"
+        ShowInTaskbar="False" PreviewKeyDown="Window_PreviewKeyDown"
+        FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Window.Resources>
+        <SolidColorBrush x:Key="MutationBone" Color="#EEF4EC" />
+        <SolidColorBrush x:Key="MutationMuted" Color="#93A69E" />
+        <SolidColorBrush x:Key="MutationLine" Color="#36554C" />
+        <SolidColorBrush x:Key="MutationTeal" Color="#69DEC9" />
+        <SolidColorBrush x:Key="MutationGold" Color="#EAC35C" />
+        <Style x:Key="MutationButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource MutationBone}" />
+            <Setter Property="Background" Value="#172821" />
+            <Setter Property="BorderBrush" Value="{StaticResource MutationLine}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </Window.Resources>
+
+    <Border Margin="16" Background="#F407100D" BorderBrush="#587269" BorderThickness="1" CornerRadius="5">
+        <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="26" ShadowDepth="5" Opacity="0.75" /></Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="46" /></Grid.RowDefinitions>
+            <Border BorderBrush="{StaticResource MutationLine}" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="20,0,12,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource MutationTeal}" />
+                        <TextBlock Text="SỔ TAY MUTATION" Foreground="{StaticResource MutationBone}" FontFamily="Bahnschrift SemiCondensed" FontSize="16" FontWeight="Bold" Margin="10,0,0,0" />
+                        <TextBlock x:Name="ResultCountLabel" Text=" · 43 MỤC" Foreground="{StaticResource MutationMuted}" FontFamily="Bahnschrift" FontSize="10" VerticalAlignment="Center" Margin="8,1,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Style="{StaticResource MutationButton}" Content="ĐÓNG · ESC" Click="CloseButton_Click" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="20,16,20,12">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <Border Background="#0B1A16" BorderBrush="{StaticResource MutationLine}" BorderThickness="1" CornerRadius="2">
+                    <TextBox x:Name="SearchTextBox" Background="Transparent" BorderThickness="0" Foreground="{StaticResource MutationBone}"
+                             CaretBrush="{StaticResource MutationTeal}" Padding="12,9" FontSize="12"
+                             TextChanged="SearchTextBox_TextChanged" ToolTip="Tìm bằng tên hoặc mô tả, có hoặc không dấu" />
+                </Border>
+                <Button x:Name="LocaleButton" Grid.Column="2" Style="{StaticResource MutationButton}"
+                        Content="VIỆT CHÍNH · EN ĐỐI CHIẾU" Click="LocaleButton_Click" />
+            </Grid>
+
+            <ListBox x:Name="MutationList" Grid.Row="2" Margin="20,0" Background="Transparent" BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0,0,0,8" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="IsHitTestVisible" Value="False" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#B80C1B17" BorderBrush="#2D4A42" BorderThickness="1" CornerRadius="3" Padding="14,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="190" /><ColumnDefinition Width="18" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource MutationGold}" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding SecondaryLabel}" Foreground="#5D766D" FontFamily="Bahnschrift" FontSize="8.5" FontWeight="Bold" Margin="0,8,0,2" />
+                                    <TextBlock Text="{Binding SecondaryName}" Foreground="{StaticResource MutationMuted}" FontSize="10.5" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Rectangle Grid.Column="1" Width="1" Fill="#284139" HorizontalAlignment="Center" />
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Description}" Foreground="{StaticResource MutationBone}" FontSize="11.5" FontWeight="SemiBold" TextWrapping="Wrap" LineHeight="17" />
+                                    <TextBlock Text="{Binding SecondaryDescription}" Foreground="{StaticResource MutationMuted}" FontSize="10.5" TextWrapping="Wrap" LineHeight="16" Margin="0,7,0,0" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border Grid.Row="3" BorderBrush="{StaticResource MutationLine}" BorderThickness="0,1,0,0">
+                <Grid Margin="20,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <TextBlock Text="Cửa sổ ngoài game · không inject DLL · không đọc hoặc sửa memory"
+                               Foreground="{StaticResource MutationMuted}" FontSize="9.5" VerticalAlignment="Center" />
+                    <TextBlock x:Name="ShortcutLabel" Grid.Column="1" Text="ALT + U  /  ESC ĐỂ ĐÓNG"
+                               Foreground="{StaticResource MutationTeal}" FontFamily="Bahnschrift" FontSize="9.5" FontWeight="Bold" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

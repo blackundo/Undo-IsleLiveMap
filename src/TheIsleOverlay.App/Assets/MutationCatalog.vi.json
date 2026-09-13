@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "locale": "vi-VN",
+  "entries": [
+    {
+      "sourceName": "Hemomania",
+      "viName": "Cuồng Máu",
+      "sourceDescription": "Do extra damage on a bleeding target",
+      "viDescription": "Gây thêm sát thương lên mục tiêu đang chảy máu."
+    },
+    {
+      "sourceName": "Hematophagy",
+      "viName": "Huyết Thực",
+      "sourceDescription": "Restore some thirst when eating",
+      "viDescription": "Hồi một phần nước khi ăn."
+    },
+    {
+      "sourceName": "Accelerated Prey Drive",
+      "viName": "Bản Năng Săn Mồi Tăng Cường",
+      "sourceDescription": "Deal more damage to animals with low health",
+      "viDescription": "Gây thêm sát thương lên động vật còn ít máu."
+    },
+    {
+      "sourceName": "Osteophagic",
+      "viName": "Thực Cốt",
+      "sourceDescription": "Able to consume bones to regenerate fractures faster",
+      "viDescription": "Có thể ăn xương để hồi phục gãy xương nhanh hơn."
+    },
+    {
+      "sourceName": "Xerocole Adaptation",
+      "viName": "Thích Nghi Khô Hạn",
+      "sourceDescription": "Gain some water when eating plants",
+      "viDescription": "Nhận một lượng nước khi ăn thực vật."
+    },
+    {
+      "sourceName": "Hypervigilance",
+      "viName": "Cảnh Giác Cao Độ",
+      "sourceDescription": "Increases camera angles when eating and drinking. Increases footsteps audio from others",
+      "viDescription": "Mở rộng góc nhìn khi ăn và uống, đồng thời nghe tiếng bước chân của sinh vật khác rõ hơn."
+    },
+    {
+      "sourceName": "Truculency",
+      "viName": "Hung Bạo",
+      "sourceDescription": "Bucking has a higher chance to dismount latched animals",
+      "viDescription": "Tăng khả năng hất văng sinh vật đang bám vào cơ thể."
+    },
+    {
+      "sourceName": "Photosynthetic Regeneration",
+      "viName": "Tái Tạo Quang Hợp",
+      "sourceDescription": "Regenerates stamina faster during the day",
+      "viDescription": "Hồi thể lực nhanh hơn vào ban ngày."
+    },
+    {
+      "sourceName": "Cellular Regeneration",
+      "viName": "Tái Tạo Tế Bào",
+      "sourceDescription": "Recovers health slightly faster",
+      "viDescription": "Hồi máu nhanh hơn một chút."
+    },
+    {
+      "sourceName": "Advanced Gestation",
+      "viName": "Thai Nghén Tiến Hóa",
+      "sourceDescription": "Faster Egg Gestation/Incubation/Cooldown Rate",
+      "viDescription": "Tăng tốc độ hình thành trứng, ấp trứng và hồi chiêu sinh sản."
+    },
+    {
+      "sourceName": "Sustained Hydration",
+      "viName": "Giữ Nước Bền Bỉ",
+      "sourceDescription": "Your water drains more slowly",
+      "viDescription": "Nước giảm chậm hơn."
+    },
+    {
+      "sourceName": "Enlarged meniscus",
+      "viName": "Sụn Chêm Phì Đại",
+      "sourceDescription": "Fall damage hits stamina before draining health, no value",
+      "viDescription": "Sát thương do ngã sẽ trừ thể lực trước khi trừ máu."
+    },
+    {
+      "sourceName": "Efficient Digestion",
+      "viName": "Tiêu Hóa Hiệu Quả",
+      "sourceDescription": "Your food drains more slowly",
+      "viDescription": "Thức ăn giảm chậm hơn."
+    },
+    {
+      "sourceName": "Featherweight",
+      "viName": "Nhẹ Tựa Lông Hồng",
+      "sourceDescription": "Your footprints fade much faster",
+      "viDescription": "Dấu chân biến mất nhanh hơn nhiều."
+    },
+    {
+      "sourceName": "Osteosclerosis",
+      "viName": "Xơ Cứng Xương",
+      "sourceDescription": "Resist or Reduce Fracture damage",
+      "viDescription": "Kháng hoặc giảm sát thương gây gãy xương."
+    },
+    {
+      "sourceName": "Wader",
+      "viName": "Thích Nghi Lội Nước",
+      "sourceDescription": "Less hindered when wading through shallow water",
+      "viDescription": "Ít bị cản trở hơn khi lội qua vùng nước nông."
+    },
+    {
+      "sourceName": "Epidermal Fibrosis",
+      "viName": "Xơ Hóa Biểu Bì",
+      "sourceDescription": "Increase bleed resistance",
+      "viDescription": "Tăng khả năng kháng chảy máu."
+    },
+    {
+      "sourceName": "Congenital Hypoalgesia",
+      "viName": "Giảm Đau Bẩm Sinh",
+      "sourceDescription": "Reduce incoming damage when fighting larger species",
+      "viDescription": "Giảm sát thương nhận vào khi chiến đấu với loài lớn hơn."
+    },
+    {
+      "sourceName": "Photosynthetic Tissue",
+      "viName": "Mô Quang Hợp",
+      "sourceDescription": "Faster health / locked health recovery during the day",
+      "viDescription": "Hồi máu và phần máu bị khóa nhanh hơn vào ban ngày."
+    },
+    {
+      "sourceName": "Nocturnal",
+      "viName": "Hoạt Động Về Đêm",
+      "sourceDescription": "Faster health / locked health recovery during the night",
+      "viDescription": "Hồi máu và phần máu bị khóa nhanh hơn vào ban đêm."
+    },
+    {
+      "sourceName": "Hydroregenerative",
+      "viName": "Tái Tạo Nhờ Nước",
+      "sourceDescription": "Recover health faster during rain",
+      "viDescription": "Hồi máu nhanh hơn khi trời mưa."
+    },
+    {
+      "sourceName": "Increased Inspiratory Capacity",
+      "viName": "Tăng Dung Tích Hít Vào",
+      "sourceDescription": "Increased O2 capacity",
+      "viDescription": "Tăng dung tích ôxy."
+    },
+    {
+      "sourceName": "Hydrodynamic",
+      "viName": "Thủy Động Lực",
+      "sourceDescription": "Increased swimming speed",
+      "viDescription": "Tăng tốc độ bơi."
+    },
+    {
+      "sourceName": "Submerged Optical Retention",
+      "viName": "Duy Trì Thị Lực Dưới Nước",
+      "sourceDescription": "Increased underwater vision range",
+      "viDescription": "Tăng tầm nhìn dưới nước."
+    },
+    {
+      "sourceName": "Reabsorption",
+      "viName": "Tái Hấp Thu",
+      "sourceDescription": "Recover a small amount of water during the rainy weather or while swimming in drinkable water",
+      "viDescription": "Hồi một ít nước khi trời mưa hoặc khi bơi trong nguồn nước có thể uống."
+    },
+    {
+      "sourceName": "Enhanced Digestion",
+      "viName": "Tăng Cường Tiêu Hóa",
+      "sourceDescription": "Decrease nutrition decay rate",
+      "viDescription": "Giảm tốc độ hao hụt dinh dưỡng."
+    },
+    {
+      "sourceName": "Reinforced Tendons",
+      "viName": "Gân Cốt Gia Cố",
+      "sourceDescription": "Jumping costs less stamina",
+      "viDescription": "Nhảy tiêu hao ít thể lực hơn."
+    },
+    {
+      "sourceName": "Reniculate Kidneys",
+      "viName": "Thận Dạng Thùy",
+      "sourceDescription": "Can drink saltwater, no value",
+      "viDescription": "Có thể uống nước mặn."
+    },
+    {
+      "sourceName": "Multichambered Lungs",
+      "viName": "Phổi Đa Ngăn",
+      "sourceDescription": "Reduce stamina regeneration threshold",
+      "viDescription": "Giảm ngưỡng cần thiết để bắt đầu hồi thể lực."
+    },
+    {
+      "sourceName": "Infrasound Communication",
+      "viName": "Giao Tiếp Hạ Âm",
+      "sourceDescription": "Make significantly less noise when talking in chat",
+      "viDescription": "Giảm đáng kể tiếng động phát ra khi trò chuyện."
+    },
+    {
+      "sourceName": "Sequential Hermaphroditism",
+      "viName": "Lưỡng Tính Tuần Tự",
+      "sourceDescription": "Taking this mutation will change your asset sex. Does not inherit by offspring, no value",
+      "viDescription": "Chọn đột biến này sẽ đổi giới tính nhân vật; không di truyền cho con non."
+    },
+    {
+      "sourceName": "NHJ-INF",
+      "viName": "Đột Biến Ẩn INF",
+      "sourceDescription": "N&%J3, 8iU$&#@0, no value",
+      "viDescription": "Đột biến nội bộ chưa có mô tả công khai."
+    },
+    {
+      "sourceName": "NHJ-UND",
+      "viName": "Đột Biến Ẩn UND",
+      "sourceDescription": "N&%J3, 7ie%$*#, no value",
+      "viDescription": "Đột biến nội bộ chưa có mô tả công khai."
+    },
+    {
+      "sourceName": "Augmented Tapetum",
+      "viName": "Màng Phản Quang Tăng Cường",
+      "sourceDescription": "Have increased vision at night",
+      "viDescription": "Tăng khả năng quan sát vào ban đêm."
+    },
+    {
+      "sourceName": "Cannibalistic",
+      "viName": "Ăn Đồng Loại",
+      "sourceDescription": "For species that are not, by default, cannibals. Adds their own species as a preferred prey for nutrients, no value",
+      "viDescription": "Cho phép loài vốn không ăn đồng loại xem chính loài của mình là con mồi ưu tiên để nhận dinh dưỡng."
+    },
+    {
+      "sourceName": "Hypermetabolic Inanition",
+      "viName": "Chuyển Hóa Cao Khi Đói",
+      "sourceDescription": "The less hunger you have, the more damage you deal",
+      "viDescription": "Càng đói, bạn càng gây nhiều sát thương."
+    },
+    {
+      "sourceName": "Barometric Sensitivity",
+      "viName": "Nhạy Cảm Khí Áp",
+      "sourceDescription": "Receive an indication prior to storms or droughts, no value",
+      "viDescription": "Nhận được dấu hiệu cảnh báo trước bão hoặc hạn hán."
+    },
+    {
+      "sourceName": "Social Behavior",
+      "viName": "Tập Tính Xã Hội",
+      "sourceDescription": "Increased group size. Only applies to group leader",
+      "viDescription": "Tăng giới hạn số thành viên nhóm; chỉ áp dụng cho trưởng nhóm."
+    },
+    {
+      "sourceName": "Tactile Endurance",
+      "viName": "Chịu Đòn Dẻo Dai",
+      "sourceDescription": "Convert incoming damage to stamina",
+      "viDescription": "Chuyển sát thương nhận vào thành hao hụt thể lực."
+    },
+    {
+      "sourceName": "Gastronomic Regeneration",
+      "viName": "Tái Tạo Qua Ăn Uống",
+      "sourceDescription": "Eating restores a small amount of health",
+      "viDescription": "Ăn sẽ hồi một lượng máu nhỏ."
+    },
+    {
+      "sourceName": "Heightened Ghrelin",
+      "viName": "Ghrelin Tăng Cao",
+      "sourceDescription": "Increase overeating capacity by a large amount",
+      "viDescription": "Tăng mạnh khả năng ăn vượt mức no."
+    },
+    {
+      "sourceName": "Prolific Reproduction",
+      "viName": "Sinh Sản Sung Mãn",
+      "sourceDescription": "Your babies have increased health and stamina regen. Your babies require less food. Your babies grow faster",
+      "viDescription": "Con non hồi máu và thể lực nhanh hơn, cần ít thức ăn hơn và lớn nhanh hơn."
+    },
+    {
+      "sourceName": "Parthenogenesis",
+      "viName": "Trinh Sản",
+      "sourceDescription": "Allows the player to nest without a mate, no value",
+      "viDescription": "Cho phép làm tổ mà không cần bạn đời."
+    }
+  ]
+}

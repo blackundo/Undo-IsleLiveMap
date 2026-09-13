@@ -5,6 +5,7 @@ namespace TheIsleOverlay.LocalTelemetry;
 public static class LocalPositionSnapshotMerger
 {
     public static readonly TimeSpan LocalFreshness = TimeSpan.FromSeconds(2);
+    public static readonly TimeSpan LocalVitalsFreshness = TimeSpan.FromSeconds(3);
     // Pro/Iris frames arrive in sparse bursts and live measurements after a
     // reconnect showed healthy gaps of roughly 1.1-4.3 seconds. Two seconds
     // made an unchanged player roster flash to zero between valid frames.
@@ -21,18 +22,46 @@ public static class LocalPositionSnapshotMerger
         string sourceName = "LOCAL",
         IReadOnlyList<VerifiedRemoteEntityTelemetry>? remotePlayers = null,
         string? verifiedLocalSpeciesId = null,
-        RemotePlayerTelemetryFrame? verifiedLocalFallback = null)
+        RemotePlayerTelemetryFrame? verifiedLocalFallback = null,
+        bool allowLocalVitals = false)
     {
         var localObservation = local.GetValueOrDefault();
         var fallback = verifiedLocalFallback;
         var hasFreshLocal = local.HasValue
-                            && now - localObservation.ObservedAt <= LocalFreshness;
+                            && localObservation.HasMovement
+                            && IsFresh(
+                                localObservation.ObservedAt,
+                                now,
+                                LocalFreshness);
+        var localVitals = localObservation.DinosaurVitals;
+        var hasFreshLocalVitals = allowLocalVitals
+                                  && localVitals is { } candidateVitals
+                                  && IsFresh(
+                                      candidateVitals.ObservedAt,
+                                      now,
+                                      LocalVitalsFreshness)
+                                  && HasUsableVitals(candidateVitals.Vitals);
+        var useLocalVitals = hasFreshLocalVitals
+                             && (remote?.LiveDataStale == true
+                                 || !HasUsableVitals(remote?.Player?.ExactVitals));
         var hasFreshVerifiedFallback = fallback is not null
                                        && IsRemoteFrameFresh(fallback, now)
                                        && IsFinite(fallback.LocalLocation)
                                        && double.IsFinite(fallback.MapHeadingDegrees);
-        if (!hasFreshLocal && !hasFreshVerifiedFallback)
+        if (!hasFreshLocal && !hasFreshVerifiedFallback && !useLocalVitals)
         {
+            if (remote?.Player is { } previousPlayer
+                && string.Equals(
+                    previousPlayer.ExactVitalsSource,
+                    LocalVitalsFeature.SourceName,
+                    StringComparison.Ordinal))
+            {
+                return remote with
+                {
+                    Player = RemoveLocalVitals(previousPlayer)
+                };
+            }
+
             return remote is null
                 ? Waiting(sourceName)
                 : remote;
@@ -42,18 +71,26 @@ public static class LocalPositionSnapshotMerger
             ? new TelemetrySnapshot()
             : remote;
         var remotePlayer = baseSnapshot.Player;
-        var location = hasFreshLocal
+        WorldLocation? location = hasFreshLocal
             ? localObservation.Movement.Location
-            : verifiedLocalFallback!.LocalLocation;
+            : hasFreshVerifiedFallback
+                ? verifiedLocalFallback!.LocalLocation
+                : remotePlayer?.Location;
         var mapHeadingDegrees = hasFreshLocal
             ? localObservation.Movement.MapHeadingDegrees
-            : MapHeading.Normalize(verifiedLocalFallback!.MapHeadingDegrees);
-        var serverEndpoint = hasFreshLocal
+            : hasFreshVerifiedFallback
+                ? MapHeading.Normalize(verifiedLocalFallback!.MapHeadingDegrees)
+                : remotePlayer?.ExactMapHeadingDegrees;
+        var serverEndpoint = hasFreshLocal || useLocalVitals
             ? localObservation.ServerEndpoint
-            : verifiedLocalFallback!.ServerEndpoint;
-        var observedAt = hasFreshLocal
-            ? localObservation.ObservedAt
-            : verifiedLocalFallback!.ObservedAt;
+            : hasFreshVerifiedFallback
+                ? verifiedLocalFallback!.ServerEndpoint
+                : null;
+        var observedAt = LatestTimestamp(
+            hasFreshLocal ? localObservation.ObservedAt : null,
+            hasFreshVerifiedFallback ? verifiedLocalFallback!.ObservedAt : null,
+            useLocalVitals ? localVitals!.Value.ObservedAt : null)
+            ?? baseSnapshot.UpdatedAt;
         var player = (remotePlayer ?? new PlayerTelemetry
         {
             Name = "LOCAL PLAYER"
@@ -65,10 +102,33 @@ public static class LocalPositionSnapshotMerger
             Class = string.IsNullOrWhiteSpace(verifiedLocalSpeciesId)
                 ? remotePlayer?.Class
                 : verifiedLocalSpeciesId.Trim(),
-            Location = location,
-            MapLocation = null,
+            Location = hasFreshLocal || hasFreshVerifiedFallback
+                ? location
+                : remotePlayer?.Location,
+            MapLocation = hasFreshLocal || hasFreshVerifiedFallback
+                ? null
+                : remotePlayer?.MapLocation,
             ExactMapHeadingDegrees = mapHeadingDegrees
         };
+
+        if (useLocalVitals)
+        {
+            player = ApplyLocalVitals(player, localVitals!.Value.Vitals);
+        }
+        else if (!useLocalVitals
+                 && string.Equals(
+                     player.ExactVitalsSource,
+                     LocalVitalsFeature.SourceName,
+                     StringComparison.Ordinal))
+        {
+            player = RemoveLocalVitals(player);
+        }
+
+        // Local movement freshness only proves that the GPS lane is alive.
+        // TelemetrySnapshot has no per-field freshness metadata, so a fresh
+        // GPS/Iris sample cannot make stale remote Nutrition/Prime or stats
+        // look globally live. Preserve the remote stale marker until refresh.
+        var preserveRemoteStaleness = baseSnapshot.LiveDataStale;
 
         return baseSnapshot with
         {
@@ -81,19 +141,100 @@ public static class LocalPositionSnapshotMerger
             PlayerOnline = true,
             UpdatedAt = observedAt,
             Player = player,
-            Map = MergeRemotePlayers(
-                baseSnapshot.Map,
-                remotePlayers,
-                location),
+            Map = hasFreshLocal || hasFreshVerifiedFallback
+                ? MergeRemotePlayers(
+                    baseSnapshot.Map,
+                    remotePlayers,
+                    location!)
+                : baseSnapshot.Map,
             ProPlayerTrackingActive = remotePlayers is not null,
             ProPlayerSequence = verifiedLocalFallback?.Sequence,
             ProPlayerSync = verifiedLocalFallback?.PlayerSync,
-            SessionState = TelemetrySessionState.Live,
-            LiveDataStale = false,
-            StatusMessage = baseSnapshot.SessionState == TelemetrySessionState.UnsupportedServer
+            SessionState = preserveRemoteStaleness
+                ? baseSnapshot.SessionState
+                : TelemetrySessionState.Live,
+            LiveDataStale = preserveRemoteStaleness,
+            StatusMessage = (hasFreshLocal || hasFreshVerifiedFallback)
+                            && baseSnapshot.SessionState == TelemetrySessionState.UnsupportedServer
                 ? "Map trực tiếp đang hoạt động; status và nhiệm vụ IslePilot không khả dụng trên server này."
                 : baseSnapshot.StatusMessage
         };
+    }
+
+    private static PlayerTelemetry ApplyLocalVitals(
+        PlayerTelemetry player,
+        ExactVitals vitals) => player with
+    {
+        ExactVitals = vitals,
+        ExactVitalsSource = LocalVitalsFeature.SourceName,
+        GrowthPercent = NormalizeGrowth(vitals.Growth),
+        HealthPercent = PercentOrNull(vitals.Health, vitals.MaxHealth),
+        StaminaPercent = PercentOrNull(vitals.Stamina, vitals.MaxStamina),
+        HungerPercent = PercentOrNull(vitals.Hunger, vitals.MaxHunger),
+        ThirstPercent = PercentOrNull(vitals.Thirst, vitals.MaxThirst)
+    };
+
+    private static PlayerTelemetry RemoveLocalVitals(PlayerTelemetry player) => player with
+    {
+        ExactVitals = null,
+        ExactVitalsSource = null,
+        GrowthPercent = null,
+        HealthPercent = null,
+        StaminaPercent = null,
+        HungerPercent = null,
+        ThirstPercent = null
+    };
+
+    private static bool HasUsableVitals(ExactVitals? vitals) =>
+        vitals is not null
+        && (IsFiniteNonNegative(vitals.Growth)
+            || IsUsablePair(vitals.Health, vitals.MaxHealth)
+            || IsUsablePair(vitals.Stamina, vitals.MaxStamina)
+            || IsUsablePair(vitals.Hunger, vitals.MaxHunger)
+            || IsUsablePair(vitals.Thirst, vitals.MaxThirst));
+
+    private static bool IsUsablePair(double? current, double? maximum) =>
+        IsFiniteNonNegative(current)
+        && maximum is > 0d
+        && double.IsFinite(maximum.Value);
+
+    private static bool IsFiniteNonNegative(double? value) =>
+        value is >= 0d
+        && double.IsFinite(value.Value);
+
+    private static double? PercentOrNull(double? current, double? maximum) =>
+        IsUsablePair(current, maximum)
+            ? VitalMath.Percent(current, maximum)
+            : null;
+
+    private static double? NormalizeGrowth(double? growth) =>
+        IsFiniteNonNegative(growth)
+            ? VitalMath.Percent(null, null, growth)
+            : null;
+
+    private static bool IsFresh(
+        DateTimeOffset observedAt,
+        DateTimeOffset now,
+        TimeSpan freshness) =>
+        now >= observedAt
+        && now - observedAt <= freshness;
+
+    private static DateTimeOffset? LatestTimestamp(
+        DateTimeOffset? first,
+        DateTimeOffset? second,
+        DateTimeOffset? third)
+    {
+        DateTimeOffset? latest = null;
+        foreach (var candidate in new[] { first, second, third })
+        {
+            if (candidate is { } value
+                && (latest is null || value > latest.Value))
+            {
+                latest = value;
+            }
+        }
+
+        return latest;
     }
 
     private static MapTelemetry? MergeRemotePlayers(

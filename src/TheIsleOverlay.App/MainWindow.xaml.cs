@@ -24,19 +24,8 @@ public partial class MainWindow : Window
     private static readonly TimeSpan UiRenderInterval = TimeSpan.FromMilliseconds(50);
     private static readonly TimeSpan MouseShortcutActivationPollInterval = TimeSpan.FromMilliseconds(25);
 
-    private const int EditHotkeyId = 0x714;
-    private const int ToggleMissionsNHotkeyId = 0x715;
-    private const int ToggleHudHotkeyId = 0x716;
-    private const int MapNotesHotkeyId = 0x717;
     private const int WmHotkey = 0x0312;
     private const int WmInput = 0x00FF;
-    private const uint ModAlt = 0x0001;
-    private const uint ModControl = 0x0002;
-    private const uint ModShift = 0x0004;
-    private const uint KeyO = 0x4F;
-    private const uint KeyN = 0x4E;
-    private const uint KeyP = 0x50;
-    private const uint KeyM = 0x4D;
     private const int GwlExStyle = -20;
     private const int WsExTransparent = 0x00000020;
     private const int WsExNoActivate = 0x08000000;
@@ -86,6 +75,8 @@ public partial class MainWindow : Window
     private double _resizeStartingScale;
     private Point _resizeStartingScreenPoint;
     private readonly Dictionary<string, double> _widgetScales = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, bool> _widgetVisibility =
+        OverlayLayoutRules.CreateDefaultWidgetVisibility();
     private string _mapShape = OverlayLayoutRules.SquareMapShape;
     private FrameworkElement? _resizedWidget;
     private double _widgetResizeStartingScale;
@@ -93,10 +84,9 @@ public partial class MainWindow : Window
     private bool _clickThrough;
     private bool _resizingOverlay;
     private bool _hasMovementHeading;
-    private bool _editHotkeyRegistered;
-    private bool _toggleMissionsNHotkeyRegistered;
-    private bool _toggleHudHotkeyRegistered;
-    private bool _mapNotesHotkeyRegistered;
+    private readonly ShortcutSettingsStore _shortcutSettingsStore = new();
+    private OverlayShortcutSettings _shortcutSettings = OverlayShortcutSettings.Defaults;
+    private ShortcutRegistrationManager? _shortcutRegistrationManager;
     private bool _hudVisible = true;
     private bool _remotePlayerSourceOwnedBySession;
     private bool _mapPanActive;
@@ -214,6 +204,7 @@ public partial class MainWindow : Window
 
         InitializeComponent();
         InitializeMapNotes();
+        _shortcutSettings = _shortcutSettingsStore.Load();
         _layoutSettings = _layoutSettingsStore.Load();
         RestoreWidgetPresentationSettings();
         ApplyOverlayScale(_layoutSettings.Scale, persist: false);
@@ -290,6 +281,23 @@ public partial class MainWindow : Window
             snapshot?.ProPlayerSequence,
             snapshot?.ProPlayerSync,
             snapshot?.ProPlayerCaptureHealth,
+            PlayerIdentity = snapshot?.Player is { } diagnosticPlayer
+                ? new
+                {
+                    diagnosticPlayer.SteamId,
+                    diagnosticPlayer.Name,
+                    diagnosticPlayer.Class,
+                    diagnosticPlayer.GrowthPercent,
+                    diagnosticPlayer.HealthPercent,
+                    diagnosticPlayer.StaminaPercent,
+                    diagnosticPlayer.HungerPercent,
+                    diagnosticPlayer.ThirstPercent,
+                    diagnosticPlayer.ExactVitalsSource,
+                    diagnosticPlayer.ExactVitals,
+                    diagnosticPlayer.Nutrition,
+                    diagnosticPlayer.Prime
+                }
+                : null,
             Local = snapshot?.Player?.Location,
             ServerEndpoint = snapshot?.Player?.Server,
             InputMarkerCount = snapshot?.Map?.Markers.Count ?? 0,
@@ -325,18 +333,25 @@ public partial class MainWindow : Window
         var handle = new WindowInteropHelper(this).Handle;
         _windowSource = HwndSource.FromHwnd(handle);
         _windowSource?.AddHook(WindowMessageHook);
-        _editHotkeyRegistered = RegisterHotKey(handle, EditHotkeyId, ModControl | ModShift, KeyO);
-        _toggleMissionsNHotkeyRegistered = RegisterHotKey(handle, ToggleMissionsNHotkeyId, ModAlt, KeyN);
-        _toggleHudHotkeyRegistered = RegisterHotKey(handle, ToggleHudHotkeyId, ModAlt, KeyP);
-        _mapNotesHotkeyRegistered = HasCurrentProFeatures
-            && RegisterHotKey(handle, MapNotesHotkeyId, ModAlt, KeyM);
+        _shortcutRegistrationManager = new ShortcutRegistrationManager(
+            handle,
+            includeMapNotes: HasCurrentProFeatures);
+        var shortcutRegistration = _shortcutRegistrationManager.RegisterInitial(_shortcutSettings);
+        _shortcutSettings = shortcutRegistration.ActiveSettings;
         StartProFeatureExpiryWatch();
         ConfigureWorkspaceBounds();
         RestoreWidgetLayout();
         InstallMouseShortcuts();
-        if (_editHotkeyRegistered)
+        RefreshShortcutCopy();
+        // Safety is independent from hotkey registration.  A collision must
+        // never leave this full-screen window interactive over the game.
+        SetClickThrough(OverlayInputSafetyPolicy.StartClickThrough(
+            shortcutRegistration.Success));
+        if (!shortcutRegistration.Success)
         {
-            SetClickThrough(true);
+            Dispatcher.BeginInvoke(
+                () => ShowShortcutRegistrationWarning(shortcutRegistration),
+                DispatcherPriority.Loaded);
         }
 
         if (!TryConfigureTelemetrySession())
@@ -394,12 +409,7 @@ public partial class MainWindow : Window
         _proFeatureExpiryTimer?.Stop();
         _proFeatureExpiryTimer = null;
         _proFeatureAccess = ProFeatureAccessGrant.Free;
-        if (_mapNotesHotkeyRegistered)
-        {
-            UnregisterHotKey(new WindowInteropHelper(this).Handle, MapNotesHotkeyId);
-            _mapNotesHotkeyRegistered = false;
-        }
-
+        RebuildShortcutRegistration(includeMapNotes: false);
         DisableProMapFeatures();
     }
 
@@ -595,6 +605,7 @@ public partial class MainWindow : Window
     private void RenderSnapshot(TelemetrySnapshot snapshot)
     {
         _renderStartedAt = Stopwatch.GetTimestamp();
+        UpdateMutationGuideSession(snapshot);
         try
         {
             if (snapshot.SessionState == TelemetrySessionState.AuthenticationRequired)
@@ -868,6 +879,15 @@ public partial class MainWindow : Window
 
     private void PositionMap()
     {
+        if (WindowState == WindowState.Minimized
+            || !OverlayWidgetVisibilityPolicy.ShouldPositionMap(
+                _hudVisible,
+                MapPanel.Visibility == Visibility.Visible))
+        {
+            _mapScreenBounds = null;
+            return;
+        }
+
         var viewportWidth = MapViewport.ActualWidth;
         var viewportHeight = MapViewport.ActualHeight;
         if (viewportWidth <= 0 || viewportHeight <= 0)
@@ -1051,9 +1071,17 @@ public partial class MainWindow : Window
         _rawMouseInputRegistered = false;
     }
 
-    private void FollowPlayerMap()
+    private void CancelMapPan()
     {
         _mapPanActive = false;
+        _rawMapPanReceived = false;
+        DisableRawMouseInput();
+        MapPanel.Cursor = _clickThrough ? Cursors.Arrow : Cursors.SizeAll;
+    }
+
+    private void FollowPlayerMap()
+    {
+        CancelMapPan();
         _mapFocusMode = MapFocusMode.FollowPlayer;
         _freeMapFocus = null;
         UpdateMapFocusIndicator();
@@ -1163,17 +1191,7 @@ public partial class MainWindow : Window
 
     private void ToggleMap()
     {
-        MapPanel.Visibility = MapPanel.Visibility == Visibility.Visible
-            ? Visibility.Collapsed
-            : Visibility.Visible;
-        if (MapPanel.Visibility == Visibility.Visible)
-        {
-            Dispatcher.BeginInvoke(PositionMap, DispatcherPriority.Loaded);
-        }
-        else
-        {
-            _mapScreenBounds = null;
-        }
+        ToggleWidgetPreference(OverlayLayoutRules.MapWidget);
     }
 
     private void ZoomInButton_Click(object sender, RoutedEventArgs e) => ZoomInMap();
@@ -1193,7 +1211,20 @@ public partial class MainWindow : Window
 
     private void RestoreWidgetPresentationSettings()
     {
-        _missionsVisible = _layoutSettings.MissionsVisible;
+        _widgetVisibility.Clear();
+        foreach (var pair in OverlayLayoutRules.CreateDefaultWidgetVisibility())
+        {
+            _widgetVisibility[pair.Key] = pair.Value;
+        }
+        foreach (var pair in _layoutSettings.WidgetVisibility
+                     ?? new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase))
+        {
+            if (OverlayLayoutRules.IsConfigurableWidget(pair.Key))
+            {
+                _widgetVisibility[pair.Key.Trim().ToLowerInvariant()] = pair.Value;
+            }
+        }
+        RefreshWidgetVisibilityToggleStates();
         foreach (var widget in ResizableWidgetPanels)
         {
             var id = WidgetId(widget);
@@ -1627,9 +1658,12 @@ public partial class MainWindow : Window
         {
             Scale = _overlayScale,
             MapShape = _mapShape,
-            MissionsVisible = _missionsVisible,
+            MissionsVisible = IsWidgetEnabled(OverlayLayoutRules.PrimeWidget),
             Left = null,
             Top = null,
+            WidgetVisibility = new Dictionary<string, bool>(
+                _widgetVisibility,
+                StringComparer.OrdinalIgnoreCase),
             Widgets = new Dictionary<string, OverlayWidgetPosition>(StringComparer.OrdinalIgnoreCase)
             {
                 [OverlayLayoutRules.MapWidget] = PositionOf(MapPanel),
@@ -1669,8 +1703,98 @@ public partial class MainWindow : Window
 
     private void LockButton_Click(object sender, RoutedEventArgs e) => SetClickThrough(true);
 
+    private void ShortcutSettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new ShortcutSettingsWindow(_shortcutSettings)
+        {
+            Owner = this
+        };
+        if (dialog.ShowDialog() != true || dialog.SelectedSettings is not { } requested)
+        {
+            return;
+        }
+
+        if (_shortcutRegistrationManager is null)
+        {
+            dialog.SetExternalError("Overlay chưa sẵn sàng đăng ký phím tắt.");
+            return;
+        }
+
+        var result = _shortcutRegistrationManager.TryApply(requested);
+        if (!result.Success)
+        {
+            SetClickThrough(true);
+            MessageBox.Show(
+                this,
+                result.FriendlyError + Environment.NewLine
+                    + (_shortcutRegistrationManager.HasCompleteRegistration
+                        ? "Các phím đang dùng trước đó đã được khôi phục."
+                        : "Bộ phím cũ cũng đang bị chiếm; overlay đã khóa xuyên chuột để giữ an toàn."),
+                "Không thể đổi phím tắt",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!_shortcutSettingsStore.TrySave(requested, out var saveError))
+        {
+            _shortcutRegistrationManager.TryApply(_shortcutSettings);
+            SetClickThrough(true);
+            MessageBox.Show(
+                this,
+                saveError ?? "Không thể lưu phím tắt. Các phím cũ đã được khôi phục.",
+                "Không thể lưu phím tắt",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        _shortcutSettings = requested;
+        RefreshShortcutCopy();
+    }
+
+    private void ShowShortcutRegistrationWarning(ShortcutRegistrationResult result)
+    {
+        if (!IsVisible) return;
+        var choice = MessageBox.Show(
+            this,
+            result.FriendlyError + Environment.NewLine
+                + "Overlay vẫn ở chế độ xuyên chuột an toàn. Mở cài đặt để chọn tổ hợp khác?",
+            "Phím tắt đang bị trùng",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+        if (choice == MessageBoxResult.Yes)
+        {
+            ShortcutSettingsButton_Click(this, new RoutedEventArgs());
+        }
+    }
+
+    private void RefreshShortcutCopy()
+    {
+        LockButton.ToolTip =
+            $"Thoát Edit Mode và bật xuyên chuột · {_shortcutSettings.EditMode}";
+    }
+
+    private void RebuildShortcutRegistration(bool includeMapNotes)
+    {
+        _shortcutRegistrationManager?.Dispose();
+        _shortcutRegistrationManager = new ShortcutRegistrationManager(
+            new WindowInteropHelper(this).Handle,
+            includeMapNotes);
+        var result = _shortcutRegistrationManager.RegisterInitial(_shortcutSettings);
+        _shortcutSettings = result.ActiveSettings;
+        RefreshShortcutCopy();
+        if (!result.Success)
+        {
+            SetClickThrough(true);
+            ShowShortcutRegistrationWarning(result);
+        }
+    }
+
     private void HomeButton_Click(object sender, RoutedEventArgs e)
     {
+        _shortcutRegistrationManager?.Dispose();
+        _shortcutRegistrationManager = null;
         var home = new HomeWindow();
         Application.Current.MainWindow = home;
         home.Show();
@@ -1681,6 +1805,7 @@ public partial class MainWindow : Window
     {
         if (enabled)
         {
+            CancelMapPan();
             FinishWidgetResize(persist: true);
             FinishOverlayResize();
             if (_draggedWidget is not null)
@@ -1696,13 +1821,11 @@ public partial class MainWindow : Window
         style = enabled ? style | WsExTransparent | WsExNoActivate : style & ~(WsExTransparent | WsExNoActivate);
         SetWindowLong(handle, GwlExStyle, style);
         _clickThrough = enabled;
-        EditToolbar.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
         StatsMoveBadge.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
         TeamMoveBadge.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
         MissionMoveBadge.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
         MapZoomControls.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
         MapLayerControls.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
-        LayoutControls.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
         foreach (var grip in WidgetResizeGrips)
         {
             grip.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
@@ -1738,12 +1861,116 @@ public partial class MainWindow : Window
 
     private void RefreshOptionalWidgetVisibility()
     {
-        TeamPanel.Visibility = !_clickThrough || _pendingTeamState.HasActiveSession
+        var editMode = !_clickThrough;
+        MapPanel.Visibility = BlockVisibility(
+            OverlayLayoutRules.MapWidget,
+            dataAvailable: true,
+            editMode);
+        StatsPanel.Visibility = BlockVisibility(
+            OverlayLayoutRules.StatsWidget,
+            dataAvailable: true,
+            editMode);
+        TeamPanel.Visibility = BlockVisibility(
+            OverlayLayoutRules.TeamWidget,
+            _pendingTeamState.HasActiveSession,
+            editMode);
+        MissionPanel.Visibility = BlockVisibility(
+            OverlayLayoutRules.PrimeWidget,
+            _hasMissions,
+            editMode);
+
+        var editControlsVisible = OverlayWidgetVisibilityPolicy.AreEditControlsVisible(
+            _hudVisible,
+            editMode);
+        EditToolbar.Visibility = editControlsVisible
             ? Visibility.Visible
             : Visibility.Collapsed;
-        MissionPanel.Visibility = !_clickThrough || (_hasMissions && _missionsVisible)
+        LayoutControls.Visibility = editControlsVisible
             ? Visibility.Visible
             : Visibility.Collapsed;
+
+        if (MapPanel.Visibility != Visibility.Visible)
+        {
+            CancelMapPan();
+            _mapScreenBounds = null;
+        }
+        RefreshWidgetVisibilityToggleStates();
+    }
+
+    private Visibility BlockVisibility(string widgetId, bool dataAvailable, bool editMode) =>
+        OverlayWidgetVisibilityPolicy.IsBlockVisible(
+            _hudVisible,
+            IsWidgetEnabled(widgetId),
+            dataAvailable,
+            editMode)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+    private bool IsWidgetEnabled(string widgetId) =>
+        _widgetVisibility.TryGetValue(widgetId, out var enabled) && enabled;
+
+    private void ToggleWidgetPreference(string widgetId) =>
+        SetWidgetPreference(widgetId, !IsWidgetEnabled(widgetId));
+
+    private void SetWidgetPreference(string widgetId, bool enabled)
+    {
+        if (!OverlayLayoutRules.IsConfigurableWidget(widgetId))
+        {
+            return;
+        }
+
+        _widgetVisibility[widgetId] = enabled;
+        RefreshOptionalWidgetVisibility();
+        RefreshWindowSizeToContent();
+        KeepOverlayVisible();
+        SaveOverlayLayout();
+        if (MapPanel.Visibility == Visibility.Visible)
+        {
+            Dispatcher.BeginInvoke(PositionMap, DispatcherPriority.Loaded);
+        }
+        else
+        {
+            _mapScreenBounds = null;
+        }
+    }
+
+    private void WidgetVisibilityToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is ToggleButton { Tag: string widgetId } toggle)
+        {
+            SetWidgetPreference(widgetId, toggle.IsChecked == true);
+        }
+    }
+
+    private void ShowAllWidgetsButton_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var widgetId in new[]
+                 {
+                     OverlayLayoutRules.MapWidget,
+                     OverlayLayoutRules.StatsWidget,
+                     OverlayLayoutRules.TeamWidget,
+                     OverlayLayoutRules.PrimeWidget
+                 })
+        {
+            _widgetVisibility[widgetId] = true;
+        }
+        RefreshOptionalWidgetVisibility();
+        RefreshWindowSizeToContent();
+        KeepOverlayVisible();
+        SaveOverlayLayout();
+        Dispatcher.BeginInvoke(PositionMap, DispatcherPriority.Loaded);
+    }
+
+    private void RefreshWidgetVisibilityToggleStates()
+    {
+        if (MapVisibilityToggle is null)
+        {
+            return;
+        }
+        MapVisibilityToggle.IsChecked = IsWidgetEnabled(OverlayLayoutRules.MapWidget);
+        StatsVisibilityToggle.IsChecked = IsWidgetEnabled(OverlayLayoutRules.StatsWidget);
+        TeamVisibilityToggle.IsChecked = IsWidgetEnabled(OverlayLayoutRules.TeamWidget);
+        PrimeVisibilityToggle.IsChecked = IsWidgetEnabled(OverlayLayoutRules.PrimeWidget);
     }
 
     private IntPtr WindowMessageHook(IntPtr hwnd, int message, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -1752,27 +1979,36 @@ public partial class MainWindow : Window
         {
             MoveMapPan(delta);
         }
-        else if (message == WmHotkey && wParam.ToInt32() == EditHotkeyId)
+        else if (message == WmHotkey && wParam.ToInt32() == ShortcutSettingsManager.EditHotkeyId)
         {
-            SetClickThrough(!_clickThrough);
+            if (!_clickThrough
+                || OverlayWidgetVisibilityPolicy.CanEnterEditMode(_hudVisible))
+            {
+                SetClickThrough(!_clickThrough);
+            }
             handled = true;
         }
-        else if (message == WmHotkey && wParam.ToInt32() == ToggleMissionsNHotkeyId)
+        else if (message == WmHotkey && wParam.ToInt32() == ShortcutSettingsManager.ToggleMissionsHotkeyId)
         {
             ToggleMissions();
             handled = true;
         }
-        else if (message == WmHotkey && wParam.ToInt32() == ToggleHudHotkeyId)
+        else if (message == WmHotkey && wParam.ToInt32() == ShortcutSettingsManager.ToggleHudHotkeyId)
         {
             ToggleHud();
             handled = true;
         }
-        else if (message == WmHotkey && wParam.ToInt32() == MapNotesHotkeyId)
+        else if (message == WmHotkey && wParam.ToInt32() == ShortcutSettingsManager.MapNotesHotkeyId)
         {
             if (HasCurrentProFeatures)
             {
                 ToggleMapNotesWindow();
             }
+            handled = true;
+        }
+        else if (message == WmHotkey && wParam.ToInt32() == ShortcutSettingsManager.MutationGuideHotkeyId)
+        {
+            ToggleMutationGuide();
             handled = true;
         }
 
@@ -1789,6 +2025,7 @@ public partial class MainWindow : Window
     private async void Window_Closed(object? sender, EventArgs e)
     {
         SaveOverlayLayout();
+        CloseMutationGuide();
         DetachMapNotes();
         _mouseShortcutActivationTimer?.Stop();
         _mouseShortcutActivationTimer = null;
@@ -1818,11 +2055,8 @@ public partial class MainWindow : Window
             await _remotePlayerSource.DisposeAsync();
         }
 
-        var handle = new WindowInteropHelper(this).Handle;
-        if (_editHotkeyRegistered) UnregisterHotKey(handle, EditHotkeyId);
-        if (_toggleMissionsNHotkeyRegistered) UnregisterHotKey(handle, ToggleMissionsNHotkeyId);
-        if (_toggleHudHotkeyRegistered) UnregisterHotKey(handle, ToggleHudHotkeyId);
-        if (_mapNotesHotkeyRegistered) UnregisterHotKey(handle, MapNotesHotkeyId);
+        _shortcutRegistrationManager?.Dispose();
+        _shortcutRegistrationManager = null;
         if (_mouseShortcuts is not null)
         {
             _mouseShortcuts.CanStartMapPan = null;
@@ -1840,12 +2074,6 @@ public partial class MainWindow : Window
         _shutdown.Dispose();
         await DisposeDiagnosticsWriterAsync();
     }
-
-    [DllImport("user32.dll")]
-    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint virtualKey);
-
-    [DllImport("user32.dll")]
-    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongW")]
     private static extern int GetWindowLong(IntPtr hWnd, int index);

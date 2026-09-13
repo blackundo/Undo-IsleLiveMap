@@ -28,6 +28,15 @@ public sealed record MapNote
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 }
 
+public sealed record MapNoteMutationResult(
+    bool Success,
+    MapNote? Note = null,
+    string? Error = null)
+{
+    public static MapNoteMutationResult Succeeded(MapNote? note = null) => new(true, note);
+    public static MapNoteMutationResult Failed(string error) => new(false, null, error);
+}
+
 public sealed class MapNoteStore
 {
     public const string GatewayMapId = "gateway";
@@ -55,6 +64,17 @@ public sealed class MapNoteStore
 
     public MapNote AddDefault(double u, double v)
     {
+        var result = TryAddDefault(u, v);
+        if (!result.Success)
+        {
+            throw new IOException(result.Error ?? "Không thể lưu mốc.");
+        }
+        return result.Note!;
+    }
+
+    public MapNoteMutationResult TryAddDefault(double u, double v)
+    {
+        var previousNotes = _notes.ToArray();
         var point = NormalizePoint(u, v);
         var world = GatewayMapProjection.Unproject(point);
         var note = new MapNote
@@ -69,40 +89,72 @@ public sealed class MapNoteStore
             _notes.RemoveAt(0);
         }
         _notes.Add(note);
-        SaveAndNotify();
-        return note;
+        if (!TrySaveAndNotify(out var error))
+        {
+            _notes.Clear();
+            _notes.AddRange(previousNotes);
+            return MapNoteMutationResult.Failed(error!);
+        }
+        return MapNoteMutationResult.Succeeded(note);
     }
 
     public bool ChangeKind(Guid id, MapNoteKind kind)
     {
+        return TryChangeKind(id, kind).Success;
+    }
+
+    public MapNoteMutationResult TryChangeKind(Guid id, MapNoteKind kind)
+    {
         var index = _notes.FindIndex(note => note.Id == id);
         if (index < 0 || !Enum.IsDefined(kind))
         {
-            return false;
+            return MapNoteMutationResult.Failed("Không tìm thấy mốc cần sửa.");
         }
 
+        var previous = _notes[index];
         _notes[index] = _notes[index] with { Kind = kind };
-        SaveAndNotify();
-        return true;
+        if (!TrySaveAndNotify(out var error))
+        {
+            _notes[index] = previous;
+            return MapNoteMutationResult.Failed(error!);
+        }
+        return MapNoteMutationResult.Succeeded(_notes[index]);
     }
 
     public bool Delete(Guid id)
     {
-        var removed = _notes.RemoveAll(note => note.Id == id) > 0;
-        if (removed)
-        {
-            SaveAndNotify();
-        }
-        return removed;
+        return TryDelete(id).Success;
     }
 
-    private void SaveAndNotify()
+    public MapNoteMutationResult TryDelete(Guid id)
     {
-        SaveToDisk();
-        Changed?.Invoke(this, EventArgs.Empty);
+        var index = _notes.FindIndex(note => note.Id == id);
+        if (index < 0)
+        {
+            return MapNoteMutationResult.Failed("Không tìm thấy mốc cần xóa.");
+        }
+
+        var removed = _notes[index];
+        _notes.RemoveAt(index);
+        if (!TrySaveAndNotify(out var error))
+        {
+            _notes.Insert(index, removed);
+            return MapNoteMutationResult.Failed(error!);
+        }
+        return MapNoteMutationResult.Succeeded(removed);
     }
 
-    private void SaveToDisk()
+    private bool TrySaveAndNotify(out string? error)
+    {
+        if (!TrySaveToDisk(out error))
+        {
+            return false;
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+        return true;
+    }
+
+    private bool TrySaveToDisk(out string? error)
     {
         string? temporaryPath = null;
         try
@@ -116,10 +168,15 @@ public sealed class MapNoteStore
             File.WriteAllText(temporaryPath, JsonSerializer.Serialize(_notes, JsonOptions));
             File.Move(temporaryPath, _path, overwrite: true);
             temporaryPath = null;
+            error = null;
+            return true;
         }
-        catch
+        catch (Exception exception) when (exception is IOException
+                                          or UnauthorizedAccessException
+                                          or InvalidOperationException)
         {
-            // Notes remain available in memory if Windows temporarily blocks persistence.
+            error = $"Không thể lưu mốc xuống máy: {exception.Message}";
+            return false;
         }
         finally
         {

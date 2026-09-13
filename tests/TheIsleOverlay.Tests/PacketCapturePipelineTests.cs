@@ -31,6 +31,35 @@ public sealed class PacketCapturePipelineTests
     }
 
     [Fact]
+    public async Task InboundOverflow_DoesNotConsumeOutboundCapacity()
+    {
+        var outbound = new BoundedPacketIntake(packetCapacity: 1, byteCapacity: 16);
+        var inbound = new BoundedPacketIntake(packetCapacity: 1, byteCapacity: 16);
+
+        Assert.True(inbound.TryEnqueue(Datagram([1, 2, 3])));
+        Assert.False(inbound.TryEnqueue(Datagram([4, 5, 6])));
+        var newestGps = Datagram([9, 8, 7]) with
+        {
+            Inbound = false,
+            Outbound = true
+        };
+        Assert.True(outbound.TryEnqueue(newestGps));
+        inbound.Complete();
+        outbound.Complete();
+
+        var drainedOutbound = new List<CapturedUdpDatagram>();
+        await foreach (var item in outbound.ReadAllAsync(CancellationToken.None))
+        {
+            drainedOutbound.Add(item);
+        }
+
+        Assert.Single(drainedOutbound);
+        Assert.Equal([9, 8, 7], drainedOutbound[0].Payload);
+        Assert.Equal(0, outbound.Snapshot().QueueDroppedPackets);
+        Assert.Equal(1, inbound.Snapshot().QueueDroppedPackets);
+    }
+
+    [Fact]
     public void SequenceTracker_HandlesGapLateRecoveryDuplicateAndWrap()
     {
         var tracker = new IrisPacketSequenceTracker();

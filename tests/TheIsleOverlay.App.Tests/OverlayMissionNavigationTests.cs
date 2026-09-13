@@ -58,5 +58,11 @@ public sealed class OverlayMissionNavigationTests
             && (string?)element.Attribute("MouseLeftButtonUp") == "MapSurface_MouseLeftButtonUp");
         Assert.Contains(document.Descendants(), element =>
             (string?)element.Attribute(nameAttribute) == "PaletteGrid");
+        Assert.Contains(document.Descendants(), element =>
+            (string?)element.Attribute(nameAttribute) == "DeleteSelectedButton"
+            && (string?)element.Attribute("Click") == "DeleteSelectedButton_Click");
+        Assert.Equal(
+            "Window_PreviewKeyDown",
+            (string?)document.Root!.Attribute("PreviewKeyDown"));
     }
 }
