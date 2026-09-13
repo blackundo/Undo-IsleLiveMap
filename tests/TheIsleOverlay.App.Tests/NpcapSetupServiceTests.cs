@@ -92,6 +92,62 @@ public sealed class NpcapSetupServiceTests
     }
 
     [Fact]
+    public async Task SuccessfulInstallerWithNativeLoadFailure_RequestsAppRestartInsteadOfReportingInstallFailure()
+    {
+        var bytes = Encoding.UTF8.GetBytes("fixture");
+        var directory = TestDirectory();
+        try
+        {
+            var service = CreateService(
+                bytes,
+                directory,
+                Convert.ToHexString(SHA256.HashData(bytes)),
+                availabilityProbe: _ => new NpcapAvailability(
+                    false,
+                    "Npcap đã có trên máy nhưng app chưa tải được thư viện native.",
+                    NpcapAvailabilityStatus.NativeLibraryLoadFailed));
+
+            var result = await service.InstallAsync();
+
+            Assert.Equal(NpcapSetupOutcome.RestartRequired, result.Outcome);
+            Assert.Contains("cài thành công", result.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("mở lại", result.Message, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    [Fact]
+    public async Task FailedProbe_UsesActionableNpcapDiagnosticMessage()
+    {
+        var bytes = Encoding.UTF8.GetBytes("fixture");
+        var directory = TestDirectory();
+        try
+        {
+            const string diagnostic = "Npcap đã tải được nhưng Windows chưa trả về adapter mạng nào.";
+            var service = CreateService(
+                bytes,
+                directory,
+                Convert.ToHexString(SHA256.HashData(bytes)),
+                availabilityProbe: _ => new NpcapAvailability(
+                    false,
+                    diagnostic,
+                    NpcapAvailabilityStatus.NoCaptureDevices));
+
+            var result = await service.InstallAsync();
+
+            Assert.Equal(NpcapSetupOutcome.Failed, result.Outcome);
+            Assert.Equal(diagnostic, result.Message);
+        }
+        finally
+        {
+            DeleteDirectory(directory);
+        }
+    }
+
+    [Fact]
     public async Task RedirectOutsideNpcapHost_IsRejected()
     {
         var bytes = Encoding.UTF8.GetBytes("fixture");

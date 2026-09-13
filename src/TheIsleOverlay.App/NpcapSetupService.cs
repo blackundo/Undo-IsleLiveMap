@@ -27,6 +27,7 @@ public enum NpcapSetupOutcome
     Ready,
     Cancelled,
     RebootRequired,
+    RestartRequired,
     Failed
 }
 
@@ -131,6 +132,19 @@ public sealed class NpcapSetupService : INpcapSetupService
                     "Npcap đã sẵn sàng. Đang tiếp tục mở map…");
             }
 
+            // A native type may have been initialized while Npcap was absent.
+            // The installer can finish successfully, but the current process
+            // cannot recover that failed native initialization. Tell the user
+            // the install succeeded and request an app restart instead of
+            // incorrectly reporting an installation failure.
+            if (exitCode == 0
+                && availability.Status == NpcapAvailabilityStatus.NativeLibraryLoadFailed)
+            {
+                return new NpcapSetupResult(
+                    NpcapSetupOutcome.RestartRequired,
+                    "Npcap đã cài thành công. Hãy đóng và mở lại Isle Live Map để nạp thư viện mới.");
+            }
+
             return exitCode switch
             {
                 1 => new NpcapSetupResult(
@@ -147,7 +161,8 @@ public sealed class NpcapSetupService : INpcapSetupService
                     "Phiên bản Windows này không được Npcap hỗ trợ."),
                 _ => new NpcapSetupResult(
                     NpcapSetupOutcome.Failed,
-                    "Npcap chưa hoạt động. Hãy thử cài lại hoặc khởi động lại máy.")
+                    availability.ErrorMessage
+                        ?? "Npcap chưa hoạt động. Hãy thử cài lại hoặc khởi động lại máy.")
             };
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

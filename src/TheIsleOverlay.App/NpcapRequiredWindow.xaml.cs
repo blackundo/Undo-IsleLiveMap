@@ -171,6 +171,17 @@ public partial class NpcapRequiredWindow : Window
             return;
         }
 
+        if (result.Outcome == NpcapSetupOutcome.RestartRequired)
+        {
+            SetupStatusDot.Fill = WarningBrush;
+            SetupStatusLabel.Foreground = WarningBrush;
+            SetupStatusLabel.Text = "NPCAP ĐÃ CÀI · CẦN MỞ LẠI APP";
+            InstallButton.Content = "ĐÃ CÀI · MỞ LẠI SAU";
+            InstallButton.IsEnabled = false;
+            LaterButton.Content = "ĐÓNG ĐỂ MỞ LẠI";
+            return;
+        }
+
         SetupStatusDot.Fill = result.Outcome == NpcapSetupOutcome.Cancelled
             ? WarningBrush
             : ErrorBrush;

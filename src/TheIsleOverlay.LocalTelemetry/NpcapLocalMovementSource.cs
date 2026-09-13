@@ -357,7 +357,11 @@ public sealed class NpcapLocalMovementSource : ILocalMovementSource, ILocalVital
         CaptureDeviceList devices;
         try
         {
-            devices = CaptureDeviceList.Instance;
+            NpcapAvailabilityProbe.EnsureNativeLibraryResolver();
+            // Do not use CaptureDeviceList.Instance here. The singleton can be
+            // initialized before the user finishes installing Npcap and then
+            // keep a failed native state for the lifetime of this process.
+            devices = CaptureDeviceList.New();
         }
         catch (Exception exception) when (
             exception is DllNotFoundException
