@@ -605,7 +605,6 @@ public partial class MainWindow : Window
     private void RenderSnapshot(TelemetrySnapshot snapshot)
     {
         _renderStartedAt = Stopwatch.GetTimestamp();
-        UpdateMutationGuideSession(snapshot);
         try
         {
             if (snapshot.SessionState == TelemetrySessionState.AuthenticationRequired)

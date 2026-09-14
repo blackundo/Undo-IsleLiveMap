@@ -1,6 +1,5 @@
 using System.Windows;
 using System.IO;
-using TheIsleOverlay.Core;
 using TheIsleOverlay.Localization;
 
 namespace TheIsleOverlay.App;
@@ -8,40 +7,12 @@ namespace TheIsleOverlay.App;
 public partial class MainWindow
 {
     private MutationGuideWindow? _mutationGuideWindow;
-    private bool _hasVerifiedPlayingSession;
-
-    private void UpdateMutationGuideSession(TelemetrySnapshot snapshot)
-    {
-        _hasVerifiedPlayingSession = snapshot.Success
-                                     && snapshot.ServerOnline
-                                     && snapshot.PlayerOnline
-                                     && snapshot.Player is not null
-                                     && snapshot.SessionState is not (
-                                         TelemetrySessionState.AuthenticationRequired
-                                         or TelemetrySessionState.Reconnecting
-                                         or TelemetrySessionState.Stale);
-        if (!_hasVerifiedPlayingSession)
-        {
-            CloseMutationGuide();
-        }
-    }
 
     private void ToggleMutationGuide()
     {
         if (_mutationGuideWindow is not null)
         {
             _mutationGuideWindow.Close();
-            return;
-        }
-
-        if (!_hasVerifiedPlayingSession)
-        {
-            MessageBox.Show(
-                this,
-                "Sổ tay Mutation chỉ mở khi Live Map đã xác nhận bạn đang chơi trong server.",
-                "Sổ tay Mutation",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
             return;
         }
 
