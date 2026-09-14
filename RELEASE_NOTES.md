@@ -1,5 +1,11 @@
 # Isle Live Map 2.0.2
 
+## Chọn nguồn server ngay từ Home
+
+- Modal cập nhật có thêm trang đầu giới thiệu nguồn **Origin x5** và **Gacha**.
+- Chọn nguồn ngay bên dưới nút **Mở Map** để dùng đúng luồng stats của server; IslePilot vẫn là nguồn mặc định.
+- Bổ sung logo Origin và Gacha vào trang hướng dẫn để nhận diện nhanh hơn.
+
 ## Sửa nhận diện thư mục The Isle qua Steam
 
 - Không còn phụ thuộc duy nhất vào khóa `Steam App 376210` trong Windows Registry.
