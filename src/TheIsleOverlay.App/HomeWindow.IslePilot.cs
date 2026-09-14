@@ -52,10 +52,14 @@ public partial class HomeWindow
         RefreshMapLaunchControls();
         try
         {
-            // One obvious map action for users: prefer the official Gacha
-            // stats feed only when it proves this Steam account is actively
-            // playing there; otherwise continue with the default IslePilot
-            // login/session flow.
+            // One obvious map action for users: prefer a first-party server
+            // feed only after it proves this account has an active dinosaur;
+            // otherwise continue with the default IslePilot session flow.
+            if (await TryOpenActiveOriginFromUnifiedMapAsync())
+            {
+                return;
+            }
+
             if (await TryOpenActiveGachaFromUnifiedMapAsync())
             {
                 return;

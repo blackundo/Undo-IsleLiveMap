@@ -383,7 +383,7 @@
                                                FontFamily="Bahnschrift SemiCondensed" FontSize="16"
                                                FontWeight="SemiBold" Margin="0,2,0,0" />
                                     <TextBlock x:Name="SteamLoginDetailLabel"
-                                               Text="GPS trực tiếp · Tự chọn IslePilot hoặc Gacha theo server đang chơi"
+                                               Text="GPS trực tiếp · Tự chọn Origin, Gacha hoặc IslePilot theo server"
                                                Foreground="{DynamicResource HomeMuted}" FontSize="10.5" FontWeight="Medium" />
                                 </StackPanel>
                                 <TextBlock x:Name="SteamLoginActionLabel" Grid.Column="2"
@@ -420,7 +420,7 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock x:Name="GachaStatsStatusLabel"
-                                   Text="Mở Live Map sẽ tự chọn Gacha khi tài khoản đang online; server khác dùng IslePilot."
+                                   Text="Mở Live Map tự chọn Origin/Gacha khi đã đăng nhập một lần; server khác dùng IslePilot."
                                    Foreground="{DynamicResource HomeSubtle}" FontSize="10"
                                    TextWrapping="Wrap" Margin="0,6,0,0" />
                     </StackPanel>

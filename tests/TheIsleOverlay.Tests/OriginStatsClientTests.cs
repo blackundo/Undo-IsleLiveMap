@@ -56,6 +56,28 @@ public sealed class OriginStatsClientTests
         Assert.Equal("voice", client.PreferredServer?.ApiId);
     }
 
+    [Fact]
+    public async Task DetectActiveServerChecksDashboardSelectionFirst()
+    {
+        var handler = new QueueHandler(
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = Json("{\"id\":\"cmd-voice\"}")
+            },
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = Json("{\"status\":\"completed\",\"result\":{\"success\":true,\"species\":\"Triceratops\"}}")
+            });
+        using var client = new OriginStatsClient(
+            "session=redacted; origin_server=voice",
+            new HttpClient(handler));
+
+        var server = await client.DetectActiveServerAsync();
+
+        Assert.Equal("voice", server?.ApiId);
+        Assert.Contains("\"server\":\"voice\"", handler.Requests[0].Content!, StringComparison.Ordinal);
+    }
+
     private static StringContent Json(string value) =>
         new(value, Encoding.UTF8, "application/json");
 

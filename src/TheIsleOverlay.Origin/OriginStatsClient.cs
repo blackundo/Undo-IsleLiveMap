@@ -96,6 +96,52 @@ public sealed class OriginStatsClient : IDisposable
         return await PollCommandAsync(command, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Resolves whether this authenticated account currently has an active
+    /// dinosaur on either Origin server. The dashboard's active-server cookie
+    /// is checked first, with a parallel fallback for the remaining server.
+    /// </summary>
+    public async Task<OriginServer?> DetectActiveServerAsync(
+        CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        if (PreferredServer is { } preferred)
+        {
+            var preferredResult = await ExecuteHealthAsync(preferred, cancellationToken)
+                .ConfigureAwait(false);
+            if (HasActiveDinosaur(preferredResult))
+            {
+                return preferred;
+            }
+        }
+
+        var candidates = OriginServer.All
+            .Where(server => PreferredServer is null || !Equals(server, PreferredServer))
+            .ToArray();
+        var probes = await Task.WhenAll(candidates.Select(async server =>
+        {
+            try
+            {
+                var result = await ExecuteHealthAsync(server, cancellationToken)
+                    .ConfigureAwait(false);
+                return (Server: server, Active: HasActiveDinosaur(result));
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (OriginAuthenticationException)
+            {
+                throw;
+            }
+            catch
+            {
+                return (Server: server, Active: false);
+            }
+        })).ConfigureAwait(false);
+        return probes.FirstOrDefault(probe => probe.Active).Server;
+    }
+
     public async Task<OriginCommandResult> ExecuteCommandAsync(
         string command,
         OriginServer server,
@@ -188,6 +234,17 @@ public sealed class OriginStatsClient : IDisposable
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true, NoStore = true };
         return request;
+    }
+
+    private static bool HasActiveDinosaur(OriginCommandResult command)
+    {
+        if (!command.IsCompletedSuccessfully || command.Result is not { } result)
+        {
+            return false;
+        }
+
+        return !string.IsNullOrWhiteSpace(ReadString(result, "species"))
+               || !string.IsNullOrWhiteSpace(ReadString(result, "dino"));
     }
 
     internal static bool IsTrustedUri(Uri? uri) =>

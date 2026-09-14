@@ -12,9 +12,10 @@ public sealed class OriginStatsSession : ITelemetrySession
     private int _watchStarted;
     private int _disposed;
 
-    public OriginStatsSession(OriginStatsClient client)
+    public OriginStatsSession(OriginStatsClient client, OriginServer? activeServer = null)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
+        _activeServer = activeServer;
     }
 
     public async IAsyncEnumerable<TelemetrySnapshot> WatchAsync(
