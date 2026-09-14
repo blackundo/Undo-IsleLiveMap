@@ -383,7 +383,7 @@
                                                FontFamily="Bahnschrift SemiCondensed" FontSize="16"
                                                FontWeight="SemiBold" Margin="0,2,0,0" />
                                     <TextBlock x:Name="SteamLoginDetailLabel"
-                                               Text="GPS trực tiếp · Dino stats đồng bộ qua IslePilot"
+                                               Text="GPS trực tiếp · Tự chọn IslePilot hoặc Gacha theo server đang chơi"
                                                Foreground="{DynamicResource HomeMuted}" FontSize="10.5" FontWeight="Medium" />
                                 </StackPanel>
                                 <TextBlock x:Name="SteamLoginActionLabel" Grid.Column="2"
@@ -396,14 +396,21 @@
                                    Foreground="{DynamicResource HomeSubtle}" FontSize="10.5" TextWrapping="Wrap" />
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Button x:Name="GachaStatsButton" Style="{StaticResource HomeChromeButton}"
-                                    Content="GACHA STATS · KẾT NỐI" Padding="10,5"
+                                    Content="ĐĂNG NHẬP GACHA · LẦN ĐẦU" Padding="10,5"
                                     HorizontalAlignment="Left" Click="GachaStatsButton_Click"
-                                    ToolTip="Đăng nhập Steam chính thức tại player.isle.vn để dùng stats trên server Gacha" />
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    ToolTip="Chỉ cần dùng lần đầu để lưu phiên Gacha; nút Mở Live Map sẽ tự chọn khi bạn đang chơi Gacha" />
+                            <Button x:Name="OriginStatsButton" Grid.Column="1"
+                                    Style="{StaticResource HomeChromeButton}"
+                                    Content="ORIGIN x5 · STATS + PRIME" Padding="10,5"
+                                    Margin="8,0,0,0" HorizontalAlignment="Left"
+                                    Click="OriginStatsButton_Click"
+                                    ToolTip="Đăng nhập playorigin.gg; app tự dò Main Origin hoặc Voice Chat Server" />
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
                                 <Button x:Name="LogoutGachaButton" Style="{StaticResource HomeChromeButton}"
                                         Content="NGẮT GACHA" Padding="10,5" Margin="0,0,7,0"
                                         Visibility="Collapsed" Click="LogoutGachaButton_Click" />
@@ -413,7 +420,7 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock x:Name="GachaStatsStatusLabel"
-                                   Text="Gacha stats là nguồn tùy chọn; không ảnh hưởng GPS và map trên server khác."
+                                   Text="Mở Live Map sẽ tự chọn Gacha khi tài khoản đang online; server khác dùng IslePilot."
                                    Foreground="{DynamicResource HomeSubtle}" FontSize="10"
                                    TextWrapping="Wrap" Margin="0,6,0,0" />
                     </StackPanel>

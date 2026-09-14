@@ -35,6 +35,7 @@ public partial class HomeWindow
     {
         if (!EnsureMapLaunchAvailable()
             || _islePilotConnecting
+            || _gachaConnecting
             || _connecting
             || !_proAccessInitialized
             || _proAccessLoading)
@@ -51,6 +52,15 @@ public partial class HomeWindow
         RefreshMapLaunchControls();
         try
         {
+            // One obvious map action for users: prefer the official Gacha
+            // stats feed only when it proves this Steam account is actively
+            // playing there; otherwise continue with the default IslePilot
+            // login/session flow.
+            if (await TryOpenActiveGachaFromUnifiedMapAsync())
+            {
+                return;
+            }
+
             var credentials = _islePilotCredentials
                 ?? await _islePilotCredentialStore.LoadAsync(_shutdown.Token);
             if (credentials is not null)

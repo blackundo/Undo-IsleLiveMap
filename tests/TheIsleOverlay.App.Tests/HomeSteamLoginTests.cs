@@ -46,7 +46,7 @@ public sealed class HomeSteamLoginTests
             .ToArray();
         Assert.Contains("KÍCH HOẠT LIVE MAP", text);
         Assert.Contains("KÍCH HOẠT PRO · CHỈ TỪ 28K", text);
-        Assert.Contains("GPS trực tiếp · Dino stats đồng bộ qua IslePilot", text);
+        Assert.Contains("GPS trực tiếp · Tự chọn IslePilot hoặc Gacha theo server đang chơi", text);
         Assert.DoesNotContain("SERVER DÙNG WEBSITE RIÊNG", text);
     }
 

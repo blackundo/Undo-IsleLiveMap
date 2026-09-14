@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\TheIsleOverlay.EraGaming\TheIsleOverlay.EraGaming.csproj" />
     <ProjectReference Include="..\..\src\TheIsleOverlay.IslePilot\TheIsleOverlay.IslePilot.csproj" />
     <ProjectReference Include="..\..\src\TheIsleOverlay.LocalTelemetry\TheIsleOverlay.LocalTelemetry.csproj" />
+    <ProjectReference Include="..\..\src\TheIsleOverlay.Origin\TheIsleOverlay.Origin.csproj" />
     <ProjectReference Include="..\..\src\TheIsleOverlay.Gacha\TheIsleOverlay.Gacha.csproj" />
     <ProjectReference Include="..\..\src\TheIsleOverlay.Localization\TheIsleOverlay.Localization.csproj" />
     <ProjectReference Include="..\..\src\TheIsleOverlay.Pandora\TheIsleOverlay.Pandora.csproj" />

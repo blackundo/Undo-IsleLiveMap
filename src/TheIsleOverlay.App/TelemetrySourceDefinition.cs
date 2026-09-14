@@ -10,7 +10,8 @@ public enum TelemetrySourceKind
 {
     EraGaming,
     IslePilot,
-    Pandora
+    Pandora,
+    Origin
 }
 
 public sealed record TelemetrySourceDefinition
@@ -108,6 +109,18 @@ public sealed record TelemetrySourceDefinition
         Kind = TelemetrySourceKind.Pandora,
         BaseUri = new Uri("https://islapandora.eu/"),
         LoginUri = new Uri("https://islapandora.eu/live-map"),
+        CookieName = "website session",
+        CaptureAllHostCookies = true
+    };
+
+    public static TelemetrySourceDefinition Origin { get; } = new()
+    {
+        Id = "origin",
+        DisplayName = "Origin x5",
+        ShortName = "ORIGIN 5X",
+        Kind = TelemetrySourceKind.Origin,
+        BaseUri = new Uri("https://playorigin.gg/"),
+        LoginUri = new Uri("https://playorigin.gg/login"),
         CookieName = "website session",
         CaptureAllHostCookies = true
     };

@@ -387,10 +387,15 @@ public partial class HomeWindow : Window
                       && !_connecting;
         SteamLoginButton.IsEnabled = enabled
                                      && !_islePilotConnecting
+                                     && !_originConnecting
                                      && _proAccessInitialized
                                      && !_proAccessLoading;
         ApplyGachaLoginState();
         LogoutSteamButton.IsEnabled = !_islePilotConnecting && _islePilotCredentials is not null;
+        OriginStatsButton.IsEnabled = enabled
+                                      && !_originConnecting
+                                      && !_gachaConnecting
+                                      && !_islePilotConnecting;
         ProAccessButton.IsEnabled = !_proAccessLoading
                                     && !_connecting
                                     && !_islePilotConnecting

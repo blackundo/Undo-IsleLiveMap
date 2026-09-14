@@ -142,6 +142,96 @@ public partial class HomeWindow
         }
     }
 
+    /// <summary>
+    /// Resolves a saved Gacha session for the unified MỞ LIVE MAP action.
+    /// Gacha is selected only when the official endpoint confirms that the
+    /// account is currently online and has an active dinosaur.  A saved but
+    /// offline Gacha session must never mask the normal IslePilot flow.
+    /// </summary>
+    private async Task<bool> TryOpenActiveGachaFromUnifiedMapAsync()
+    {
+        await InitializeGachaCredentialsAsync();
+        var credentials = _gachaCredentials;
+        if (credentials is null)
+        {
+            return false;
+        }
+
+        GachaOverlayMeDto me;
+        try
+        {
+            using var validationClient = CreateGachaHttpClient();
+            var validation = await GachaOverlayAuthService.ValidateAsync(
+                validationClient,
+                credentials,
+                _shutdown.Token);
+            if (validation == GachaOverlayAuthValidationState.Invalid
+                && credentials.CanRefresh)
+            {
+                try
+                {
+                    credentials = await GachaOverlayAuthService.RefreshAsync(
+                        validationClient,
+                        credentials,
+                        _shutdown.Token);
+                    await _gachaCredentialStore.SaveAsync(credentials, _shutdown.Token);
+                    _gachaCredentials = credentials;
+                    validation = GachaOverlayAuthValidationState.Valid;
+                }
+                catch (GachaOverlayAuthenticationException)
+                {
+                    validation = GachaOverlayAuthValidationState.Invalid;
+                }
+            }
+
+            if (validation != GachaOverlayAuthValidationState.Valid)
+            {
+                if (validation == GachaOverlayAuthValidationState.Invalid)
+                {
+                    _gachaCredentialStore.Clear();
+                    _gachaCredentials = null;
+                }
+
+                return false;
+            }
+
+            await using var client = new GachaOverlayClient(credentials);
+            me = await client.GetMeAsync(_shutdown.Token);
+        }
+        catch (OperationCanceledException) when (_shutdown.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (GachaOverlayAuthenticationException)
+        {
+            _gachaCredentialStore.Clear();
+            _gachaCredentials = null;
+            return false;
+        }
+        catch (GachaOverlayProtocolException)
+        {
+            return false;
+        }
+        catch (HttpRequestException)
+        {
+            // Do not block the normal IslePilot path when Gacha is briefly
+            // unavailable.  The live Gacha session will retry on its own when
+            // the user explicitly signs in from the secondary control.
+            return false;
+        }
+
+        if (me.Online is not true || me.HasDino is not true)
+        {
+            GachaStatsStatusLabel.Text = "Gacha chưa có dino đang chơi · Live Map sẽ dùng IslePilot.";
+            return false;
+        }
+
+        GachaStatsStatusLabel.Text =
+            $"TỰ ĐỘNG CHỌN GACHA · {me.Server ?? me.ServerId ?? "SERVER ĐANG CHƠI"}";
+        await OpenGachaOverlayAsync(credentials);
+        return true;
+    }
+
     private void LogoutGachaButton_Click(object sender, RoutedEventArgs e)
     {
         if (_gachaConnecting)
@@ -203,8 +293,8 @@ public partial class HomeWindow
         GachaStatsButton.Content = _gachaConnecting
             ? "GACHA STATS · ĐANG KẾT NỐI…"
             : authenticated
-                ? "GACHA STATS · MỞ MAP"
-                : "GACHA STATS · KẾT NỐI";
+                ? "GACHA · PHIÊN ĐÃ LƯU"
+                : "ĐĂNG NHẬP GACHA · LẦN ĐẦU";
         GachaStatsButton.IsEnabled = !_gachaConnecting
                                      && !_connecting
                                      && !_islePilotConnecting
@@ -216,7 +306,7 @@ public partial class HomeWindow
         if (authenticated && !_gachaConnecting)
         {
             GachaStatsStatusLabel.Text =
-                $"Gacha đã xác minh Steam ••••{_gachaCredentials!.SteamId![^4..]}; bấm GACHA STATS để mở map.";
+                $"Gacha đã xác minh Steam ••••{_gachaCredentials!.SteamId![^4..]}; nút Mở Map sẽ tự chọn khi bạn đang chơi Gacha.";
         }
     }
 

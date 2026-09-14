@@ -7,6 +7,7 @@
     <ProjectReference Include="..\TheIsleOverlay.IslePilot\TheIsleOverlay.IslePilot.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.LocalTelemetry\TheIsleOverlay.LocalTelemetry.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.Localization\TheIsleOverlay.Localization.csproj" />
+    <ProjectReference Include="..\TheIsleOverlay.Origin\TheIsleOverlay.Origin.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.Pandora\TheIsleOverlay.Pandora.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.ProClient\TheIsleOverlay.ProClient.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.TeamRelay\TheIsleOverlay.TeamRelay.csproj" />
