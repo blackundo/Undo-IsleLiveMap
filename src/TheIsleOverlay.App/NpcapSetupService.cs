@@ -27,7 +27,6 @@ public enum NpcapSetupOutcome
     Ready,
     Cancelled,
     RebootRequired,
-    RestartRequired,
     Failed
 }
 
@@ -130,19 +129,6 @@ public sealed class NpcapSetupService : INpcapSetupService
                 return new NpcapSetupResult(
                     NpcapSetupOutcome.Ready,
                     "Npcap đã sẵn sàng. Đang tiếp tục mở map…");
-            }
-
-            // A native type may have been initialized while Npcap was absent.
-            // The installer can finish successfully, but the current process
-            // cannot recover that failed native initialization. Tell the user
-            // the install succeeded and request an app restart instead of
-            // incorrectly reporting an installation failure.
-            if (exitCode == 0
-                && availability.Status == NpcapAvailabilityStatus.NativeLibraryLoadFailed)
-            {
-                return new NpcapSetupResult(
-                    NpcapSetupOutcome.RestartRequired,
-                    "Npcap đã cài thành công. Hãy đóng và mở lại Isle Live Map để nạp thư viện mới.");
             }
 
             return exitCode switch

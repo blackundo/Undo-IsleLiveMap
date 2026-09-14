@@ -1,3 +1,12 @@
+# Isle Live Map 2.0.3
+
+## Nạp Npcap ngay trong phiên hiện tại
+
+- Không còn yêu cầu đóng/mở lại app sau khi bộ cài Npcap hoàn tất.
+- Probe Npcap dùng native `pcap_findalldevs` độc lập, không khởi tạo SharpPcap quá sớm rồi giữ lỗi trong process.
+- Sau khi cài xong, app kiểm tra lại service, thư viện và adapter rồi tiếp tục mở map ngay.
+- Nếu máy thật sự thiếu quyền hoặc driver, thông báo chuyển sang hướng dẫn thử lại/cài lại rõ ràng hơn.
+
 # Isle Live Map 2.0.2
 
 ## Chọn nguồn server ngay từ Home

@@ -92,7 +92,7 @@ public sealed class NpcapSetupServiceTests
     }
 
     [Fact]
-    public async Task SuccessfulInstallerWithNativeLoadFailure_RequestsAppRestartInsteadOfReportingInstallFailure()
+    public async Task SuccessfulInstallerWithNativeLoadFailure_ReportsActionableFailureWithoutAppRestart()
     {
         var bytes = Encoding.UTF8.GetBytes("fixture");
         var directory = TestDirectory();
@@ -109,9 +109,9 @@ public sealed class NpcapSetupServiceTests
 
             var result = await service.InstallAsync();
 
-            Assert.Equal(NpcapSetupOutcome.RestartRequired, result.Outcome);
-            Assert.Contains("cài thành công", result.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("mở lại", result.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(NpcapSetupOutcome.Failed, result.Outcome);
+            Assert.Contains("Npcap đã có trên máy", result.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("mở lại", result.Message, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
