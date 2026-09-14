@@ -2,7 +2,9 @@ using System.Runtime.CompilerServices;
 
 namespace TheIsleOverlay.Core;
 
-public sealed class AuthenticationInvalidatingTelemetrySession : ITelemetrySession
+public sealed class AuthenticationInvalidatingTelemetrySession :
+    ITelemetrySession,
+    IRealtimeConnectionControl
 {
     private readonly ITelemetrySession _inner;
     private readonly Action _invalidateCredentials;
@@ -35,4 +37,17 @@ public sealed class AuthenticationInvalidatingTelemetrySession : ITelemetrySessi
     }
 
     public ValueTask DisposeAsync() => _inner.DisposeAsync();
+
+    public Task PauseRealtimeAsync(CancellationToken cancellationToken = default) =>
+        _inner is IRealtimeConnectionControl control
+            ? control.PauseRealtimeAsync(cancellationToken)
+            : Task.CompletedTask;
+
+    public void ResumeRealtime()
+    {
+        if (_inner is IRealtimeConnectionControl control)
+        {
+            control.ResumeRealtime();
+        }
+    }
 }

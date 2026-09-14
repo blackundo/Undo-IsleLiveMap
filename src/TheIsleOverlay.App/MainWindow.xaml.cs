@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +13,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using TheIsleOverlay.Core;
+using TheIsleOverlay.IslePilot;
 using TheIsleOverlay.LocalTelemetry;
 
 namespace TheIsleOverlay.App;
@@ -28,6 +30,7 @@ public partial class MainWindow : Window
     private const int ToggleMissionsNHotkeyId = 0x715;
     private const int ToggleHudHotkeyId = 0x716;
     private const int MapNotesHotkeyId = 0x717;
+    private const int SkinEditorHotkeyId = 0x718;
     private const int WmHotkey = 0x0312;
     private const int WmInput = 0x00FF;
     private const uint ModAlt = 0x0001;
@@ -37,6 +40,7 @@ public partial class MainWindow : Window
     private const uint KeyN = 0x4E;
     private const uint KeyP = 0x50;
     private const uint KeyM = 0x4D;
+    private const uint KeyS = 0x53;
     private const int GwlExStyle = -20;
     private const int WsExTransparent = 0x00000020;
     private const int WsExNoActivate = 0x08000000;
@@ -97,6 +101,7 @@ public partial class MainWindow : Window
     private bool _toggleMissionsNHotkeyRegistered;
     private bool _toggleHudHotkeyRegistered;
     private bool _mapNotesHotkeyRegistered;
+    private bool _skinEditorHotkeyRegistered;
     private bool _hudVisible = true;
     private bool _remotePlayerSourceOwnedBySession;
     private bool _mapPanActive;
@@ -111,6 +116,9 @@ public partial class MainWindow : Window
     private GlobalMousePoint _mapPanStartScreenPoint;
     private volatile MapScreenBounds? _mapScreenBounds;
     private FrameworkElement? _draggedWidget;
+    private PlayerTelemetry? _latestIslePilotPlayer;
+    private Window? _skinEditorWindow;
+    private IAsyncDisposable? _skinSession;
     private Point _widgetDragStart;
     private Point _widgetOrigin;
 
@@ -330,6 +338,7 @@ public partial class MainWindow : Window
         _toggleHudHotkeyRegistered = RegisterHotKey(handle, ToggleHudHotkeyId, ModAlt, KeyP);
         _mapNotesHotkeyRegistered = HasCurrentProFeatures
             && RegisterHotKey(handle, MapNotesHotkeyId, ModAlt, KeyM);
+        _skinEditorHotkeyRegistered = RegisterHotKey(handle, SkinEditorHotkeyId, ModAlt, KeyS);
         StartProFeatureExpiryWatch();
         ConfigureWorkspaceBounds();
         RestoreWidgetLayout();
@@ -399,7 +408,6 @@ public partial class MainWindow : Window
             UnregisterHotKey(new WindowInteropHelper(this).Handle, MapNotesHotkeyId);
             _mapNotesHotkeyRegistered = false;
         }
-
         DisableProMapFeatures();
     }
 
@@ -597,6 +605,13 @@ public partial class MainWindow : Window
         _renderStartedAt = Stopwatch.GetTimestamp();
         try
         {
+            if (IsIslePilotSource)
+            {
+                _latestIslePilotPlayer = snapshot.PlayerOnline
+                    ? snapshot.Player
+                    : null;
+            }
+
             if (snapshot.SessionState == TelemetrySessionState.AuthenticationRequired)
             {
                 ShowTelemetryUnavailable("PHIÊN ĐÃ HẾT HẠN", "Đăng nhập lại đúng website nguồn để tiếp tục");
@@ -1775,6 +1790,11 @@ public partial class MainWindow : Window
             }
             handled = true;
         }
+        else if (message == WmHotkey && wParam.ToInt32() == SkinEditorHotkeyId)
+        {
+            ToggleSkinEditor();
+            handled = true;
+        }
 
         return IntPtr.Zero;
     }
@@ -1817,12 +1837,18 @@ public partial class MainWindow : Window
         {
             await _remotePlayerSource.DisposeAsync();
         }
-
+        _skinEditorWindow?.Close();
+        _skinEditorWindow = null;
+        if (_skinSession is not null)
+        {
+            await _skinSession.DisposeAsync();
+        }
         var handle = new WindowInteropHelper(this).Handle;
         if (_editHotkeyRegistered) UnregisterHotKey(handle, EditHotkeyId);
         if (_toggleMissionsNHotkeyRegistered) UnregisterHotKey(handle, ToggleMissionsNHotkeyId);
         if (_toggleHudHotkeyRegistered) UnregisterHotKey(handle, ToggleHudHotkeyId);
         if (_mapNotesHotkeyRegistered) UnregisterHotKey(handle, MapNotesHotkeyId);
+        if (_skinEditorHotkeyRegistered) UnregisterHotKey(handle, SkinEditorHotkeyId);
         if (_mouseShortcuts is not null)
         {
             _mouseShortcuts.CanStartMapPan = null;
@@ -1839,6 +1865,100 @@ public partial class MainWindow : Window
         _httpClient.Dispose();
         _shutdown.Dispose();
         await DisposeDiagnosticsWriterAsync();
+    }
+
+    private bool IsIslePilotSource =>
+        string.Equals(_configuredSource, "ISLEPILOT", StringComparison.OrdinalIgnoreCase);
+
+    private void ToggleSkinEditor()
+    {
+        if (_skinEditorWindow is not null)
+        {
+            _skinEditorWindow.Close();
+            return;
+        }
+
+        var player = _latestIslePilotPlayer;
+        if (!IsIslePilotSource
+            || player is null
+            || string.IsNullOrWhiteSpace(player.Class)
+            || player.Female is null)
+        {
+            MessageBox.Show(
+                this,
+                "Hãy vào một server IslePilot và spawn khủng long trước khi mở Skin Editor.",
+                "Skin Editor",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (!TryCreateProSkinEditorWindow(player, out var window))
+        {
+            MessageBox.Show(
+                this,
+                "Skin Editor chỉ có trong phiên bản Undo-IsleLiveMap Pro. Hãy dùng bản Pro để đổi skin trực tiếp trong overlay.",
+                "Cần phiên bản Pro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        window.Owner = this;
+        _skinEditorWindow = window;
+        window.Closed += (_, _) => _skinEditorWindow = null;
+        window.Show();
+        window.Activate();
+    }
+
+    private bool TryCreateProSkinEditorWindow(PlayerTelemetry player, out Window window)
+    {
+        window = null!;
+        var assemblyPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "ProAgent",
+            "IsleLiveMap.Pro.SkinEditor.dll");
+        if (!File.Exists(assemblyPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+            var sessionType = assembly.GetType("TheIsleOverlay.App.IslePilotSkinSession", throwOnError: false);
+            var windowType = assembly.GetType("TheIsleOverlay.App.IslePilotSkinWindow", throwOnError: false);
+            if (sessionType is null || windowType is null || !typeof(Window).IsAssignableFrom(windowType))
+            {
+                return false;
+            }
+
+            _skinSession ??= Activator.CreateInstance(
+                sessionType,
+                AppPaths.IslePilotCredential,
+                _telemetrySession as IRealtimeConnectionControl) as IAsyncDisposable;
+            if (_skinSession is null)
+            {
+                return false;
+            }
+
+            window = (Window?)Activator.CreateInstance(
+                windowType,
+                _skinSession,
+                player.Server,
+                player.Class,
+                player.Female!.Value) ?? null!;
+            return window is not null;
+        }
+        catch (Exception exception) when (exception is BadImageFormatException
+            or FileLoadException
+            or FileNotFoundException
+            or MissingMethodException
+            or MemberAccessException
+            or TargetInvocationException)
+        {
+            return false;
+        }
     }
 
     [DllImport("user32.dll")]

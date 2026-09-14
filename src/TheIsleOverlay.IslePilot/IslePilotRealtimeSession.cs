@@ -6,7 +6,9 @@ using TheIsleOverlay.Core;
 
 namespace TheIsleOverlay.IslePilot;
 
-public sealed class IslePilotRealtimeSession : ITelemetrySession
+public sealed class IslePilotRealtimeSession :
+    ITelemetrySession,
+    IRealtimeConnectionControl
 {
     private readonly IIslePilotOverlayApiClient _apiClient;
     private readonly IslePilotOverlayOptions _options;
@@ -19,8 +21,13 @@ public sealed class IslePilotRealtimeSession : ITelemetrySession
     private readonly Channel<TelemetrySnapshot> _snapshots;
     private readonly CancellationTokenSource _disposeCancellation = new();
     private readonly object _stateGate = new();
+    private readonly object _realtimeControlGate = new();
 
     private Task? _runTask;
+    private CancellationTokenSource? _activeSocketCancellation;
+    private TaskCompletionSource? _socketStopped;
+    private TaskCompletionSource? _realtimeResumed;
+    private bool _realtimePaused;
     private string? _activeServerName;
     private bool? _activeServerSupported;
     private int _watchStarted;
@@ -171,6 +178,45 @@ public sealed class IslePilotRealtimeSession : ITelemetrySession
         }
     }
 
+    public async Task PauseRealtimeAsync(CancellationToken cancellationToken = default)
+    {
+        Task? socketStopped = null;
+        lock (_realtimeControlGate)
+        {
+            _realtimePaused = true;
+            _realtimeResumed ??= NewSignal();
+            if (_activeSocketCancellation is not null)
+            {
+                _socketStopped ??= NewSignal();
+                socketStopped = _socketStopped.Task;
+                _activeSocketCancellation.Cancel();
+            }
+        }
+
+        if (socketStopped is not null)
+        {
+            await socketStopped.WaitAsync(cancellationToken);
+        }
+    }
+
+    public void ResumeRealtime()
+    {
+        TaskCompletionSource? resumed;
+        lock (_realtimeControlGate)
+        {
+            if (!_realtimePaused)
+            {
+                return;
+            }
+
+            _realtimePaused = false;
+            resumed = _realtimeResumed;
+            _realtimeResumed = null;
+        }
+
+        resumed?.TrySetResult();
+    }
+
     private async Task RunAsync(CancellationToken cancellationToken)
     {
         Exception? completionError = null;
@@ -284,14 +330,22 @@ public sealed class IslePilotRealtimeSession : ITelemetrySession
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            await WaitForRealtimeResumeAsync(cancellationToken);
+            using var socketCancellation = CancellationTokenSource.CreateLinkedTokenSource(
+                cancellationToken);
+            if (!TryActivateSocket(socketCancellation))
+            {
+                continue;
+            }
+
             try
             {
                 await using var socket = _socketFactory();
-                await socket.ConnectAsync(_options.OverlayToken, cancellationToken);
+                await socket.ConnectAsync(_options.OverlayToken, socketCancellation.Token);
                 _backoff.Reset();
-                await socket.SendHelloAsync(ReadPersonaName(), cancellationToken);
+                await socket.SendHelloAsync(ReadPersonaName(), socketCancellation.Token);
 
-                await foreach (var live in socket.ReadLiveAsync(cancellationToken))
+                await foreach (var live in socket.ReadLiveAsync(socketCancellation.Token))
                 {
                     UpdateState(reducer => reducer.ApplyLive(live, _utcNow()));
                 }
@@ -306,14 +360,84 @@ public sealed class IslePilotRealtimeSession : ITelemetrySession
             {
                 throw;
             }
+            catch (OperationCanceledException) when (socketCancellation.IsCancellationRequested)
+            {
+            }
             catch (Exception exception) when (IsRecoverableSocketFailure(exception))
             {
                 UpdateState(reducer => reducer.SetSessionState(TelemetrySessionState.Reconnecting));
             }
+            finally
+            {
+                MarkSocketStopped(socketCancellation);
+            }
 
+            if (IsRealtimePaused())
+            {
+                continue;
+            }
             await _reconnectDelay(_backoff.NextDelay(), cancellationToken);
         }
     }
+
+    private async Task WaitForRealtimeResumeAsync(CancellationToken cancellationToken)
+    {
+        Task? resumed = null;
+        lock (_realtimeControlGate)
+        {
+            if (_realtimePaused)
+            {
+                _realtimeResumed ??= NewSignal();
+                resumed = _realtimeResumed.Task;
+            }
+        }
+
+        if (resumed is not null)
+        {
+            await resumed.WaitAsync(cancellationToken);
+        }
+    }
+
+    private bool TryActivateSocket(CancellationTokenSource socketCancellation)
+    {
+        lock (_realtimeControlGate)
+        {
+            if (_realtimePaused)
+            {
+                return false;
+            }
+
+            _activeSocketCancellation = socketCancellation;
+            return true;
+        }
+    }
+
+    private void MarkSocketStopped(CancellationTokenSource socketCancellation)
+    {
+        TaskCompletionSource? stopped = null;
+        lock (_realtimeControlGate)
+        {
+            if (ReferenceEquals(_activeSocketCancellation, socketCancellation))
+            {
+                _activeSocketCancellation = null;
+                stopped = _socketStopped;
+                _socketStopped = null;
+            }
+        }
+
+        stopped?.TrySetResult();
+    }
+
+    private bool IsRealtimePaused()
+    {
+        lock (_realtimeControlGate)
+        {
+            return _realtimePaused;
+        }
+    }
+
+    private static TaskCompletionSource NewSignal() =>
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     private async Task MonitorStaleDataAsync(CancellationToken cancellationToken)
     {

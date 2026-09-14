@@ -156,6 +156,35 @@ public sealed class IslePilotRealtimeSessionTests
     }
 
     [Fact]
+    public async Task PauseRealtimeAsync_ReleasesSocketAndResumeReconnects()
+    {
+        var first = new FakeWebSocket([]);
+        var second = new FakeWebSocket([]);
+        var sockets = new Queue<FakeWebSocket>([first, second]);
+        await using var session = new IslePilotRealtimeSession(
+            new FakeApiClient(),
+            Options(),
+            () => sockets.Dequeue(),
+            new IslePilotReconnectBackoff(() => 0.5),
+            static (_, cancellationToken) => Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken),
+            static () => DateTimeOffset.UtcNow);
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        await using var snapshots = session.WatchAsync(timeout.Token).GetAsyncEnumerator();
+
+        Assert.True(await snapshots.MoveNextAsync().AsTask().WaitAsync(timeout.Token));
+        await first.Connected.WaitAsync(timeout.Token);
+        await session.PauseRealtimeAsync(timeout.Token);
+
+        Assert.True(first.Disposed);
+        Assert.False(second.IsConnected);
+
+        session.ResumeRealtime();
+        await second.Connected.WaitAsync(timeout.Token);
+
+        Assert.True(second.IsConnected);
+    }
+
+    [Fact]
     public async Task Bootstrap_MergesOptionalTenantHeatmapIntoMapSnapshot()
     {
         var api = new FakeApiClient

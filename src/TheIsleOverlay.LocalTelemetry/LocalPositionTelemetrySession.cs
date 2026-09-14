@@ -3,7 +3,9 @@ using TheIsleOverlay.Core;
 
 namespace TheIsleOverlay.LocalTelemetry;
 
-public sealed class LocalPositionTelemetrySession : ITelemetrySession
+public sealed class LocalPositionTelemetrySession :
+    ITelemetrySession,
+    IRealtimeConnectionControl
 {
     private static readonly TimeSpan FreshnessCheckInterval = TimeSpan.FromSeconds(1);
 
@@ -205,6 +207,19 @@ public sealed class LocalPositionTelemetrySession : ITelemetrySession
             await _remotePlayerSource.DisposeAsync().ConfigureAwait(false);
         }
         _disposeCancellation.Dispose();
+    }
+
+    public Task PauseRealtimeAsync(CancellationToken cancellationToken = default) =>
+        _remoteSession is IRealtimeConnectionControl control
+            ? control.PauseRealtimeAsync(cancellationToken)
+            : Task.CompletedTask;
+
+    public void ResumeRealtime()
+    {
+        if (_remoteSession is IRealtimeConnectionControl control)
+        {
+            control.ResumeRealtime();
+        }
     }
 
     private async Task PumpRemoteAsync(

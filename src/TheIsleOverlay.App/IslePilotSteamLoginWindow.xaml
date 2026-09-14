@@ -28,10 +28,10 @@
                                Foreground="#78938C" FontSize="10.5" Margin="0,3,0,0" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="READ-ONLY TELEMETRY" Foreground="#37D4C6"
+                    <TextBlock Text="TELEMETRY + LIVE SKIN" Foreground="#37D4C6"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="10"
                                FontWeight="SemiBold" HorizontalAlignment="Right" />
-                    <TextBlock Text="/me · /map · /ows" Foreground="#638078"
+                    <TextBlock Text="/me · /map · /skin" Foreground="#638078"
                                FontFamily="Bahnschrift" FontSize="9" Margin="0,3,0,0"
                                HorizontalAlignment="Right" />
                 </StackPanel>
@@ -61,7 +61,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="LoginStatusLabel"
-                           Text="Đăng nhập tại Steam. Token chỉ được lưu mã hóa cho tài khoản Windows hiện tại."
+                           Text="Đăng nhập Steam một lần. Token Live Skin chỉ được lưu mã hóa cho tài khoản Windows hiện tại."
                            Foreground="#78938C" FontSize="10.5" VerticalAlignment="Center"
                            TextWrapping="Wrap" />
                 <Button Grid.Column="1" Content="THỬ LẠI" Padding="15,7" Margin="10,0,0,0"

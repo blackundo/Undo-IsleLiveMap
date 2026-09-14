@@ -66,7 +66,9 @@ public partial class IslePilotSteamLoginWindow : Window
         if (!e.IsSuccess && !_completed)
         {
             LoginStatusLabel.Text = "Trang đăng nhập không tải được. Kiểm tra mạng rồi bấm THỬ LẠI.";
+            return;
         }
+
     }
 
     private void Browser_NewWindowRequested(
@@ -134,6 +136,11 @@ public partial class IslePilotSteamLoginWindow : Window
             // cannot be read. Only server-specific heatmap will be unavailable.
         }
 
+        Complete(credentials, playerCookie);
+    }
+
+    private void Complete(IslePilotOverlayAuthResult credentials, string? playerCookie)
+    {
         Credentials = credentials with { PlayerCookie = playerCookie };
         _completed = true;
         DialogResult = true;
