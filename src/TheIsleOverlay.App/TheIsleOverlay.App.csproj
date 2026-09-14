@@ -23,8 +23,8 @@
     <Resource Include="Assets\ProMapPreview.png" />
     <Resource Include="Assets\SetPointTip.png" />
     <Resource Include="Assets\MapZoneTip.png" />
-    <Resource Include="Assets\GachaLogo.webp" />
-    <Resource Include="Assets\OriginLogo.webp" />
+    <Resource Include="Assets\GachaLogo.png" />
+    <Resource Include="Assets\OriginLogo.png" />
     <Resource Include="Assets\Advertising\tft.png" />
     <Resource Include="Assets\Advertising\fco4.jpg" />
     <Resource Include="Assets\Advertising\nro.jpg" />

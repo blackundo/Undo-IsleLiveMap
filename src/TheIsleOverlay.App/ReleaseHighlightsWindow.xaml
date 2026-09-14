@@ -140,7 +140,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                 <Border Width="52" Height="52" Background="#071611" BorderBrush="#4B8173" BorderThickness="1" CornerRadius="4" Padding="6" VerticalAlignment="Top">
-                                    <Image Source="Assets/GachaLogo.webp" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
+                                    <Image Source="Assets/GachaLogo.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="13,0,0,0">
                                     <TextBlock Text="GACHA" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="18" FontWeight="Bold" />
@@ -153,7 +153,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                 <Border Width="52" Height="52" Background="#071611" BorderBrush="#4B8173" BorderThickness="1" CornerRadius="4" Padding="6" VerticalAlignment="Top">
-                                    <Image Source="Assets/OriginLogo.webp" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
+                                    <Image Source="Assets/OriginLogo.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="13,0,0,0">
                                     <TextBlock Text="ORIGIN x5" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="18" FontWeight="Bold" />
