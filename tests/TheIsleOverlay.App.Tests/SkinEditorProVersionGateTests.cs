@@ -22,6 +22,8 @@ public sealed class SkinEditorProVersionGateTests
             StringComparison.Ordinal);
         Assert.Contains("ProAgent", source, StringComparison.Ordinal);
         Assert.Contains("IsleLiveMap.Pro.SkinEditor.dll", source, StringComparison.Ordinal);
+        Assert.Contains("IsleLiveMap.Pro.Garage.dll", source, StringComparison.Ordinal);
+        Assert.Contains("Garage chỉ có trong phiên bản Undo-IsleLiveMap Pro", source, StringComparison.Ordinal);
         Assert.Contains("LoadFromAssemblyPath", source, StringComparison.Ordinal);
     }
 }

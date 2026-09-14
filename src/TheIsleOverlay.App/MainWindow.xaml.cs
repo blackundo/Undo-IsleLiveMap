@@ -31,6 +31,7 @@ public partial class MainWindow : Window
     private const int ToggleHudHotkeyId = 0x716;
     private const int MapNotesHotkeyId = 0x717;
     private const int SkinEditorHotkeyId = 0x718;
+    private const int GarageHotkeyId = 0x719;
     private const int WmHotkey = 0x0312;
     private const int WmInput = 0x00FF;
     private const uint ModAlt = 0x0001;
@@ -41,6 +42,7 @@ public partial class MainWindow : Window
     private const uint KeyP = 0x50;
     private const uint KeyM = 0x4D;
     private const uint KeyS = 0x53;
+    private const uint KeyG = 0x47;
     private const int GwlExStyle = -20;
     private const int WsExTransparent = 0x00000020;
     private const int WsExNoActivate = 0x08000000;
@@ -102,6 +104,7 @@ public partial class MainWindow : Window
     private bool _toggleHudHotkeyRegistered;
     private bool _mapNotesHotkeyRegistered;
     private bool _skinEditorHotkeyRegistered;
+    private bool _garageHotkeyRegistered;
     private bool _hudVisible = true;
     private bool _remotePlayerSourceOwnedBySession;
     private bool _mapPanActive;
@@ -118,7 +121,9 @@ public partial class MainWindow : Window
     private FrameworkElement? _draggedWidget;
     private PlayerTelemetry? _latestIslePilotPlayer;
     private Window? _skinEditorWindow;
+    private Window? _garageWindow;
     private IAsyncDisposable? _skinSession;
+    private IAsyncDisposable? _garageSession;
     private Point _widgetDragStart;
     private Point _widgetOrigin;
 
@@ -339,6 +344,7 @@ public partial class MainWindow : Window
         _mapNotesHotkeyRegistered = HasCurrentProFeatures
             && RegisterHotKey(handle, MapNotesHotkeyId, ModAlt, KeyM);
         _skinEditorHotkeyRegistered = RegisterHotKey(handle, SkinEditorHotkeyId, ModAlt, KeyS);
+        _garageHotkeyRegistered = RegisterHotKey(handle, GarageHotkeyId, ModAlt, KeyG);
         StartProFeatureExpiryWatch();
         ConfigureWorkspaceBounds();
         RestoreWidgetLayout();
@@ -1795,6 +1801,11 @@ public partial class MainWindow : Window
             ToggleSkinEditor();
             handled = true;
         }
+        else if (message == WmHotkey && wParam.ToInt32() == GarageHotkeyId)
+        {
+            ToggleGarage();
+            handled = true;
+        }
 
         return IntPtr.Zero;
     }
@@ -1839,9 +1850,15 @@ public partial class MainWindow : Window
         }
         _skinEditorWindow?.Close();
         _skinEditorWindow = null;
+        _garageWindow?.Close();
+        _garageWindow = null;
         if (_skinSession is not null)
         {
             await _skinSession.DisposeAsync();
+        }
+        if (_garageSession is not null)
+        {
+            await _garageSession.DisposeAsync();
         }
         var handle = new WindowInteropHelper(this).Handle;
         if (_editHotkeyRegistered) UnregisterHotKey(handle, EditHotkeyId);
@@ -1849,6 +1866,7 @@ public partial class MainWindow : Window
         if (_toggleHudHotkeyRegistered) UnregisterHotKey(handle, ToggleHudHotkeyId);
         if (_mapNotesHotkeyRegistered) UnregisterHotKey(handle, MapNotesHotkeyId);
         if (_skinEditorHotkeyRegistered) UnregisterHotKey(handle, SkinEditorHotkeyId);
+        if (_garageHotkeyRegistered) UnregisterHotKey(handle, GarageHotkeyId);
         if (_mouseShortcuts is not null)
         {
             _mouseShortcuts.CanStartMapPan = null;
@@ -1957,6 +1975,101 @@ public partial class MainWindow : Window
             or MemberAccessException
             or TargetInvocationException)
         {
+            return false;
+        }
+    }
+
+    private void ToggleGarage()
+    {
+        if (_garageWindow is not null)
+        {
+            _garageWindow.Close();
+            return;
+        }
+
+        if (!IsIslePilotSource)
+        {
+            MessageBox.Show(
+                this,
+                "Garage chỉ dùng cho nguồn IslePilot. Hãy chọn server IslePilot trước khi mở Garage.",
+                "Garage",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var player = _latestIslePilotPlayer;
+        if (!TryCreateProGarageWindow(player, out var window, out var loadError))
+        {
+            var message = string.IsNullOrWhiteSpace(loadError)
+                ? "Garage chỉ có trong phiên bản Undo-IsleLiveMap Pro. Hãy dùng bản Pro để xem kho dino và park/restore trực tiếp trong overlay."
+                : $"Không mở được Garage Pro:\n\n{loadError}";
+            MessageBox.Show(
+                this,
+                message,
+                string.IsNullOrWhiteSpace(loadError) ? "Cần phiên bản Pro" : "Lỗi Garage Pro",
+                MessageBoxButton.OK,
+                string.IsNullOrWhiteSpace(loadError) ? MessageBoxImage.Information : MessageBoxImage.Error);
+            return;
+        }
+
+        window.Owner = this;
+        _garageWindow = window;
+        window.Closed += (_, _) => _garageWindow = null;
+        window.Show();
+        window.Activate();
+    }
+
+    private bool TryCreateProGarageWindow(PlayerTelemetry? player, out Window window, out string? loadError)
+    {
+        window = null!;
+        loadError = null;
+        var assemblyPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "ProAgent",
+            "IsleLiveMap.Pro.Garage.dll");
+        if (!File.Exists(assemblyPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+            var sessionType = assembly.GetType("TheIsleOverlay.App.IslePilotGarageSession", throwOnError: false);
+            var windowType = assembly.GetType("TheIsleOverlay.App.IslePilotGarageWindow", throwOnError: false);
+            if (sessionType is null || windowType is null || !typeof(Window).IsAssignableFrom(windowType))
+            {
+                return false;
+            }
+
+            _garageSession ??= Activator.CreateInstance(
+                sessionType,
+                AppPaths.IslePilotCredential) as IAsyncDisposable;
+            if (_garageSession is null)
+            {
+                return false;
+            }
+
+            var growth = player?.ExactVitals?.Growth ?? player?.GrowthPercent;
+            window = (Window?)Activator.CreateInstance(
+                windowType,
+                _garageSession,
+                player?.Server,
+                player?.Class,
+                growth) ?? null!;
+            return window is not null;
+        }
+        catch (Exception exception) when (exception is BadImageFormatException
+            or FileLoadException
+            or FileNotFoundException
+            or MissingMethodException
+            or MemberAccessException
+            or TargetInvocationException)
+        {
+            loadError = exception is TargetInvocationException { InnerException: not null }
+                ? exception.InnerException.Message
+                : exception.Message;
             return false;
         }
     }
