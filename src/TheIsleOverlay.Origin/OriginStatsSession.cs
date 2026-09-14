@@ -7,8 +7,14 @@ namespace TheIsleOverlay.Origin;
 public sealed class OriginStatsSession : ITelemetrySession
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(10);
+    // Origin's command endpoint can briefly return an empty/timeout result while
+    // the dashboard is refreshing. Do not blank a healthy overlay during that
+    // short gap; retain the last confirmed dino/stats snapshot as stale data.
+    private static readonly TimeSpan LastSnapshotGrace = TimeSpan.FromSeconds(45);
     private readonly OriginStatsClient _client;
     private OriginServer? _activeServer;
+    private TelemetrySnapshot? _lastLiveSnapshot;
+    private DateTimeOffset _lastLiveAt;
     private int _watchStarted;
     private int _disposed;
 
@@ -49,6 +55,7 @@ public sealed class OriginStatsSession : ITelemetrySession
             }
             catch (OriginAuthenticationException)
             {
+                _lastLiveSnapshot = null;
                 snapshot = new TelemetrySnapshot
                 {
                     Source = "ORIGIN x5",
@@ -59,13 +66,14 @@ public sealed class OriginStatsSession : ITelemetrySession
             }
             catch (Exception exception)
             {
-                snapshot = new TelemetrySnapshot
-                {
-                    Source = "ORIGIN x5",
-                    Success = false,
-                    SessionState = TelemetrySessionState.Stale,
-                    StatusMessage = $"Origin stats tạm thời không khả dụng: {exception.Message}"
-                };
+                snapshot = ReuseLastSnapshot(
+                    $"Origin stats tạm thời không khả dụng: {exception.Message}");
+            }
+
+            if (snapshot.PlayerOnline && snapshot.Player is not null)
+            {
+                _lastLiveSnapshot = snapshot;
+                _lastLiveAt = DateTimeOffset.UtcNow;
             }
 
             yield return snapshot;
@@ -105,6 +113,23 @@ public sealed class OriginStatsSession : ITelemetrySession
                 .ConfigureAwait(false);
         }
 
+        return ReuseLastSnapshot(
+            "Không tìm thấy dino đang chơi trên Main Origin hoặc Voice Chat Server.");
+    }
+
+    private TelemetrySnapshot ReuseLastSnapshot(string statusMessage)
+    {
+        if (_lastLiveSnapshot is { PlayerOnline: true, Player: not null }
+            && DateTimeOffset.UtcNow - _lastLiveAt <= LastSnapshotGrace)
+        {
+            return _lastLiveSnapshot with
+            {
+                SessionState = TelemetrySessionState.Stale,
+                LiveDataStale = true,
+                StatusMessage = statusMessage
+            };
+        }
+
         return new TelemetrySnapshot
         {
             Source = "ORIGIN x5",
@@ -113,7 +138,7 @@ public sealed class OriginStatsSession : ITelemetrySession
             PlayerOnline = false,
             UpdatedAt = DateTimeOffset.UtcNow,
             SessionState = TelemetrySessionState.Polling,
-            StatusMessage = "Không tìm thấy dino đang chơi trên Main Origin hoặc Voice Chat Server."
+            StatusMessage = statusMessage
         };
     }
 
@@ -196,6 +221,7 @@ public sealed class OriginStatsSession : ITelemetrySession
             UpdatedAt = DateTimeOffset.UtcNow,
             Player = player,
             SessionState = TelemetrySessionState.Live,
+            LiveDataStale = false,
             StatusMessage = $"Origin · {server.DisplayName}"
         };
     }
