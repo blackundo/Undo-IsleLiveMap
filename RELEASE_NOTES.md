@@ -1,3 +1,13 @@
+# Isle Live Map 2.0.2
+
+## Sửa nhận diện thư mục The Isle qua Steam
+
+- Không còn phụ thuộc duy nhất vào khóa `Steam App 376210` trong Windows Registry.
+- Tự đọc Steam root từ Registry, biến môi trường và các vị trí Steam chuẩn.
+- Tự quét toàn bộ thư viện trong `libraryfolders.vdf`, bao gồm game cài ở ổ đĩa/thư viện phụ.
+- Đọc `installdir` và `buildid` từ `appmanifest_376210.acf`, có kiểm tra đường dẫn an toàn trước khi dùng.
+- Giữ nguyên kiểm tra build và không ghi bất kỳ file game nào nếu không xác định chắc chắn cài đặt.
+
 # Isle Live Map 2.0.1
 
 ## Sửa kiểm tra Npcap trên Windows

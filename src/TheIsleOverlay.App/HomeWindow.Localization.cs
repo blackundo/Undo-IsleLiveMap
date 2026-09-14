@@ -91,7 +91,7 @@ public partial class HomeWindow
     {
         InvalidOperationException when exception.Message.Contains("tắt The Isle", StringComparison.OrdinalIgnoreCase) =>
             "Hãy tắt The Isle và cửa sổ khởi động Steam, sau đó chọn lại ngôn ngữ.",
-        DirectoryNotFoundException => "Không tìm thấy The Isle qua Steam Registry.",
+        DirectoryNotFoundException => "Không tự tìm thấy thư mục The Isle trong Steam. Hãy mở Steam một lần rồi thử lại; nếu game nằm ở thư viện phụ, ứng dụng sẽ tự quét các thư viện Steam đã đăng ký.",
         HttpRequestException => "Chưa kết nối được máy chủ Việt hóa. Không có file game nào bị thay đổi.",
         InvalidDataException => $"Gói Việt hóa không vượt qua xác minh: {exception.Message} Không có file game nào bị thay đổi.",
         _ => $"Không thể đổi ngôn ngữ: {exception.Message}"
