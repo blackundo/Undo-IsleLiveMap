@@ -7,6 +7,7 @@
 - Tự quét toàn bộ thư viện trong `libraryfolders.vdf`, bao gồm game cài ở ổ đĩa/thư viện phụ.
 - Đọc `installdir` và `buildid` từ `appmanifest_376210.acf`, có kiểm tra đường dẫn an toàn trước khi dùng.
 - Giữ nguyên kiểm tra build và không ghi bất kỳ file game nào nếu không xác định chắc chắn cài đặt.
+- Sổ tay Mutation `Alt + U` là dữ liệu cục bộ, có thể mở ngay khi Live Map chạy; không còn bị chặn bởi trạng thái xác nhận server tạm thời.
 
 # Isle Live Map 2.0.1
 
