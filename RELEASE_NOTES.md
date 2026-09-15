@@ -1,12 +1,11 @@
-# Isle Live Map 2.1.0
+# Isle Live Map 2.1.1
 
-## Chỉ số realtime trên mọi server
+## Hotfix khôi phục stats ổn định
 
-- Chuyển nguồn chỉ số dino sang dữ liệu trực tiếp từ game, dùng chung cho mọi server; không cần chọn Gacha, Origin hay luồng website riêng.
-- Health, Max Health, Stamina, Max Stamina, Hunger, Max Hunger, Water và Max Water được ghép từ các batch trạng thái đã xác minh, giữ snapshot mới nhất khi heartbeat thưa.
-- Bỏ các nút **Gacha**, **Origin x5** và **Ngắt Gacha** khỏi Home; **MỞ LIVE MAP** là luồng duy nhất để mở bản đồ và trạng thái.
-- Modal cập nhật viết lại theo ngôn ngữ dễ hiểu: “chỉ số trực tiếp”, “realtime”, “mọi server”, không yêu cầu người dùng biết thuật ngữ kỹ thuật.
-- Inbound-only được bật mặc định production sau khi hoàn tất canary/reconnect/species validation; vẫn có công tắc rollback khẩn cấp `ISLELIVEMAP_DISABLE_INBOUND_VITALS=1` cho hỗ trợ kỹ thuật.
+- Khôi phục toàn bộ pipeline stats và lựa chọn nguồn server đã ổn định ở bản 2.0.3.
+- Tạm rút decoder stats trực tiếp thử nghiệm của 2.1.0 do có thể thiếu Health/Max, Stamina/Max, sai loài hoặc sai Growth trên một số loài và server.
+- Giữ nguyên bản sửa Npcap của 2.0.3: sau khi cài driver, app có thể kiểm tra và sử dụng lại ngay trong phiên hiện tại.
+- Player/AI Tracking, Live Map Pro và các tính năng trước 2.1.0 tiếp tục hoạt động như bản 2.0.3.
 
 # Isle Live Map 2.0.3
 

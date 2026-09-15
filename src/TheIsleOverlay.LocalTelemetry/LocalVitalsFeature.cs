@@ -1,33 +1,17 @@
 namespace TheIsleOverlay.LocalTelemetry;
 
 /// <summary>
-/// Production gate for passive inbound Iris vitals.
-///
-/// Release 2.1 promotes the validated Iris decoder to the default authority:
-/// the overlay reads the player's current status directly from the game
-/// traffic on every server, without waiting for a website/API poll. The
-/// disable switch is deliberately opt-out and is retained only as an
-/// emergency rollback for support diagnostics.
+/// Production gate for passive inbound Iris vitals. Capture/probe code can opt
+/// in explicitly while the default remains disabled until live fixtures have
+/// validated each supported dinosaur and lifecycle transition.
 /// </summary>
 public static class LocalVitalsFeature
 {
     public const string EnvironmentVariable = "ISLELIVEMAP_LOCAL_VITALS_CANARY";
-    public const string DisableEnvironmentVariable =
-        "ISLELIVEMAP_DISABLE_INBOUND_VITALS";
-    // Kept as a compatibility alias for diagnostics from the validation build.
-    // Inbound-only is now the production default; the old opt-in variable no
-    // longer controls whether status capture is enabled.
-    public const string InboundOnlyEnvironmentVariable =
-        "ISLELIVEMAP_INBOUND_VITALS_ONLY";
     public const string SourceName = "LocalIris";
 
-    public static bool IsEnabled() => IsProductionEnabled(
-        Environment.GetEnvironmentVariable(DisableEnvironmentVariable));
-
-    public static bool IsInboundOnly() => IsEnabled();
-
-    internal static bool IsProductionEnabled(string? disableValue) =>
-        !IsEnabled(disableValue);
+    public static bool IsEnabled() => IsEnabled(
+        Environment.GetEnvironmentVariable(EnvironmentVariable));
 
     internal static bool IsEnabled(string? value) =>
         value is not null
