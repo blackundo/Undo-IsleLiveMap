@@ -2,9 +2,9 @@ namespace TheIsleOverlay.Localization;
 
 public sealed record LocalizationOptions
 {
-    public Uri ManifestUri { get; init; } = new("https://isle.klong.dev/v1/releases/translation/latest");
+    public Uri ManifestUri { get; init; } = new("https://isle-localization.modundo.com/v1/releases/translation/latest");
 
-    public string AllowedHost { get; init; } = "isle.klong.dev";
+    public string AllowedHost { get; init; } = "isle-localization.modundo.com";
 
     public string ArtifactPathPrefix { get; init; } = "/assets/translation/";
 
