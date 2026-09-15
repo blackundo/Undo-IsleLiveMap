@@ -185,7 +185,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock x:Name="HomeModeLabel" Text="ISLE" Foreground="{DynamicResource HomeSubtle}" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="SemiBold" />
+                            <TextBlock x:Name="HomeModeLabel" Text="UNDO ISLE" Foreground="{DynamicResource HomeSubtle}" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="SemiBold" />
                             <TextBlock Text="LIVE MAP" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontSize="42" FontWeight="Bold" Margin="-2,-7,0,0" />
                             <TextBlock Text="Minimap và chỉ số cá nhân cho The Isle Evrima." Foreground="{DynamicResource HomeMuted}" FontSize="13" FontWeight="Medium" Margin="0,2,0,0" />
                         </StackPanel>
@@ -200,45 +200,6 @@
 
                     <Rectangle Height="1" Fill="{DynamicResource HomeLine}" Margin="0,18,0,16" />
 
-                    <TextBlock Text="PHÁT TRIỂN" Foreground="{DynamicResource HomeMuted}" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
-
-                    <Button Style="{StaticResource LinkButton}" Tag="https://www.facebook.com/klong.dev" Click="OpenLink_Click" Margin="0,0,0,8">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <Rectangle Fill="{DynamicResource HomeAccent}" RadiusX="1" RadiusY="1" />
-                            <StackPanel Grid.Column="1" Margin="12,0,10,0">
-                                <TextBlock Text="KLONG.DEV / FACEBOOK" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontSize="13" FontWeight="SemiBold" />
-                                <TextBlock Text="Thiết kế tool game · tool auto · website · shop bán hàng · bot tự động" Foreground="{DynamicResource HomeMuted}" FontSize="11.5" FontWeight="Medium" TextWrapping="Wrap" Margin="0,4,0,0" />
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="↗" Foreground="{DynamicResource HomeAccent}" FontSize="18" VerticalAlignment="Center" />
-                        </Grid>
-                    </Button>
-
-                    <Button Style="{StaticResource LinkButton}" Tag="https://www.youtube.com/@longhoangkim2246" Click="OpenLink_Click">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <Rectangle Fill="{DynamicResource HomeAccent}" RadiusX="1" RadiusY="1" />
-                            <StackPanel Grid.Column="1" Margin="12,0,10,0">
-                                <TextBlock Text="LONG HOÀNG KIM / YOUTUBE" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontSize="13" FontWeight="SemiBold" />
-                                <TextBlock Text="Video, dự án và các bản cập nhật mới." Foreground="{DynamicResource HomeMuted}" FontSize="11.5" FontWeight="Medium" Margin="0,4,0,0" />
-                            </StackPanel>
-                            <TextBlock Grid.Column="2" Text="↗" Foreground="{DynamicResource HomeAccent}" FontSize="18" VerticalAlignment="Center" />
-                        </Grid>
-                    </Button>
-
-                    <Border Background="{DynamicResource HomePanelSoft}" BorderBrush="{DynamicResource HomeLineStrong}" BorderThickness="1" CornerRadius="3" Padding="14,12" Margin="0,14,0,18">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="PROJECT PHI LỢI NHUẬN · OPEN SOURCE" Foreground="{DynamicResource HomeAccent}" FontFamily="Bahnschrift SemiCondensed" FontSize="10.5" FontWeight="SemiBold" />
-                                <TextBlock Text="Xin 1 star GitHub" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontWeight="SemiBold" FontSize="19" Margin="0,3,0,0" />
-                                <TextBlock Text="* Chia sẻ thêm cho người khác để Long được nhiều người biết đến hơn. Source công khai nên bạn có thể tự kiểm tra virus và cách app vận hành." Foreground="{DynamicResource HomeMuted}" FontSize="11.5" FontWeight="Medium" TextWrapping="Wrap" MaxWidth="330" Margin="0,6,0,0" />
-                            </StackPanel>
-                            <Button Grid.Column="1" Style="{StaticResource HomeChromeButton}" Tag="https://github.com/blackundo/Undo-IsleLiveMap" Click="OpenLink_Click"
-                                    Content="GITHUB  ★" Foreground="{DynamicResource HomeAccentBright}" BorderBrush="{DynamicResource HomeLineStrong}" Padding="12,8" VerticalAlignment="Center" Margin="12,0,0,0" />
-                        </Grid>
-                    </Border>
-
                     <TextBlock Text="NGÔN NGỮ GAME" Foreground="{DynamicResource HomeMuted}" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,9" />
                     <Border Background="{DynamicResource HomePanel}" BorderBrush="{DynamicResource HomeLineStrong}" BorderThickness="1"
                             CornerRadius="3" Padding="14,12" Margin="0,0,0,18">
@@ -248,7 +209,7 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <StackPanel>
                                     <TextBlock Text="THE ISLE · LOCALIZATION" Foreground="{DynamicResource HomeAccent}" FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="SemiBold" />
-                                    <TextBlock Text="English hoặc Tiếng Việt" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontSize="16" FontWeight="SemiBold" Margin="0,2,0,0" />
+                                    <TextBlock Text="Đổi ngôn ngữ trong game" Foreground="{DynamicResource HomeBone}" FontFamily="Bahnschrift SemiCondensed" FontSize="16" FontWeight="SemiBold" Margin="0,2,0,0" />
                                 </StackPanel>
                                 <Button Grid.Column="1" Style="{StaticResource HomeChromeButton}" Content="SỔ TAY MUTATION"
                                         Padding="11,7" Click="MutationGuideButton_Click" />
