@@ -2,7 +2,7 @@ using TheIsleOverlay.IslePilot;
 
 var credentialPath = Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-    "KLongDev",
+    "Undo-Isle",
     "IsleLiveMap",
     "islepilot-overlay.credential");
 var credentials = await new IslePilotCredentialStore(credentialPath).LoadAsync();

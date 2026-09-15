@@ -66,6 +66,15 @@
     <Content Include="..\..\src\TheIsleOverlay.App\NpcapRequiredWindow.xaml"
              Link="TestAssets\NpcapRequiredWindow.xaml"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\src\TheIsleOverlay.App\ShortcutSettings.cs"
+             Link="TestAssets\ShortcutSettings.cs"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\src\TheIsleOverlay.Localization\LocalizationCoordinator.cs"
+             Link="TestAssets\LocalizationCoordinator.cs"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\tools\TheIsleOverlay.IslePilotProbe\Program.cs"
+             Link="TestAssets\IslePilotProbe.Program.cs"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

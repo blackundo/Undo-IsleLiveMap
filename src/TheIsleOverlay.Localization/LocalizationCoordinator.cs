@@ -23,7 +23,7 @@ public sealed class LocalizationCoordinator
         _processProbe = processProbe ?? new TheIsleProcessProbe();
         _stateRoot = stateRoot ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "KLongDev",
+            "Undo-Isle",
             "IsleLiveMap",
             "Localization");
         _languageConfigPath = languageConfigPath ?? GameLanguageSettings.DefaultConfigPath;

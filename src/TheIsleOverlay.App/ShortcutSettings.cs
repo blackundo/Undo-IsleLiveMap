@@ -283,7 +283,7 @@ public sealed class ShortcutSettingsStore
             ?? (string.IsNullOrWhiteSpace(overridePath)
                 ? Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "KLongDev",
+                    "Undo-Isle",
                     "IsleLiveMap",
                     "shortcut-settings.json")
                 : overridePath));
