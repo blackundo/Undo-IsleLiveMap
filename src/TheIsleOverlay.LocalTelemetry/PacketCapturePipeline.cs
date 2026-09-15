@@ -45,7 +45,31 @@ public readonly record struct PacketPipelineDiagnostics(
     long IncompleteIrisPackets,
     long SequenceGapPackets,
     long ReorderedPackets,
-    long DuplicatePackets);
+    long DuplicatePackets)
+{
+    internal static PacketPipelineDiagnostics Combine(
+        PacketPipelineDiagnostics outbound,
+        PacketPipelineDiagnostics inbound,
+        PacketSequenceDiagnostics sequenceDiagnostics = default,
+        long npcapDroppedPackets = 0,
+        long interfaceDroppedPackets = 0) => new(
+        outbound.CapturedPackets + inbound.CapturedPackets,
+        outbound.ProcessedPackets + inbound.ProcessedPackets,
+        outbound.QueueDroppedPackets + inbound.QueueDroppedPackets,
+        outbound.QueueDroppedBytes + inbound.QueueDroppedBytes,
+        Math.Max(outbound.QueueHighWatermark, inbound.QueueHighWatermark),
+        npcapDroppedPackets,
+        interfaceDroppedPackets,
+        sequenceDiagnostics.IrisPackets,
+        sequenceDiagnostics.IncompleteIrisPackets,
+        sequenceDiagnostics.SequenceGapPackets,
+        sequenceDiagnostics.ReorderedPackets,
+        sequenceDiagnostics.DuplicatePackets);
+}
+
+public readonly record struct PacketLaneDiagnostics(
+    PacketPipelineDiagnostics Outbound,
+    PacketPipelineDiagnostics Inbound);
 
 /// <summary>
 /// A non-blocking, memory-bounded hand-off between the Npcap callback and the
@@ -191,7 +215,17 @@ internal readonly record struct PacketSequenceDiagnostics(
     long IncompleteIrisPackets,
     long SequenceGapPackets,
     long ReorderedPackets,
-    long DuplicatePackets);
+    long DuplicatePackets)
+{
+    public static PacketSequenceDiagnostics Combine(
+        PacketSequenceDiagnostics first,
+        PacketSequenceDiagnostics second) => new(
+        first.IrisPackets + second.IrisPackets,
+        first.IncompleteIrisPackets + second.IncompleteIrisPackets,
+        first.SequenceGapPackets + second.SequenceGapPackets,
+        first.ReorderedPackets + second.ReorderedPackets,
+        first.DuplicatePackets + second.DuplicatePackets);
+}
 
 /// <summary>
 /// Tracks Unreal's 14-bit packet sequence independently for each endpoint and

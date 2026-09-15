@@ -5,13 +5,17 @@ namespace TheIsleOverlay.App;
 
 public sealed record OverlayLayoutSettings
 {
-    public int Version { get; init; } = 4;
+    public int Version { get; init; } = OverlayLayoutRules.CurrentVersion;
     public double Scale { get; init; } = OverlayLayoutRules.DefaultScale;
     public string MapShape { get; init; } = OverlayLayoutRules.SquareMapShape;
+    // Retained for migration from schema v4. New writes mirror the Prime
+    // entry in WidgetVisibility so an older build still behaves sensibly.
     public bool MissionsVisible { get; init; } = true;
     public double? Left { get; init; }
     public double? Top { get; init; }
     public Dictionary<string, OverlayWidgetPosition> Widgets { get; init; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, bool> WidgetVisibility { get; init; } =
+        OverlayLayoutRules.CreateDefaultWidgetVisibility();
 }
 
 public sealed record OverlayWidgetPosition
@@ -23,6 +27,7 @@ public sealed record OverlayWidgetPosition
 
 public static class OverlayLayoutRules
 {
+    public const int CurrentVersion = 5;
     public const string MapWidget = "map";
     public const string StatsWidget = "stats";
     public const string TeamWidget = "team";
@@ -39,27 +44,68 @@ public static class OverlayLayoutRules
     public static OverlayLayoutSettings Normalize(OverlayLayoutSettings? settings)
     {
         settings ??= new OverlayLayoutSettings();
-        var widgets = (settings.Widgets ?? new Dictionary<string, OverlayWidgetPosition>(StringComparer.OrdinalIgnoreCase))
-            .Where(pair => IsKnownWidget(pair.Key) && pair.Value is not null)
-            .ToDictionary(
-                pair => pair.Key.ToLowerInvariant(),
-                pair => new OverlayWidgetPosition
+        // Do not use ToDictionary here: hand-edited JSON can contain both
+        // "Map" and "map".  A deterministic last-entry-wins pass keeps the
+        // rest of the settings instead of resetting everything on load.
+        var widgets = new Dictionary<string, OverlayWidgetPosition>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pair in settings.Widgets
+                     ?? new Dictionary<string, OverlayWidgetPosition>(StringComparer.OrdinalIgnoreCase))
+        {
+            if (!IsKnownWidget(pair.Key) || pair.Value is null)
+            {
+                continue;
+            }
+
+            widgets[NormalizeWidgetKey(pair.Key)] = new OverlayWidgetPosition
+            {
+                Left = FiniteOrZero(pair.Value.Left),
+                Top = FiniteOrZero(pair.Value.Top),
+                Scale = NormalizeScale(pair.Value.Scale)
+            };
+        }
+        var widgetVisibility = CreateDefaultWidgetVisibility();
+        if (settings.Version >= CurrentVersion)
+        {
+            foreach (var pair in settings.WidgetVisibility
+                         ?? new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase))
+            {
+                if (IsConfigurableWidget(pair.Key))
                 {
-                    Left = FiniteOrZero(pair.Value.Left),
-                    Top = FiniteOrZero(pair.Value.Top),
-                    Scale = NormalizeScale(pair.Value.Scale)
-                },
-                StringComparer.OrdinalIgnoreCase);
+                    widgetVisibility[NormalizeWidgetKey(pair.Key)] = pair.Value;
+                }
+            }
+        }
+        else
+        {
+            widgetVisibility[PrimeWidget] = settings.MissionsVisible;
+        }
         return settings with
         {
-            Version = 4,
+            Version = CurrentVersion,
             Scale = NormalizeScale(settings.Scale),
             MapShape = NormalizeMapShape(settings.MapShape),
+            MissionsVisible = widgetVisibility[PrimeWidget],
             Left = FiniteOrNull(settings.Left),
             Top = FiniteOrNull(settings.Top),
-            Widgets = widgets
+            Widgets = widgets,
+            WidgetVisibility = widgetVisibility
         };
     }
+
+    public static Dictionary<string, bool> CreateDefaultWidgetVisibility() =>
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            [MapWidget] = true,
+            [StatsWidget] = true,
+            [TeamWidget] = true,
+            [PrimeWidget] = true
+        };
+
+    public static bool IsConfigurableWidget(string? value) =>
+        value?.Trim().ToLowerInvariant() is
+            MapWidget or StatsWidget or TeamWidget or PrimeWidget;
+
+    private static string NormalizeWidgetKey(string value) => value.Trim().ToLowerInvariant();
 
     public static double NormalizeScale(double scale)
     {
@@ -102,8 +148,28 @@ public static class OverlayLayoutRules
 
     private static double FiniteOrZero(double value) => double.IsFinite(value) ? value : 0d;
 
-    private static bool IsKnownWidget(string value) => value.ToLowerInvariant() is
+    private static bool IsKnownWidget(string? value) => value?.Trim().ToLowerInvariant() is
         MapWidget or StatsWidget or TeamWidget or PrimeWidget or ControlsWidget;
+}
+
+public static class OverlayWidgetVisibilityPolicy
+{
+    public static bool IsBlockVisible(
+        bool wholeHudVisible,
+        bool userEnabled,
+        bool dataAvailable,
+        bool editMode) =>
+        wholeHudVisible
+        && userEnabled
+        && (dataAvailable || editMode);
+
+    public static bool AreEditControlsVisible(bool wholeHudVisible, bool editMode) =>
+        wholeHudVisible && editMode;
+
+    public static bool CanEnterEditMode(bool wholeHudVisible) => wholeHudVisible;
+
+    public static bool ShouldPositionMap(bool wholeHudVisible, bool mapBlockVisible) =>
+        wholeHudVisible && mapBlockVisible;
 }
 
 public static class MapZoomRules

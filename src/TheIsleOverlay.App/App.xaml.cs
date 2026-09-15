@@ -6,6 +6,7 @@ namespace TheIsleOverlay.App;
 public partial class App : Application
 {
     private int _guidePromptShown;
+    private int _servicesAdShown;
     private readonly object _localTelemetryGate = new();
     private PrewarmedLocalMovementSource? _warmLocalTelemetry;
 
@@ -25,6 +26,9 @@ public partial class App : Application
 
     public bool TryMarkGuidePromptShown() =>
         Interlocked.Exchange(ref _guidePromptShown, 1) == 0;
+
+    public bool TryMarkServicesAdShown() =>
+        Interlocked.Exchange(ref _servicesAdShown, 1) == 0;
 
     public void EnsureLocalTelemetryWarmup()
     {

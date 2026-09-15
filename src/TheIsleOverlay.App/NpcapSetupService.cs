@@ -147,7 +147,8 @@ public sealed class NpcapSetupService : INpcapSetupService
                     "Phiên bản Windows này không được Npcap hỗ trợ."),
                 _ => new NpcapSetupResult(
                     NpcapSetupOutcome.Failed,
-                    "Npcap chưa hoạt động. Hãy thử cài lại hoặc khởi động lại máy.")
+                    availability.ErrorMessage
+                        ?? "Npcap chưa hoạt động. Hãy thử cài lại hoặc khởi động lại máy.")
             };
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

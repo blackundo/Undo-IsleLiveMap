@@ -12,6 +12,9 @@ public sealed class SkinEditorProVersionGateTests
             "TestAssets",
             "MainWindow.xaml.cs"));
 
+        Assert.Contains("private const int SkinEditorHotkeyId = 0x719;", source, StringComparison.Ordinal);
+        Assert.Contains("private const int GarageHotkeyId = 0x71A;", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SkinEditorHotkeyId = 0x718", source, StringComparison.Ordinal);
         Assert.Contains(
             "_skinEditorHotkeyRegistered = RegisterHotKey(handle, SkinEditorHotkeyId, ModAlt, KeyS)",
             source,

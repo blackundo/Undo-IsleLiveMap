@@ -35,6 +35,7 @@ public partial class HomeWindow
     {
         if (!EnsureMapLaunchAvailable()
             || _islePilotConnecting
+            || _gachaConnecting
             || _connecting
             || !_proAccessInitialized
             || _proAccessLoading)
@@ -51,6 +52,19 @@ public partial class HomeWindow
         RefreshMapLaunchControls();
         try
         {
+            // One obvious map action for users: prefer a first-party server
+            // feed only after it proves this account has an active dinosaur;
+            // otherwise continue with the default IslePilot session flow.
+            if (await TryOpenActiveOriginFromUnifiedMapAsync())
+            {
+                return;
+            }
+
+            if (await TryOpenActiveGachaFromUnifiedMapAsync())
+            {
+                return;
+            }
+
             var credentials = _islePilotCredentials
                 ?? await _islePilotCredentialStore.LoadAsync(_shutdown.Token);
             if (credentials is not null)

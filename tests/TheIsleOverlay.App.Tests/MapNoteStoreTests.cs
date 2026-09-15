@@ -52,6 +52,36 @@ public sealed class MapNoteStoreTests
         }
     }
 
+    [Fact]
+    public void Store_FailedDeleteRestoresMemoryAndReturnsDurableError()
+    {
+        var directory = Path.Combine(
+            Path.GetTempPath(),
+            "IsleLiveMap.Tests",
+            Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(directory, "map-notes.json");
+        try
+        {
+            var store = new MapNoteStore(path);
+            var note = store.AddDefault(0.25d, 0.75d);
+
+            File.Delete(path);
+            Directory.Delete(directory, recursive: true);
+            File.WriteAllText(directory, "parent path is now a file");
+
+            var result = store.TryDelete(note.Id);
+
+            Assert.False(result.Success);
+            Assert.Contains("Không thể lưu", result.Error);
+            Assert.Contains(store.Notes, candidate => candidate.Id == note.Id);
+        }
+        finally
+        {
+            if (File.Exists(directory)) File.Delete(directory);
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
+    }
+
     private static string TemporaryPath() => Path.Combine(
         Path.GetTempPath(),
         "IsleLiveMap.Tests",

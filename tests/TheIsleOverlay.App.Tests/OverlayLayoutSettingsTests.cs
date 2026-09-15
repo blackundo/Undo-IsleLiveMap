@@ -156,10 +156,12 @@ public sealed class OverlayLayoutSettingsTests
         {
             var store = new OverlayLayoutSettingsStore(path);
             var defaults = store.Load();
-            Assert.Equal(4, defaults.Version);
+            Assert.Equal(OverlayLayoutRules.CurrentVersion, defaults.Version);
             Assert.Equal(OverlayLayoutRules.DefaultScale, defaults.Scale);
             Assert.Equal(OverlayLayoutRules.SquareMapShape, defaults.MapShape);
             Assert.True(defaults.MissionsVisible);
+            Assert.All(defaults.WidgetVisibility.Values, Assert.True);
+            Assert.Equal(4, defaults.WidgetVisibility.Count);
             Assert.Null(defaults.Left);
             Assert.Null(defaults.Top);
             Assert.Empty(defaults.Widgets);
@@ -171,6 +173,13 @@ public sealed class OverlayLayoutSettingsTests
                 MissionsVisible = false,
                 Left = 120.5d,
                 Top = 80.25d,
+                WidgetVisibility = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
+                {
+                    [OverlayLayoutRules.MapWidget] = false,
+                    [OverlayLayoutRules.StatsWidget] = true,
+                    [OverlayLayoutRules.TeamWidget] = false,
+                    [OverlayLayoutRules.PrimeWidget] = false
+                },
                 Widgets = new Dictionary<string, OverlayWidgetPosition>
                 {
                     [OverlayLayoutRules.MapWidget] = new() { Left = 900d, Top = 70d, Scale = 1.42d },
@@ -181,6 +190,10 @@ public sealed class OverlayLayoutSettingsTests
             Assert.Equal(1.37d, restored.Scale);
             Assert.Equal(OverlayLayoutRules.CircleMapShape, restored.MapShape);
             Assert.False(restored.MissionsVisible);
+            Assert.False(restored.WidgetVisibility[OverlayLayoutRules.MapWidget]);
+            Assert.True(restored.WidgetVisibility[OverlayLayoutRules.StatsWidget]);
+            Assert.False(restored.WidgetVisibility[OverlayLayoutRules.TeamWidget]);
+            Assert.False(restored.WidgetVisibility[OverlayLayoutRules.PrimeWidget]);
             Assert.Equal(120.5d, restored.Left);
             Assert.Equal(80.25d, restored.Top);
             Assert.Equal(900d, restored.Widgets[OverlayLayoutRules.MapWidget].Left);
@@ -189,7 +202,7 @@ public sealed class OverlayLayoutSettingsTests
 
             File.WriteAllText(path, "{broken");
             var recovered = store.Load();
-            Assert.Equal(4, recovered.Version);
+            Assert.Equal(OverlayLayoutRules.CurrentVersion, recovered.Version);
             Assert.Equal(OverlayLayoutRules.DefaultScale, recovered.Scale);
             Assert.Null(recovered.Left);
             Assert.Null(recovered.Top);
@@ -205,15 +218,121 @@ public sealed class OverlayLayoutSettingsTests
     }
 
     [Fact]
-    public void Store_MigratesMissingMissionVisibilityToVisible()
+    public void Store_MigratesV4MissionVisibilityAndEnablesOtherBlocks()
     {
         var normalized = OverlayLayoutRules.Normalize(new OverlayLayoutSettings
         {
-            Version = 3
+            Version = 4,
+            MissionsVisible = false,
+            WidgetVisibility = []
         });
 
-        Assert.Equal(4, normalized.Version);
+        Assert.Equal(OverlayLayoutRules.CurrentVersion, normalized.Version);
+        Assert.False(normalized.MissionsVisible);
+        Assert.True(normalized.WidgetVisibility[OverlayLayoutRules.MapWidget]);
+        Assert.True(normalized.WidgetVisibility[OverlayLayoutRules.StatsWidget]);
+        Assert.True(normalized.WidgetVisibility[OverlayLayoutRules.TeamWidget]);
+        Assert.False(normalized.WidgetVisibility[OverlayLayoutRules.PrimeWidget]);
+    }
+
+    [Fact]
+    public void SchemaV5_FillsMissingVisibilityAndDropsUnknownBlocks()
+    {
+        var normalized = OverlayLayoutRules.Normalize(new OverlayLayoutSettings
+        {
+            Version = 5,
+            WidgetVisibility = new Dictionary<string, bool>
+            {
+                [OverlayLayoutRules.MapWidget] = false,
+                ["unknown"] = false
+            }
+        });
+
+        Assert.False(normalized.WidgetVisibility[OverlayLayoutRules.MapWidget]);
+        Assert.True(normalized.WidgetVisibility[OverlayLayoutRules.StatsWidget]);
+        Assert.True(normalized.WidgetVisibility[OverlayLayoutRules.TeamWidget]);
+        Assert.True(normalized.WidgetVisibility[OverlayLayoutRules.PrimeWidget]);
+        Assert.DoesNotContain("unknown", normalized.WidgetVisibility);
+    }
+
+    [Fact]
+    public void SchemaV5_NormalizesCaseAndWhitespaceWithoutThrowingOnDuplicateKeys()
+    {
+        var normalized = OverlayLayoutRules.Normalize(new OverlayLayoutSettings
+        {
+            Version = OverlayLayoutRules.CurrentVersion,
+            WidgetVisibility = new Dictionary<string, bool>
+            {
+                [" MAP "] = true,
+                ["map"] = false,
+                ["TEAM"] = false
+            },
+            Widgets = new Dictionary<string, OverlayWidgetPosition>
+            {
+                [" Stats "] = new() { Left = 14d, Top = 22d, Scale = 1.1d },
+                ["stats"] = new() { Left = 31d, Top = 42d, Scale = 1.2d }
+            }
+        });
+
+        Assert.False(normalized.WidgetVisibility[OverlayLayoutRules.MapWidget]);
+        Assert.False(normalized.WidgetVisibility[OverlayLayoutRules.TeamWidget]);
+        Assert.Equal(31d, normalized.Widgets[OverlayLayoutRules.StatsWidget].Left);
+        Assert.Equal(42d, normalized.Widgets[OverlayLayoutRules.StatsWidget].Top);
+    }
+
+    [Fact]
+    public void SchemaV5_IgnoresLegacyMissionVisibilityWhenWidgetVisibilityIsPresent()
+    {
+        var normalized = OverlayLayoutRules.Normalize(new OverlayLayoutSettings
+        {
+            Version = OverlayLayoutRules.CurrentVersion,
+            MissionsVisible = false,
+            WidgetVisibility = new Dictionary<string, bool>
+            {
+                [OverlayLayoutRules.PrimeWidget] = true
+            }
+        });
+
+        Assert.True(normalized.WidgetVisibility[OverlayLayoutRules.PrimeWidget]);
         Assert.True(normalized.MissionsVisible);
+    }
+
+    [Theory]
+    [InlineData(true, true, true, false, true)]
+    [InlineData(true, true, false, false, false)]
+    [InlineData(true, true, false, true, true)]
+    [InlineData(true, false, true, true, false)]
+    [InlineData(false, true, true, true, false)]
+    public void VisibilityPolicy_CombinesHudPreferenceDataAndEditMode(
+        bool hud,
+        bool enabled,
+        bool data,
+        bool editMode,
+        bool expected)
+    {
+        Assert.Equal(
+            expected,
+            OverlayWidgetVisibilityPolicy.IsBlockVisible(
+                hud,
+                enabled,
+                data,
+                editMode));
+    }
+
+    [Fact]
+    public void VisibilityPolicy_KeepsEditAndWholeHudAsSeparateStates()
+    {
+        Assert.True(OverlayWidgetVisibilityPolicy.AreEditControlsVisible(
+            wholeHudVisible: true,
+            editMode: true));
+        Assert.False(OverlayWidgetVisibilityPolicy.AreEditControlsVisible(
+            wholeHudVisible: false,
+            editMode: true));
+        Assert.False(OverlayWidgetVisibilityPolicy.CanEnterEditMode(
+            wholeHudVisible: false));
+        Assert.False(OverlayWidgetVisibilityPolicy.ShouldPositionMap(
+            wholeHudVisible: true,
+            mapBlockVisible: false));
     }
 
     [Fact]
@@ -242,6 +361,24 @@ public sealed class OverlayLayoutSettingsTests
         Assert.NotNull(Control("StatsPanel"));
         Assert.NotNull(Control("TeamPanel"));
         Assert.NotNull(Control("MissionPanel"));
+        var editToolbar = Control("EditToolbar");
+        Assert.DoesNotContain(
+            editToolbar.Ancestors(),
+            ancestor => (string?)ancestor.Attribute(nameAttribute) == "MapPanel");
+        foreach (var name in new[]
+                 {
+                     "MapVisibilityToggle",
+                     "StatsVisibilityToggle",
+                     "TeamVisibilityToggle",
+                     "PrimeVisibilityToggle"
+                 })
+        {
+            var toggle = Control(name);
+            Assert.Equal("WidgetVisibilityToggle_Click", (string?)toggle.Attribute("Click"));
+        }
+        Assert.Equal(
+            "ShowAllWidgetsButton_Click",
+            (string?)Control("ShowAllWidgetsButton").Attribute("Click"));
         Assert.Equal("290", (string?)Control("MapInfoPanel").Attribute("MaxWidth"));
         Assert.Equal("P 0 · AI 0", (string?)Control("RemotePlayerCountLabel").Attribute("Text"));
         Assert.Equal("StackPanel", Control("RemoteEntityLegend").Name.LocalName);

@@ -23,6 +23,8 @@ public partial class MapNotesWindow : Window
     private TeamRelayState _teamState;
     private bool _paletteBusy;
     private bool _noteCreationBusy;
+    private string? _durableSelectionFeedback;
+    private bool _durableSelectionFeedbackIsError;
 
     public MapNotesWindow(
         MapNoteStore store,
@@ -35,6 +37,8 @@ public partial class MapNotesWindow : Window
         _playerHeading = playerHeading;
         _teamState = teamState ?? new TeamRelayState();
         InitializeComponent();
+        CloseShortcutLabel.Text =
+            $"{new ShortcutSettingsStore().Load().MapNotes.ToUpperInvariant()} / ESC ĐỂ ĐÓNG";
         LoadMap();
         BuildPalette();
         _store.Changed += Store_Changed;
@@ -247,10 +251,15 @@ public partial class MapNotesWindow : Window
             }
             else
             {
-                var note = _store.AddDefault(u, v);
-                _selectedNoteId = note.Id;
+                var result = _store.TryAddDefault(u, v);
+                if (!result.Success)
+                {
+                    return result.Error ?? "Không thể lưu mốc xuống máy.";
+                }
+                _selectedNoteId = result.Note!.Id;
             }
 
+            ClearDurableSelectionFeedback();
             return null;
         }
         finally
@@ -275,6 +284,7 @@ public partial class MapNotesWindow : Window
         }
 
         _selectedNoteId = id;
+        ClearDurableSelectionFeedback();
         var note = VisibleNotes().FirstOrDefault(candidate => candidate.Id == id);
         if (note is null)
         {
@@ -291,6 +301,9 @@ public partial class MapNotesWindow : Window
         else
         {
             MarkerPalettePopup.IsOpen = false;
+            SetDurableSelectionFeedback(
+                $"Ping của {note.OwnerDisplayName} · chỉ chủ ping được sửa hoặc xóa",
+                isError: false);
         }
         e.Handled = true;
     }
@@ -312,8 +325,44 @@ public partial class MapNotesWindow : Window
             return;
         }
 
+        await DeleteOrChangeSelectedAsync(selected, item);
+    }
+
+    private async void DeleteSelectedButton_Click(object sender, RoutedEventArgs e) =>
+        await DeleteSelectedAsync();
+
+    private async Task DeleteSelectedAsync()
+    {
+        if (_paletteBusy || _selectedNoteId is not { } id) return;
+        var selected = VisibleNotes().FirstOrDefault(note => note.Id == id);
+        if (selected is null)
+        {
+            SetDurableSelectionFeedback("Mốc không còn tồn tại.", true);
+            RenderMap();
+            return;
+        }
+        if (!selected.CanEdit)
+        {
+            SetDurableSelectionFeedback(
+                $"Ping của {selected.OwnerDisplayName} · chỉ chủ ping được xóa",
+                true);
+            return;
+        }
+
+        var deleteItem = MapNoteIconCatalog.Palette.First(item => item.IsDelete);
+        await DeleteOrChangeSelectedAsync(selected, deleteItem);
+    }
+
+    private async Task DeleteOrChangeSelectedAsync(
+        MapNotePresentation selected,
+        MapNotePaletteItem item)
+    {
+        var id = selected.Id;
         _paletteBusy = true;
         SetPaletteEnabled(false);
+        DeleteSelectedButton.IsEnabled = false;
+        var succeeded = false;
+        string? failure = null;
         try
         {
             if (selected.IsTeamPing)
@@ -323,6 +372,7 @@ public partial class MapNotesWindow : Window
                     await App.CurrentTeam.DeleteMapPingAsync(id, selected.Revision, _shutdown.Token);
                     RemoveTeamPing(id);
                     _selectedNoteId = null;
+                    succeeded = true;
                 }
                 else
                 {
@@ -335,16 +385,33 @@ public partial class MapNotesWindow : Window
                             selected.V),
                         _shutdown.Token);
                     ApplyTeamPing(ping);
+                    succeeded = true;
                 }
             }
             else if (item.IsDelete)
             {
-                _store.Delete(id);
-                _selectedNoteId = null;
+                var result = _store.TryDelete(id);
+                if (!result.Success)
+                {
+                    failure = result.Error ?? "Không thể xóa mốc khỏi máy.";
+                }
+                else
+                {
+                    _selectedNoteId = null;
+                    succeeded = true;
+                }
             }
             else
             {
-                _store.ChangeKind(id, item.Kind!.Value);
+                var result = _store.TryChangeKind(id, item.Kind!.Value);
+                if (!result.Success)
+                {
+                    failure = result.Error ?? "Không thể lưu thay đổi của mốc.";
+                }
+                else
+                {
+                    succeeded = true;
+                }
             }
         }
         catch (OperationCanceledException) when (_shutdown.IsCancellationRequested)
@@ -353,13 +420,33 @@ public partial class MapNotesWindow : Window
         }
         catch (TeamMapPingException exception)
         {
-            SelectionDetailLabel.Text = FriendlyPingError(exception);
+            if (item.IsDelete && exception.Code == "ping_not_found")
+            {
+                RemoveTeamPing(selected.Id);
+                _selectedNoteId = null;
+                succeeded = true;
+            }
+            else
+            {
+                failure = FriendlyPingError(exception);
+            }
         }
         finally
         {
             _paletteBusy = false;
             SetPaletteEnabled(true);
-            MarkerPalettePopup.IsOpen = false;
+            DeleteSelectedButton.IsEnabled = true;
+            MarkerPalettePopup.IsOpen = failure is not null;
+            if (failure is not null)
+            {
+                SetDurableSelectionFeedback(failure, true);
+            }
+            else if (succeeded)
+            {
+                SetDurableSelectionFeedback(
+                    item.IsDelete ? "Đã xóa mốc." : "Đã lưu loại mốc.",
+                    false);
+            }
             RenderMap();
         }
     }
@@ -460,7 +547,7 @@ public partial class MapNotesWindow : Window
             Background = Brushes.Transparent,
             BorderThickness = new Thickness(0d),
             Padding = new Thickness(2d),
-            Cursor = Cursors.Hand,
+            Cursor = note.CanEdit ? Cursors.Hand : Cursors.Arrow,
             Content = chrome,
             Tag = note.Id,
             ToolTip = note.IsTeamPing
@@ -468,7 +555,18 @@ public partial class MapNotesWindow : Window
                 : $"{item.Label} · Cá nhân · X {note.WorldX / 1000d:0.0} / Y {note.WorldY / 1000d:0.0}"
         };
         button.Click += NoteButton_Click;
+        button.MouseRightButtonUp += NoteButton_MouseRightButtonUp;
         return button;
+    }
+
+    private async void NoteButton_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not Button { Tag: Guid id }) return;
+        _selectedNoteId = id;
+        ClearDurableSelectionFeedback();
+        UpdateSelectionDetail();
+        await DeleteSelectedAsync();
+        e.Handled = true;
     }
 
     private FrameworkElement CreatePlayerMarker()
@@ -500,6 +598,16 @@ public partial class MapNotesWindow : Window
 
     private void UpdateSelectionDetail()
     {
+        if (_durableSelectionFeedback is not null)
+        {
+            SelectionDetailLabel.Text = _durableSelectionFeedback;
+            SelectionDetailLabel.Foreground = BrushFrom(
+                _durableSelectionFeedbackIsError ? "#EF8D7C" : "#8FE3D0");
+            RefreshDeleteButton();
+            return;
+        }
+
+        SelectionDetailLabel.Foreground = BrushFrom("#8CA59D");
         var notes = VisibleNotes();
         var note = _selectedNoteId is { } id
             ? notes.FirstOrDefault(candidate => candidate.Id == id)
@@ -508,7 +616,8 @@ public partial class MapNotesWindow : Window
         {
             SelectionDetailLabel.Text = notes.Count == 0
                 ? "Chọn một vị trí trên bản đồ"
-                : "Click một mốc để đổi biểu tượng hoặc xóa";
+                : "Click mốc để chọn · Delete hoặc chuột phải để xóa";
+            RefreshDeleteButton();
             return;
         }
 
@@ -522,6 +631,34 @@ public partial class MapNotesWindow : Window
                 : $"PING CỦA {note.OwnerDisplayName} · CHỈ CHỦ PING ĐƯỢC SỬA"
             : "MỐC CÁ NHÂN";
         SelectionDetailLabel.Text = $"{item.Label.ToUpperInvariant()} · {ownership} · X {note.WorldX / 1000d:0.0}  Y {note.WorldY / 1000d:0.0} · {distance}";
+        RefreshDeleteButton();
+    }
+
+    private void RefreshDeleteButton()
+    {
+        var selected = _selectedNoteId is { } id
+            ? VisibleNotes().FirstOrDefault(note => note.Id == id)
+            : null;
+        DeleteSelectedButton.Visibility = selected is null
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+        DeleteSelectedButton.IsEnabled = selected?.CanEdit == true && !_paletteBusy;
+        DeleteSelectedButton.Content = selected?.CanEdit == true
+            ? "XÓA MỐC · DELETE"
+            : "CHỈ CHỦ PING ĐƯỢC XÓA";
+    }
+
+    private void SetDurableSelectionFeedback(string message, bool isError)
+    {
+        _durableSelectionFeedback = message;
+        _durableSelectionFeedbackIsError = isError;
+        UpdateSelectionDetail();
+    }
+
+    private void ClearDurableSelectionFeedback()
+    {
+        _durableSelectionFeedback = null;
+        _durableSelectionFeedbackIsError = false;
     }
 
     private static string FormatDistance(WorldLocation player, MapNotePresentation note)
@@ -538,11 +675,17 @@ public partial class MapNotesWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 
-    private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+    private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Escape)
         {
             Close();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Delete
+                 && Keyboard.FocusedElement is not TextBoxBase)
+        {
+            await DeleteSelectedAsync();
             e.Handled = true;
         }
     }

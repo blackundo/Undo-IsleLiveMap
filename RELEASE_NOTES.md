@@ -1,4 +1,51 @@
-# Isle Live Map 1.5.2
+# Isle Live Map 2.0.3
+
+## Nạp Npcap ngay trong phiên hiện tại
+
+- Không còn yêu cầu đóng/mở lại app sau khi bộ cài Npcap hoàn tất.
+- Probe Npcap dùng native `pcap_findalldevs` độc lập, không khởi tạo SharpPcap quá sớm rồi giữ lỗi trong process.
+- Sau khi cài xong, app kiểm tra lại service, thư viện và adapter rồi tiếp tục mở map ngay.
+- Nếu máy thật sự thiếu quyền hoặc driver, thông báo chuyển sang hướng dẫn thử lại/cài lại rõ ràng hơn.
+
+# Isle Live Map 2.0.2
+
+## Chọn nguồn server ngay từ Home
+
+- Modal cập nhật có thêm trang đầu giới thiệu nguồn **Origin x5** và **Gacha**.
+- Chọn nguồn ngay bên dưới nút **Mở Map** để dùng đúng luồng stats của server; IslePilot vẫn là nguồn mặc định.
+- Bổ sung logo Origin và Gacha vào trang hướng dẫn để nhận diện nhanh hơn.
+
+## Sửa nhận diện thư mục The Isle qua Steam
+
+- Không còn phụ thuộc duy nhất vào khóa `Steam App 376210` trong Windows Registry.
+- Tự đọc Steam root từ Registry, biến môi trường và các vị trí Steam chuẩn.
+- Tự quét toàn bộ thư viện trong `libraryfolders.vdf`, bao gồm game cài ở ổ đĩa/thư viện phụ.
+- Đọc `installdir` và `buildid` từ `appmanifest_376210.acf`, có kiểm tra đường dẫn an toàn trước khi dùng.
+- Giữ nguyên kiểm tra build và không ghi bất kỳ file game nào nếu không xác định chắc chắn cài đặt.
+- Sổ tay Mutation `Alt + U` là dữ liệu cục bộ, có thể mở ngay khi Live Map chạy; không còn bị chặn bởi trạng thái xác nhận server tạm thời.
+
+# Isle Live Map 2.0.1
+
+## Sửa kiểm tra Npcap trên Windows
+
+- Nhận diện Npcap bằng cả thư viện native và danh sách adapter thực tế, không chỉ dựa vào trạng thái service.
+- Tự tìm `wpcap.dll` và `Packet.dll` trong các thư mục System32/SysWOW64 chuẩn, đồng thời nạp native library ổn định hơn.
+- Làm mới danh sách adapter thay vì dùng singleton có thể bị stale sau khi người dùng cài Npcap trong lúc app đang mở.
+- Phân biệt rõ thiếu DLL, không có adapter, thiếu quyền và lỗi native để người dùng biết cách xử lý.
+- Nếu cài đặt thành công nhưng process hiện tại chưa nạp được DLL, app báo cần mở lại thay vì báo cài đặt thất bại.
+
+# Isle Live Map 2.0.0
+
+## Stats, Việt hóa và thao tác nhanh
+
+- Stats dino cá nhân tiếp tục lấy từ IslePilot; server Gacha có adapter API/WebSocket chính thức riêng và không làm ảnh hưởng GPS/Live Map.
+- Thêm lựa chọn English / Tiếng Việt và sổ tay tra cứu 43 Mutation bằng `Alt + U`; lớp hỗ trợ không inject, không đọc memory và không thay native UI của game.
+- Set point Pro hỗ trợ mở map lớn bằng `Alt + M`, nhập tọa độ XYZ, click mốc cũ để đổi icon hoặc xóa bằng thùng rác / `Delete`.
+- Bổ sung cài đặt phím tắt có kiểm tra xung đột; `Ctrl + Shift + O` mở Edit Mode, `Alt + P` ẩn/hiện toàn HUD.
+- Từng block Map, Status, Team và Prime có thể bật/tắt, resize độc lập; layout, hình map và trạng thái block được lưu lại.
+- Modal cập nhật 2.0.0 gồm 5 trang, phân biệt rõ Free/Pro; checkbox “Không hiển thị lại” chỉ xuất hiện sau khi xem đến trang cuối.
+
+## Nền tảng từ 1.5.2
 
 ## Overlay nhẹ hơn, ổn định hơn
 
@@ -27,7 +74,7 @@
 - Tài khoản Pro còn hiệu lực hoặc lifetime không bị làm phiền bởi modal quảng bá.
 - Tài khoản Free, chưa đăng nhập hoặc đã hết hạn Pro sẽ nhận lại modal Kích hoạt Pro ở lần mở app tiếp theo.
 - Nếu quyền hết hạn trong lúc app đang chạy, Home tự chuyển về Free và hiện lời mời kích hoạt lại ngay lúc đó.
-- Modal cập nhật 1.5.2 gồm 5 trang; tùy chọn “Không hiển thị lại” chỉ xuất hiện ở trang cuối.
+- Modal cập nhật 1.5.3 gồm 5 trang; tùy chọn “Không hiển thị lại” chỉ xuất hiện ở trang cuối.
 
 ## Kỳ vọng sử dụng
 

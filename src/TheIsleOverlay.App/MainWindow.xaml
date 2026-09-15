@@ -145,16 +145,6 @@
                 <TextBlock x:Name="MapStateLabel" Text="ĐANG TẢI BẢN ĐỒ" Foreground="#A5BDB5" Background="#C0091718" Padding="10,6" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
                 </Grid>
 
-                <StackPanel x:Name="EditToolbar" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0">
-                    <Border Background="#D7102424" BorderBrush="#4D7B7267" BorderThickness="1" CornerRadius="2" Padding="8,4" Cursor="SizeAll">
-                        <TextBlock Text="MAP · MOVE" Foreground="#BBD1C9" FontFamily="Bahnschrift SemiCondensed" FontSize="9" />
-                    </Border>
-                    <Button Style="{StaticResource ChromeButton}" Content="HOME" Margin="4,0,0,0" Padding="7,3" Click="HomeButton_Click" ToolTip="Đổi nguồn telemetry" />
-                    <Button x:Name="LockButton" Style="{StaticResource ChromeButton}" Content="LOCK" Margin="4,0,0,0" Click="LockButton_Click" ToolTip="Khóa xuyên chuột · Ctrl+Shift+O để mở" />
-                    <Button Style="{StaticResource ChromeButton}" Content="—" Margin="4,0,0,0" Width="25" Padding="0" Click="MinimizeButton_Click" />
-                    <Button Style="{StaticResource ChromeButton}" Content="×" Margin="4,0,0,0" Width="25" Padding="0" Click="CloseButton_Click" />
-                </StackPanel>
-
                 <StackPanel x:Name="MapLayerControls" Orientation="Horizontal"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,8,74,8">
                     <ToggleButton x:Name="ZoneLayerToggle" Style="{StaticResource MapLayerToggle}"
@@ -503,6 +493,49 @@
                 </primitives:Thumb>
             </Grid>
             <Grid Margin="0,7,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="BLOCK HIỂN THỊ" Foreground="#789A92"
+                               FontFamily="Bahnschrift SemiCondensed" FontSize="8" />
+                    <TextBlock Grid.Column="1" Text="LƯU TỰ ĐỘNG" Foreground="#58766E"
+                               FontFamily="Bahnschrift" FontSize="7.5" />
+                </Grid>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,0">
+                    <ToggleButton x:Name="MapVisibilityToggle" Tag="map"
+                                  Style="{StaticResource MapLayerToggle}" Content="MAP"
+                                  IsChecked="True" Click="WidgetVisibilityToggle_Click"
+                                  AutomationProperties.Name="Bật hoặc tắt block Map" />
+                    <ToggleButton x:Name="StatsVisibilityToggle" Tag="stats"
+                                  Style="{StaticResource MapLayerToggle}" Content="STATUS"
+                                  IsChecked="True" Margin="3,0,0,0"
+                                  Click="WidgetVisibilityToggle_Click"
+                                  AutomationProperties.Name="Bật hoặc tắt block Status" />
+                    <ToggleButton x:Name="TeamVisibilityToggle" Tag="team"
+                                  Style="{StaticResource MapLayerToggle}" Content="TEAM"
+                                  IsChecked="True" Margin="3,0,0,0"
+                                  Click="WidgetVisibilityToggle_Click"
+                                  AutomationProperties.Name="Bật hoặc tắt block Team" />
+                    <ToggleButton x:Name="PrimeVisibilityToggle" Tag="prime"
+                                  Style="{StaticResource MapLayerToggle}" Content="PRIME"
+                                  IsChecked="True" Margin="3,0,0,0"
+                                  Click="WidgetVisibilityToggle_Click"
+                                  AutomationProperties.Name="Bật hoặc tắt block Prime" />
+                    <Button x:Name="ShowAllWidgetsButton"
+                            Style="{StaticResource ChromeButton}" Content="HIỆN TẤT CẢ"
+                            Height="24" Padding="6,0" Margin="6,0,0,0" FontSize="7.5"
+                            Foreground="#8FE3D0" BorderBrush="#4E746B"
+                            AutomationProperties.Name="Hiện lại tất cả block overlay"
+                            Click="ShowAllWidgetsButton_Click" />
+                </StackPanel>
+            </Grid>
+            <Grid Margin="0,7,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -529,6 +562,33 @@
             </StackPanel>
         </Border>
         </Canvas>
+
+        <!-- Kept outside MapPanel so hiding Map never removes the recovery controls. -->
+        <StackPanel x:Name="EditToolbar" Panel.ZIndex="90"
+                    Orientation="Horizontal" HorizontalAlignment="Right"
+                    VerticalAlignment="Top" Margin="0,12,12,0" Visibility="Collapsed">
+            <Border Background="#E7102424" BorderBrush="#5D7B7267"
+                    BorderThickness="1" CornerRadius="2" Padding="8,4">
+                <TextBlock Text="EDIT MODE" Foreground="#8FE3D0"
+                           FontFamily="Bahnschrift SemiCondensed" FontSize="9" FontWeight="SemiBold" />
+            </Border>
+            <Button Style="{StaticResource ChromeButton}" Content="HOME"
+                    Margin="4,0,0,0" Padding="7,3"
+                    Click="HomeButton_Click" ToolTip="Đổi nguồn telemetry" />
+            <Button Style="{StaticResource ChromeButton}" Content="PHÍM"
+                    Margin="4,0,0,0" Padding="7,3"
+                    Click="ShortcutSettingsButton_Click"
+                    ToolTip="Đổi các tổ hợp phím của overlay" />
+            <Button x:Name="LockButton" Style="{StaticResource ChromeButton}" Content="LOCK"
+                    Margin="4,0,0,0" Click="LockButton_Click"
+                    ToolTip="Thoát Edit Mode và bật xuyên chuột" />
+            <Button Style="{StaticResource ChromeButton}" Content="—"
+                    Margin="4,0,0,0" Width="25" Padding="0"
+                    Click="MinimizeButton_Click" />
+            <Button Style="{StaticResource ChromeButton}" Content="×"
+                    Margin="4,0,0,0" Width="25" Padding="0"
+                    Click="CloseButton_Click" />
+        </StackPanel>
 
         <Border x:Name="MissionToast" Panel.ZIndex="100" Visibility="Collapsed" Opacity="0"
                 HorizontalAlignment="Center" VerticalAlignment="Top" Margin="12,18,12,0"

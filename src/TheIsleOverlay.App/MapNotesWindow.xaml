@@ -65,6 +65,37 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="DeleteNoteButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="#FFF3F0" />
+            <Setter Property="Background" Value="#C06B2B25" />
+            <Setter Property="BorderBrush" Value="#C9695C" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
+            <Setter Property="FontSize" Value="9.5" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="2" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#E08D3A31" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.42" />
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Border x:Name="WindowChrome" Margin="12" Background="#F2071717"
@@ -95,7 +126,7 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,14,0">
                         <TextBlock x:Name="NoteCountLabel" Text="0 MỐC" Foreground="#E7B74E"
                                    FontFamily="Bahnschrift" FontSize="10" HorizontalAlignment="Right" />
-                        <TextBlock Text="ALT + M / ESC ĐỂ ĐÓNG" Foreground="#718E86"
+                        <TextBlock x:Name="CloseShortcutLabel" Text="ALT + M / ESC ĐỂ ĐÓNG" Foreground="#718E86"
                                    FontFamily="Bahnschrift" FontSize="8.5" />
                     </StackPanel>
                     <Button Grid.Column="2" Style="{StaticResource ChromeButton}" Content="×"
@@ -170,11 +201,18 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="SelectionDetailLabel" Text="Chọn một vị trí trên bản đồ"
                            Foreground="#8CA59D" FontFamily="Bahnschrift" FontSize="9.5"
                            VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Text="BẢN ĐỒ CỐ ĐỊNH · KHÔNG ZOOM"
+                <Button x:Name="DeleteSelectedButton" Grid.Column="1"
+                        Style="{StaticResource DeleteNoteButtonStyle}"
+                        Content="XÓA MỐC · DELETE" Height="27" Padding="10,0" Margin="10,0"
+                        Visibility="Collapsed"
+                        AutomationProperties.Name="Xóa mốc đang chọn"
+                        Click="DeleteSelectedButton_Click" />
+                <TextBlock Grid.Column="2" Text="BẢN ĐỒ CỐ ĐỊNH · KHÔNG ZOOM"
                            Foreground="#58766E" FontFamily="Bahnschrift SemiCondensed" FontSize="8.5"
                            VerticalAlignment="Center" />
             </Grid>
