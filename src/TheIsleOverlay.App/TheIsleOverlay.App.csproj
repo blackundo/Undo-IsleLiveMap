@@ -1,6 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <!-- Server-specific stats login flows are retained in the repository for
+         rollback/reference, but 2.1.0 exposes one direct inbound path for all
+         servers. Keep those partials out of the production binary so their
+         buttons and auto-probing cannot reappear. -->
+    <Compile Remove="HomeWindow.Gacha.cs" />
+    <Compile Remove="HomeWindow.Origin.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TheIsleOverlay.Core\TheIsleOverlay.Core.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.EraGaming\TheIsleOverlay.EraGaming.csproj" />
     <ProjectReference Include="..\TheIsleOverlay.Gacha\TheIsleOverlay.Gacha.csproj" />
@@ -51,7 +60,7 @@
     <Product>Isle Live Map</Product>
     <Description>Open-source live map overlay for The Isle Evrima.</Description>
     <Authors>klong-dev</Authors>
-    <Version>2.0.2</Version>
+    <Version>2.1.0</Version>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationIcon>Assets\IsleLiveMap.ico</ApplicationIcon>
   </PropertyGroup>

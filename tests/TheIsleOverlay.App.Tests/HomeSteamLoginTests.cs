@@ -46,7 +46,11 @@ public sealed class HomeSteamLoginTests
             .ToArray();
         Assert.Contains("KÍCH HOẠT LIVE MAP", text);
         Assert.Contains("KÍCH HOẠT PRO · CHỈ TỪ 28K", text);
-        Assert.Contains("GPS trực tiếp · Tự chọn Origin, Gacha hoặc IslePilot theo server", text);
+        Assert.Contains("GPS trực tiếp · Chỉ số cập nhật realtime trên mọi server", text);
+        Assert.DoesNotContain("GachaStatsButton", text);
+        Assert.DoesNotContain("OriginStatsButton", text);
+        Assert.DoesNotContain("LogoutGachaButton", text);
+        Assert.DoesNotContain("NGẮT GACHA", text);
         Assert.DoesNotContain("SERVER DÙNG WEBSITE RIÊNG", text);
     }
 
