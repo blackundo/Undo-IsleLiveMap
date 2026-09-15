@@ -11,10 +11,6 @@ public static class AppPaths
 
     public static string WebView2Profile { get; } = Path.Combine(Root, "WebView2");
 
-    public static string KLongServicesWebView2Profile { get; } = Path.Combine(
-        Root,
-        "KLongServicesWebView2");
-
     public static string IslePilotCredential { get; } = Path.Combine(
         Root,
         "islepilot-overlay.credential");

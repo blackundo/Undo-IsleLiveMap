@@ -34,11 +34,6 @@
     <Resource Include="Assets\MapZoneTip.png" />
     <Resource Include="Assets\GachaLogo.png" />
     <Resource Include="Assets\OriginLogo.png" />
-    <Resource Include="Assets\Advertising\tft.png" />
-    <Resource Include="Assets\Advertising\fco4.jpg" />
-    <Resource Include="Assets\Advertising\nro.jpg" />
-    <Resource Include="Assets\Advertising\hso.jpg" />
-    <Resource Include="Assets\Advertising\vltn.webp" />
     <EmbeddedResource Include="Assets\GatewayMapLayers.json" />
     <!-- The `.vi` segment is part of the file name, not a satellite-resource
          culture. Keep the catalog in the main assembly so MutationCatalog can

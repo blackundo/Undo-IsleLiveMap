@@ -111,15 +111,6 @@ public partial class HomeWindow : Window
             highlightsWindow.ShowDialog();
         }
 
-        if (App.CurrentApp.TryMarkServicesAdShown() && IsVisible)
-        {
-            var servicesAdWindow = new KLongServicesAdWindow
-            {
-                Owner = this
-            };
-            servicesAdWindow.ShowDialog();
-        }
-
         ShowProPromotionIfNeeded();
 
         try
