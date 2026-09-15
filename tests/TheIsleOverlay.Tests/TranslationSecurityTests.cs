@@ -38,7 +38,7 @@ public sealed class TranslationSecurityTests
         var validator = new TranslationManifestValidator(new LocalizationOptions());
 
         var wrongHost = Manifest(archive, files) with { Url = "https://attacker.example/assets/translation/a.zip" };
-        var queryCredential = Manifest(archive, files) with { Url = "https://isle.klong.dev/assets/translation/a.zip?token=secret" };
+        var queryCredential = Manifest(archive, files) with { Url = "https://isle-localization.modundo.com/assets/translation/a.zip?token=secret" };
 
         Assert.Throws<InvalidDataException>(() => validator.Validate(wrongHost));
         Assert.Throws<InvalidDataException>(() => validator.Validate(queryCredential));
@@ -154,7 +154,7 @@ public sealed class TranslationSecurityTests
         Version = "1.1.4",
         Notes = "test",
         Published = true,
-        Url = "https://isle.klong.dev/assets/translation/isle-live-map-vi-1.1.4.zip",
+        Url = "https://isle-localization.modundo.com/assets/translation/isle-live-map-vi-1.1.4.zip",
         Sha256 = Convert.ToHexString(SHA256.HashData(archive)),
         SupportedBuildIds = ["24664737"],
         Files = files,

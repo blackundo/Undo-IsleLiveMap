@@ -12,7 +12,7 @@ public sealed class ProAccessService : IDisposable
     private readonly ProApiClient _apiClient;
     private readonly ProCredentialStore _credentialStore;
     private readonly LocalProKeyStore _localKeyStore;
-    private readonly string _localAgentPath;
+    private readonly string? _localAgentPath;
     private string? _localActivationKey;
     private readonly ProReleaseManager _releaseManager;
     private readonly TimeProvider _timeProvider;
@@ -33,7 +33,9 @@ public sealed class ProAccessService : IDisposable
         _apiClient = new ProApiClient(_httpClient, options.BaseUri);
         _credentialStore = new ProCredentialStore(options.CredentialPath);
         _localKeyStore = new LocalProKeyStore(options.CredentialPath + ".local-key-v2");
-        _localAgentPath = Path.GetFullPath(options.LocalAgentPath);
+        _localAgentPath = string.IsNullOrWhiteSpace(options.LocalAgentPath)
+            ? null
+            : Path.GetFullPath(options.LocalAgentPath);
         _releaseManager = new ProReleaseManager(
             _apiClient,
             options.InstallationRoot,
@@ -65,8 +67,10 @@ public sealed class ProAccessService : IDisposable
             ValidateHostVersion(hostVersion);
             var key = await _localKeyStore.LoadAsync(cancellationToken).ConfigureAwait(false);
             if (key is null) return SetState(null, null, ProAccessSnapshot.SignedOut);
-            var snapshot = await VerifyLocalKeyAsync(key, hostVersion, cancellationToken).ConfigureAwait(false);
-            return SetLocalState(key, snapshot, hostVersion);
+            var (snapshot, installation) = await VerifyLocalKeyAsync(
+                    key, hostVersion, cancellationToken)
+                .ConfigureAwait(false);
+            return SetLocalState(key, installation, snapshot, hostVersion);
         }
         finally
         {
@@ -117,13 +121,15 @@ public sealed class ProAccessService : IDisposable
             ValidateHostVersion(hostVersion);
             if (!LocalProKeyStore.Accepts(key)) throw new ArgumentException("The activation key is invalid.", nameof(key));
             key = key.Trim();
-            var snapshot = await VerifyLocalKeyAsync(key, hostVersion, cancellationToken).ConfigureAwait(false);
+            var (snapshot, installation) = await VerifyLocalKeyAsync(
+                    key, hostVersion, cancellationToken)
+                .ConfigureAwait(false);
             if (!snapshot.AgentReady)
-                throw new ProAgentException(snapshot.StatusCode == "local_agent_unavailable"
-                    ? "Không tìm thấy Pro Agent. Hãy cài Agent đi kèm rồi thử lại."
-                    : "Agent từ chối key hoặc chưa kết nối được. Kiểm tra key và thử lại.");
+                throw new ProAgentException(snapshot.StatusCode is "local_key_rejected" or "local_agent_rejected"
+                    ? "Key không hợp lệ hoặc Pro Agent đã từ chối key."
+                    : "Không tải hoặc khởi động được Pro Agent. Hãy kiểm tra mạng và thử lại.");
             await _localKeyStore.ActivateAsync(key, cancellationToken).ConfigureAwait(false);
-            return SetLocalState(key, snapshot, hostVersion);
+            return SetLocalState(key, installation, snapshot, hostVersion);
         }
         finally
         {
@@ -131,35 +137,61 @@ public sealed class ProAccessService : IDisposable
         }
     }
 
-    private async Task<ProAccessSnapshot> VerifyLocalKeyAsync(
+    private async Task<(ProAccessSnapshot Snapshot, ProAgentInstallation? Installation)> VerifyLocalKeyAsync(
         string key, string hostVersion, CancellationToken cancellationToken)
     {
         string? version = null;
         var status = "local_agent_unavailable";
-        if (File.Exists(_localAgentPath))
+        ProAgentInstallation? installation = null;
+        var agentPath = _localAgentPath;
+        try
         {
-            await using var source = ProAgentRemotePlayerSource.ForLocalKey(_localAgentPath, hostVersion, key);
-            try
+            if (agentPath is null)
             {
+                installation = await _releaseManager.EnsureAvailableAsync(
+                        hostVersion,
+                        key,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                agentPath = installation.ExecutablePath;
+            }
+
+            if (File.Exists(agentPath))
+            {
+                await using var source = ProAgentRemotePlayerSource.ForLocalKey(
+                    agentPath, hostVersion, key);
                 version = await source.ProbeAsync(cancellationToken).ConfigureAwait(false);
                 status = "local_key_active";
             }
-            catch (Exception ex) when (ex is ProAgentException or IOException or
-                UnauthorizedAccessException or System.ComponentModel.Win32Exception)
-            {
-                status = "local_agent_rejected";
-            }
         }
-        return new ProAccessSnapshot(null,
+        catch (Exception exception) when (exception is ProAgentException or ProApiException or IOException or
+            InvalidDataException or UnauthorizedAccessException or
+            System.ComponentModel.Win32Exception)
+        {
+            status = exception switch
+            {
+                ProAgentException => "local_agent_rejected",
+                ProApiException { StatusCode: HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden } =>
+                    "local_key_rejected",
+                _ => "local_agent_unavailable"
+            };
+        }
+
+        var snapshot = new ProAccessSnapshot(null,
             version is not null ? new ProEntitlement("pro", "active", null) : ProAccessSnapshot.SignedOut.Entitlement,
             false, version is not null, version, null, status);
+        return (snapshot, installation);
     }
 
-    private ProAccessSnapshot SetLocalState(string key, ProAccessSnapshot snapshot, string hostVersion)
+    private ProAccessSnapshot SetLocalState(
+        string key,
+        ProAgentInstallation? installation,
+        ProAccessSnapshot snapshot,
+        string hostVersion)
     {
         lock (_stateGate)
         {
-            var result = SetState(null, null, snapshot, hostVersion);
+            var result = SetState(null, installation, snapshot, hostVersion);
             _localActivationKey = snapshot.AgentReady ? key : null;
             return result;
         }
@@ -186,7 +218,11 @@ public sealed class ProAccessService : IDisposable
         {
             if (_current.StatusCode == "local_key_active" && _current.AgentReady && _current.IsPro && _localActivationKey is not null)
             {
-                return ProAgentRemotePlayerSource.ForLocalKey(_localAgentPath, _currentHostVersion, _localActivationKey);
+                var agentPath = _installation?.ExecutablePath ?? _localAgentPath;
+                return agentPath is null
+                    ? null
+                    : ProAgentRemotePlayerSource.ForLocalKey(
+                        agentPath, _currentHostVersion, _localActivationKey);
             }
             if (_session is null ||
                 _installation is null ||

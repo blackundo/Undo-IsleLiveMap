@@ -5,6 +5,20 @@ namespace TheIsleOverlay.ProClient.Tests;
 
 public sealed class LocalProActivationTests
 {
+    [Fact]
+    public void ProductionOptions_UseVersionedProDirectoryInLocalAppData()
+    {
+        var options = new ProClientOptions();
+        var expectedRoot = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Undo-Isle",
+            "IsleLiveMap",
+            "Pro");
+
+        Assert.Equal(expectedRoot, options.InstallationRoot);
+        Assert.Null(options.LocalAgentPath);
+    }
+
     [Theory]
     [InlineData("example-key", true)]
     [InlineData("  example-key  ", true)]

@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -9,8 +8,6 @@ public sealed class ProReleaseManager : IDisposable
     public const int IpcApiMajor = 2;
 
     private const long MaximumArtifactBytes = 128L * 1024L * 1024L;
-    private const long MaximumExtractedBytes = 256L * 1024L * 1024L;
-    private const int MaximumArchiveEntries = 2_048;
     private const string AgentExecutableName = "IsleLiveMap.Pro.Agent.exe";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
@@ -83,12 +80,12 @@ public sealed class ProReleaseManager : IDisposable
 
         Directory.CreateDirectory(_installationRoot);
         Directory.CreateDirectory(_versionsRoot);
-        var temporaryZip = Path.Combine(_installationRoot, $".download-{Guid.NewGuid():N}.zip");
+        var temporaryExecutable = Path.Combine(_installationRoot, $".download-{Guid.NewGuid():N}.exe");
         var staging = Path.Combine(_versionsRoot, $".{manifest.Version}.{Guid.NewGuid():N}.tmp");
         try
         {
             await using (var destination = new FileStream(
-                             temporaryZip,
+                             temporaryExecutable,
                              FileMode.CreateNew,
                              FileAccess.Write,
                              FileShare.None,
@@ -104,14 +101,10 @@ public sealed class ProReleaseManager : IDisposable
                 await destination.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            await VerifyArtifactAsync(temporaryZip, manifest, cancellationToken).ConfigureAwait(false);
+            await VerifyArtifactAsync(temporaryExecutable, manifest, cancellationToken).ConfigureAwait(false);
             Directory.CreateDirectory(staging);
-            ExtractSafely(temporaryZip, staging);
             var stagedExecutable = Path.Combine(staging, AgentExecutableName);
-            if (!File.Exists(stagedExecutable))
-            {
-                throw new InvalidDataException("The signed Pro archive does not contain the agent executable.");
-            }
+            File.Move(temporaryExecutable, stagedExecutable);
 
             var target = Path.Combine(_versionsRoot, manifest.Version);
             string? backup = null;
@@ -145,9 +138,9 @@ public sealed class ProReleaseManager : IDisposable
         }
         finally
         {
-            if (File.Exists(temporaryZip))
+            if (File.Exists(temporaryExecutable))
             {
-                File.Delete(temporaryZip);
+                File.Delete(temporaryExecutable);
             }
 
             if (Directory.Exists(staging))
@@ -242,46 +235,6 @@ public sealed class ProReleaseManager : IDisposable
                 Convert.FromHexString(manifest.Sha256)))
         {
             throw new InvalidDataException("The Pro artifact hash does not match its signed manifest.");
-        }
-    }
-
-    private static void ExtractSafely(string archivePath, string destinationRoot)
-    {
-        var root = Path.GetFullPath(destinationRoot) + Path.DirectorySeparatorChar;
-        using var archive = ZipFile.OpenRead(archivePath);
-        if (archive.Entries.Count > MaximumArchiveEntries)
-        {
-            throw new InvalidDataException("The Pro archive contains too many entries.");
-        }
-
-        long extractedBytes = 0;
-        foreach (var entry in archive.Entries)
-        {
-            if ((entry.ExternalAttributes >> 16 & 0xF000) == 0xA000)
-            {
-                throw new InvalidDataException("The Pro archive contains an unsupported symbolic link.");
-            }
-
-            extractedBytes += entry.Length;
-            if (extractedBytes > MaximumExtractedBytes)
-            {
-                throw new InvalidDataException("The expanded Pro archive exceeds the size limit.");
-            }
-
-            var target = Path.GetFullPath(Path.Combine(destinationRoot, entry.FullName));
-            if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidDataException("The Pro archive contains an unsafe path.");
-            }
-
-            if (string.IsNullOrEmpty(entry.Name))
-            {
-                Directory.CreateDirectory(target);
-                continue;
-            }
-
-            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-            entry.ExtractToFile(target, overwrite: false);
         }
     }
 

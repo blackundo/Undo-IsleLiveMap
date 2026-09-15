@@ -1,7 +1,7 @@
-using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
+using System.Text;
 using TheIsleOverlay.ProClient;
 
 namespace TheIsleOverlay.ProClient.Tests;
@@ -83,10 +83,11 @@ public sealed class ProReleaseManagerTests
     [Fact]
     public async Task EnsureLatestAsync_InstallsSignedCompatibleArtifact()
     {
-        var archive = CreateArchive(("IsleLiveMap.Pro.Agent.exe", "agent-binary"));
+        var executable = Encoding.UTF8.GetBytes("agent-binary");
         using var key = RSA.Create(2048);
-        var manifest = SignManifest(key, archive);
-        using var httpClient = new HttpClient(new ReleaseHandler(manifest, archive));
+        var manifest = SignManifest(key, executable);
+        var handler = new ReleaseHandler(manifest, executable);
+        using var httpClient = new HttpClient(handler);
         var api = new ProApiClient(httpClient, new Uri("https://isle.test/"));
         var root = TemporaryDirectory();
 
@@ -99,7 +100,13 @@ public sealed class ProReleaseManagerTests
                 TestContext.Current.CancellationToken);
 
             Assert.Equal("0.1.0", installation.Version);
+            Assert.Equal(Path.Combine(
+                root, "versions", "0.1.0", "IsleLiveMap.Pro.Agent.exe"),
+                installation.ExecutablePath);
             Assert.True(File.Exists(installation.ExecutablePath));
+            Assert.True(File.Exists(Path.Combine(root, "current.json")));
+            Assert.Equal("access-token", handler.ManifestBearerToken);
+            Assert.Equal("access-token", handler.ArtifactBearerToken);
             Assert.Equal("agent-binary", await File.ReadAllTextAsync(
                 installation.ExecutablePath,
                 TestContext.Current.CancellationToken));
@@ -120,14 +127,21 @@ public sealed class ProReleaseManagerTests
     }
 
     [Fact]
-    public async Task EnsureLatestAsync_RejectsSignedArchiveWithTraversalPath()
+    public async Task EnsureLatestAsync_RejectsArtifactWithMismatchedHash()
     {
-        var archive = CreateArchive(
-            ("IsleLiveMap.Pro.Agent.exe", "agent-binary"),
-            ("../escaped.txt", "must-not-extract"));
+        var expectedExecutable = Encoding.UTF8.GetBytes("agent-binary");
+        var tamperedExecutable = Encoding.UTF8.GetBytes("tampered-agent");
         using var key = RSA.Create(2048);
-        var manifest = SignManifest(key, archive);
-        using var httpClient = new HttpClient(new ReleaseHandler(manifest, archive));
+        var manifest = SignManifest(key, expectedExecutable) with
+        {
+            Size = tamperedExecutable.Length
+        };
+        var signature = Convert.ToBase64String(key.SignData(
+            ProReleaseSignatureVerifier.CreateCanonicalPayload(manifest),
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1));
+        manifest = manifest with { Signature = signature };
+        using var httpClient = new HttpClient(new ReleaseHandler(manifest, tamperedExecutable));
         var api = new ProApiClient(httpClient, new Uri("https://isle.test/"));
         var root = TemporaryDirectory();
 
@@ -140,7 +154,8 @@ public sealed class ProReleaseManagerTests
                     "1.4.0",
                     "access-token",
                     TestContext.Current.CancellationToken));
-            Assert.False(File.Exists(Path.Combine(root, "versions", "escaped.txt")));
+            Assert.False(File.Exists(Path.Combine(
+                root, "versions", manifest.Version, "IsleLiveMap.Pro.Agent.exe")));
         }
         finally
         {
@@ -151,33 +166,17 @@ public sealed class ProReleaseManagerTests
         }
     }
 
-    private static byte[] CreateArchive(params (string Path, string Content)[] entries)
-    {
-        using var stream = new MemoryStream();
-        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
-        {
-            foreach (var item in entries)
-            {
-                var entry = archive.CreateEntry(item.Path);
-                using var writer = new StreamWriter(entry.Open());
-                writer.Write(item.Content);
-            }
-        }
-
-        return stream.ToArray();
-    }
-
-    private static ProReleaseManifest SignManifest(RSA key, byte[] archive)
+    private static ProReleaseManifest SignManifest(RSA key, byte[] executable)
     {
         var unsigned = new ProReleaseManifest(
             "0.1.0",
             ProReleaseManager.IpcApiMajor,
             "1.4.0",
             "2.0.0",
-            archive.Length,
-            Convert.ToHexString(SHA256.HashData(archive)).ToLowerInvariant(),
+            executable.Length,
+            Convert.ToHexString(SHA256.HashData(executable)).ToLowerInvariant(),
             string.Empty,
-            "https://isle.test/artifact.zip",
+            "https://isle.test/IsleLiveMap.Pro.Agent.exe",
             DateTimeOffset.Parse("2026-08-26T00:00:00Z"));
         var signature = Convert.ToBase64String(key.SignData(
             ProReleaseSignatureVerifier.CreateCanonicalPayload(unsigned),
@@ -194,20 +193,26 @@ public sealed class ProReleaseManagerTests
         ProReleaseManifest manifest,
         byte[] artifact) : HttpMessageHandler
     {
+        public string? ManifestBearerToken { get; private set; }
+
+        public string? ArtifactBearerToken { get; private set; }
+
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             if (request.RequestUri?.AbsolutePath == "/api/v1/pro/manifest")
             {
+                ManifestBearerToken = request.Headers.Authorization?.Parameter;
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = JsonContent.Create(manifest)
                 });
             }
 
-            if (request.RequestUri?.AbsolutePath == "/artifact.zip")
+            if (request.RequestUri?.AbsolutePath == "/IsleLiveMap.Pro.Agent.exe")
             {
+                ArtifactBearerToken = request.Headers.Authorization?.Parameter;
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new ByteArrayContent(artifact)

@@ -6,8 +6,9 @@ public sealed record ProClientOptions
 
     public Uri BaseUri { get; init; } = ProductionBaseUri;
 
-    public string LocalAgentPath { get; init; } = Path.Combine(
-        AppContext.BaseDirectory, "ProAgent", "IsleLiveMap.Pro.Agent.exe");
+    // Optional development/test override. Production resolves the installed Agent
+    // from InstallationRoot/current.json and InstallationRoot/versions/<version>.
+    public string? LocalAgentPath { get; init; }
 
     public string InstallationRoot { get; init; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),

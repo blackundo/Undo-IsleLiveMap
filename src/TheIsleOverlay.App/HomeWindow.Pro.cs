@@ -205,13 +205,13 @@ public partial class HomeWindow
             ? Visibility.Visible
             : Visibility.Collapsed;
 
-        if (access.StatusCode is "local_agent_unavailable" or "local_agent_rejected")
+        if (access.StatusCode is "local_agent_unavailable" or "local_agent_rejected" or "local_key_rejected")
         {
             ProTierLabel.Text = "PRO / KEY ĐÃ LƯU";
             ProAccessDetailLabel.Text = "Chưa kết nối được Pro Agent; bấm để thử lại";
             ProAccessActionLabel.Text = "THỬ LẠI →";
             ProAccessStateBar.Fill = HomeBrush("#E7B74E");
-            ProAccessFootnoteLabel.Text = "Kiểm tra thư mục ProAgent đi kèm ứng dụng rồi thử kích hoạt lại.";
+            ProAccessFootnoteLabel.Text = "Không tải hoặc khởi động được Pro Agent; hãy kiểm tra mạng rồi thử lại.";
             SourceStatusLabel.Text = "Key đã lưu; Pro Agent chưa kết nối được.";
             return;
         }

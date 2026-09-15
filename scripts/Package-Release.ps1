@@ -4,12 +4,17 @@ param(
     [string]$Version
 )
 
+$ErrorActionPreference = 'Stop'
 $projectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $publishDirectory = Join-Path $projectRoot 'artifacts\staging\win-x64'
 $releaseDirectory = Join-Path $projectRoot 'artifacts\distribution'
 $projectFile = Join-Path $projectRoot 'src\TheIsleOverlay.App\TheIsleOverlay.App.csproj'
 $iconFile = Join-Path $projectRoot 'src\TheIsleOverlay.App\Assets\IsleLiveMap.ico'
 $releaseNotes = Join-Path $projectRoot 'RELEASE_NOTES.md'
+
+if (Test-Path -LiteralPath $publishDirectory) {
+    Remove-Item -LiteralPath $publishDirectory -Recurse -Force
+}
 
 & (Join-Path $PSScriptRoot 'New-AppIcon.ps1') -OutputPath $iconFile
 if (-not $?) { throw 'Icon generation failed.' }
