@@ -23,7 +23,8 @@ public static class LocalPositionSnapshotMerger
         IReadOnlyList<VerifiedRemoteEntityTelemetry>? remotePlayers = null,
         string? verifiedLocalSpeciesId = null,
         RemotePlayerTelemetryFrame? verifiedLocalFallback = null,
-        bool allowLocalVitals = false)
+        bool allowLocalVitals = false,
+        bool inboundVitalsOnly = false)
     {
         var localObservation = local.GetValueOrDefault();
         var fallback = verifiedLocalFallback;
@@ -42,7 +43,8 @@ public static class LocalPositionSnapshotMerger
                                       LocalVitalsFreshness)
                                   && HasUsableVitals(candidateVitals.Vitals);
         var useLocalVitals = hasFreshLocalVitals
-                             && (remote?.LiveDataStale == true
+                             && (inboundVitalsOnly
+                                 || remote?.LiveDataStale == true
                                  || !HasUsableVitals(remote?.Player?.ExactVitals));
         var hasFreshVerifiedFallback = fallback is not null
                                        && IsRemoteFrameFresh(fallback, now)
@@ -50,6 +52,15 @@ public static class LocalPositionSnapshotMerger
                                        && double.IsFinite(fallback.MapHeadingDegrees);
         if (!hasFreshLocal && !hasFreshVerifiedFallback && !useLocalVitals)
         {
+            if (inboundVitalsOnly
+                && remote?.Player is { } inboundOnlyPlayer)
+            {
+                return remote with
+                {
+                    Player = RemoveVitals(inboundOnlyPlayer)
+                };
+            }
+
             if (remote?.Player is { } previousPlayer
                 && string.Equals(
                     previousPlayer.ExactVitalsSource,
@@ -58,7 +69,7 @@ public static class LocalPositionSnapshotMerger
             {
                 return remote with
                 {
-                    Player = RemoveLocalVitals(previousPlayer)
+                    Player = RemoveVitals(previousPlayer)
                 };
             }
 
@@ -115,13 +126,17 @@ public static class LocalPositionSnapshotMerger
         {
             player = ApplyLocalVitals(player, localVitals!.Value.Vitals);
         }
+        else if (inboundVitalsOnly)
+        {
+            player = RemoveVitals(player);
+        }
         else if (!useLocalVitals
                  && string.Equals(
                      player.ExactVitalsSource,
                      LocalVitalsFeature.SourceName,
                      StringComparison.Ordinal))
         {
-            player = RemoveLocalVitals(player);
+            player = RemoveVitals(player);
         }
 
         // Local movement freshness only proves that the GPS lane is alive.
@@ -174,7 +189,7 @@ public static class LocalPositionSnapshotMerger
         ThirstPercent = PercentOrNull(vitals.Thirst, vitals.MaxThirst)
     };
 
-    private static PlayerTelemetry RemoveLocalVitals(PlayerTelemetry player) => player with
+    private static PlayerTelemetry RemoveVitals(PlayerTelemetry player) => player with
     {
         ExactVitals = null,
         ExactVitalsSource = null,

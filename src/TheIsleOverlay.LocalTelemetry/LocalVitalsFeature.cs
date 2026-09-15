@@ -8,10 +8,19 @@ namespace TheIsleOverlay.LocalTelemetry;
 public static class LocalVitalsFeature
 {
     public const string EnvironmentVariable = "ISLELIVEMAP_LOCAL_VITALS_CANARY";
+    // Temporary validation switch: keep Origin/Gacha/IslePilot sessions alive
+    // for non-stat data, but never accept their vitals while this is enabled.
+    // This lets us measure inbound-only stability without deleting the rollback
+    // path before the canary has passed all reconnect/species tests.
+    public const string InboundOnlyEnvironmentVariable =
+        "ISLELIVEMAP_INBOUND_VITALS_ONLY";
     public const string SourceName = "LocalIris";
 
     public static bool IsEnabled() => IsEnabled(
         Environment.GetEnvironmentVariable(EnvironmentVariable));
+
+    public static bool IsInboundOnly() => IsEnabled(
+        Environment.GetEnvironmentVariable(InboundOnlyEnvironmentVariable));
 
     internal static bool IsEnabled(string? value) =>
         value is not null
