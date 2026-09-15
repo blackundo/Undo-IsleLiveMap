@@ -297,6 +297,8 @@ public partial class MainWindow : Window
             snapshot?.ProPlayerSequence,
             snapshot?.ProPlayerSync,
             snapshot?.ProPlayerCaptureHealth,
+            LocalVitalsCanary = LocalVitalsFeature.IsEnabled(),
+            InboundVitalsOnly = LocalVitalsFeature.IsInboundOnly(),
             PlayerIdentity = snapshot?.Player is { } diagnosticPlayer
                 ? new
                 {

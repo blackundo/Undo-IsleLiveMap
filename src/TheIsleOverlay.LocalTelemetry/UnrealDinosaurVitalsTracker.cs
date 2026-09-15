@@ -266,6 +266,19 @@ public sealed class UnrealDinosaurVitalsTracker
         ReadOnlySpan<byte> payload,
         UnrealIrisReplicationBatch batch)
     {
+        // Canary layout observed on the live Triceratops capture (1383/1483
+        // data bits).  This is deliberately kept ahead of the older layouts:
+        // the two shapes contain the same attribute block with a 100-bit
+        // prefix in the longer form.  Growth is serialized as a percentage
+        // (46..50 in the 15-minute capture), while the older fixtures use a
+        // fraction (0..1).  Repeated copies of the current/max pairs are used
+        // as an anti-overlap guard; without them an unrelated Iris float can
+        // look like a perfectly valid stat.
+        if (TryReadObservedGrowthHealthStaminaFrame(payload, batch))
+        {
+            return true;
+        }
+
         if (TryReadSparseMaximumAttributeFrame(payload, batch))
         {
             return true;
@@ -320,6 +333,111 @@ public sealed class UnrealDinosaurVitalsTracker
             MaxThirst = DefaultMaximumThirst
         };
         RememberVerifiedMaximums();
+        return true;
+    }
+
+    private bool TryReadObservedGrowthHealthStaminaFrame(
+        ReadOnlySpan<byte> payload,
+        UnrealIrisReplicationBatch batch)
+    {
+        var prefix = batch.DataBitCount switch
+        {
+            1_383 => 0,
+            1_483 => 100,
+            _ => int.MinValue
+        };
+        if (prefix == int.MinValue
+            || !TryReadAttribute(payload, batch, 129 + prefix, out var rawGrowth)
+            || !TryReadAttribute(payload, batch, 195 + prefix, out var maxHealth)
+            || !TryReadAttribute(payload, batch, 261 + prefix, out var health)
+            || !TryReadAttribute(payload, batch, 327 + prefix, out var stamina)
+            || !TryReadAttribute(payload, batch, 459 + prefix, out var maxStamina)
+            || !TryReadAttribute(payload, batch, 789 + prefix, out var maxHunger)
+            || !TryReadRepeatedAttribute(
+                payload,
+                batch,
+                health,
+                921 + prefix,
+                954 + prefix,
+                987 + prefix)
+            || !TryReadRepeatedAttribute(
+                payload,
+                batch,
+                stamina,
+                360 + prefix,
+                393 + prefix)
+            || !TryReadRepeatedAttribute(
+                payload,
+                batch,
+                maxStamina,
+                492 + prefix,
+                525 + prefix)
+            || !TryReadRepeatedAttribute(
+                payload,
+                batch,
+                maxHunger,
+                822 + prefix,
+                855 + prefix))
+        {
+            return false;
+        }
+
+        var growth = rawGrowth > 1.001d
+            ? rawGrowth / 100d
+            : rawGrowth;
+        if (growth is < 0d or > 1.001d
+            || maxHealth < MinimumPlausibleMaximum
+            || health < 0d
+            || health > maxHealth * 1.01d
+            || maxStamina < MinimumPlausibleMaximum
+            || stamina < 0d
+            || stamina > maxStamina * 1.01d
+            || maxHunger < MinimumPlausibleMaximum
+            || _vitals.Hunger is { } currentHunger
+            && currentHunger > maxHunger * 1.1d)
+        {
+            return false;
+        }
+
+        if (NearlyEqual(_vitals.Growth, growth)
+            && NearlyEqual(_vitals.Health, health)
+            && NearlyEqual(_vitals.MaxHealth, maxHealth)
+            && NearlyEqual(_vitals.Stamina, stamina)
+            && NearlyEqual(_vitals.MaxStamina, maxStamina)
+            && NearlyEqual(_vitals.MaxHunger, maxHunger))
+        {
+            return false;
+        }
+
+        _vitals = _vitals with
+        {
+            Growth = growth,
+            Health = health,
+            MaxHealth = maxHealth,
+            Stamina = stamina,
+            MaxStamina = maxStamina,
+            MaxHunger = maxHunger,
+            MaxThirst = DefaultMaximumThirst
+        };
+        RememberVerifiedMaximums();
+        return true;
+    }
+
+    private static bool TryReadRepeatedAttribute(
+        ReadOnlySpan<byte> payload,
+        UnrealIrisReplicationBatch batch,
+        double expected,
+        params int[] offsets)
+    {
+        foreach (var offset in offsets)
+        {
+            if (!TryReadAttribute(payload, batch, offset, out var actual)
+                || !NearlyEqual(actual, expected))
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 

@@ -12,7 +12,7 @@ public partial class ReleaseHighlightsWindow : Window
 {
     // Bump the briefing key when its copy changes so users who dismissed an
     // earlier briefing still receive this corrected feature summary.
-    public const string ReleaseVersion = "2.0.2";
+    public const string ReleaseVersion = "2.1.0";
     public const int PageCount = 6;
 
     private static readonly Brush ActiveMarkerBrush = new SolidColorBrush(Color.FromRgb(0xF1, 0xC7, 0x5B));
