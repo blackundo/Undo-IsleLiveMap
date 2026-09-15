@@ -164,6 +164,43 @@ public sealed class UnrealDinosaurVitalsTrackerTests
     }
 
     [Fact]
+    public void Track_ReadsObserved1383BitGrowthHealthAndStaminaFrame()
+    {
+        var tracker = new UnrealDinosaurVitalsTracker();
+        var startedAt = DateTimeOffset.Parse("2026-09-15T00:22:28.456Z");
+
+        // These are four inbound records from a 15-minute Triceratops capture.
+        // The third heartbeat is deliberately adjacent to the periodic 1383-bit
+        // frame, matching the gap seen in live Iris traffic.
+        Assert.False(tracker.TryTrack(
+            Convert.FromBase64String(ObservedHeartbeat1),
+            startedAt,
+            out _));
+        Assert.True(tracker.TryTrack(
+            Convert.FromBase64String(ObservedHeartbeat2),
+            startedAt.AddSeconds(1.042),
+            out var secondHeartbeat));
+        Assert.Equal(47_082UL, secondHeartbeat.NetRefHandle);
+        Assert.True(tracker.TryTrack(
+            Convert.FromBase64String(ObservedHeartbeatNearPeriodic),
+            startedAt.AddSeconds(2.094),
+            out _));
+
+        Assert.True(tracker.TryTrack(
+            Convert.FromBase64String(ObservedPeriodic1383),
+            startedAt.AddSeconds(2.392),
+            out var complete));
+
+        Assert.Equal(47_082UL, complete.NetRefHandle);
+        Assert.Equal(0.46674266815185544d, complete.Vitals.Growth);
+        Assert.Equal(142.935302734375d, complete.Vitals.Health);
+        Assert.Equal(750.4723510742188d, complete.Vitals.MaxHealth);
+        Assert.Equal(9.334853172302246d, complete.Vitals.Stamina);
+        Assert.Equal(14.002280235290527d, complete.Vitals.MaxStamina);
+        Assert.Equal(93.3485336303711d, complete.Vitals.MaxHunger);
+    }
+
+    [Fact]
     public void Reset_DropsVerifiedMaximumsEvenWhenActorHandleIsReused()
     {
         var tracker = new UnrealDinosaurVitalsTracker();
@@ -246,4 +283,16 @@ public sealed class UnrealDinosaurVitalsTrackerTests
 
     private const string SparseMaximumAttributes =
         "EADUZV3y/////2eAAN0nCAIAAAABsV4sCAEAgMoHCANYaDIFAAAcSEjgopshMbFG4cXw0956GZcG9TIuDRqSp0o0JE+VaGyWENHYLCGicvDIQOXgkYHKwSMDlYNHBmpFaxHUitYiqBWtRVArWougVrSWQK1oLYFa0VoCtaK1BHoVYvPzKsTmpyPLnlBHlj2hjix7Qh1Z9oTGZgkRjc0SIurIsifUkWVPqCPLflBHlv2gjiz7QR1Z9oM6suwJdWTZE+rIsifUkWVPCAhYAYSCWgAeTCN+LGogpBUR0AkQqgg6CC139yl0aQfiItowCoJ8GggSIqATIFQRdBBabu1N6CIK5MmxYZn80EEM";
+
+    private const string ObservedHeartbeat1 =
+        "HABgnujz////f9aBAOIhCAEAAABRv/UJCAUgAOom5JepSuBvUQaixJyoEIo5USHU+ICMqPEBGVHMiQqhmBMVQgRZWQYgVKrC9UiPAQ==";
+
+    private const string ObservedHeartbeat2 =
+        "HADkngb0/////9eBABsiiAEAAABRv/UJCBUgAOpKyJepSuBvUQaiBGyoEArYUCEULICMKFgAGVHAhgqhgA0VQkCgAyAU5D4IsrIMQKjUPQqXHgM=";
+
+    private const string ObservedHeartbeatNearPeriodic =
+        "HABwnyX0////f9eBABsiiAEAAABRv/UJCAEgAOom5JepSuBvUQaiRDuoEIp2UCFUX3+MqL7+GFG0gwqhaAcVQkCgAyAU5DoIsrIMQKhU9iicHgM=";
+
+    private const string ObservedPeriodic1383 =
+        "HACMnyz0/////1eAADYmCAEAAABRv00rCAEAgMrnWAQQ+FsUXgw//e2crI7QOVkdoTueO0R3PHeIwr07DIV7dxj6uFUR9HGrIujjVkXQx62KoFcJYEGvEsCCXiWABb1KAAt6lQAW9CoBLOhVAljQqwSwoJA3sTwhb2J5zsnqCp2T1RU6J6srdE5WVyjcu8NQuHeHoXDvDkPh3h2GzsnqCp2T1RU6J6sjdE5WR+icrI7QOVkdoXOyukLnZHWFzsnqCp2T1RUCAmMAocAWAqATuKxqFgN5GA==";
 }
