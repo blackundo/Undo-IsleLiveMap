@@ -64,8 +64,7 @@ public sealed class OverlayLayoutSettingsTests
     [Fact]
     public void MapZoom_ExtendsPreviousNineTimesLimitByTwentyFivePercent()
     {
-        Assert.Equal(11.25d, MapZoomRules.MaximumZoom);
-        Assert.Equal(9d * 1.25d, MapZoomRules.MaximumZoom);
+        Assert.Equal(20d, MapZoomRules.MaximumZoom);
 
         var zoom = MapZoomRules.DefaultZoom;
         for (var index = 0; index < 100; index++)

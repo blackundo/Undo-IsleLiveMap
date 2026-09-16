@@ -274,7 +274,14 @@ public partial class MainWindow
             Child = nameLabel
         });
 
-        return new TeamMapMarker(root, nameLabel, heading);
+        var marker = new TeamMapMarker(root, nameLabel, heading);
+        if (_markerScale != 1.0d)
+        {
+            root.RenderTransformOrigin = new Point(0.5, 0.5);
+            root.RenderTransform = new ScaleTransform(_markerScale, _markerScale);
+        }
+
+        return marker;
     }
 
     private static void UpdateTeamHeading(TeamMapMarker marker, double? headingDegrees)

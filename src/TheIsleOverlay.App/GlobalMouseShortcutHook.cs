@@ -14,6 +14,7 @@ public sealed class GlobalMouseShortcutHook : IDisposable
     private const int WmMiddleButtonDown = 0x0207;
     private const int WmMouseWheel = 0x020A;
     private const int VirtualKeyAlt = 0x12;
+    private const int VirtualKeyControl = 0x11;
 
     private readonly Dispatcher _dispatcher;
     private readonly LowLevelMouseProcedure _procedure;
@@ -36,6 +37,8 @@ public sealed class GlobalMouseShortcutHook : IDisposable
     public event Action<GlobalMousePoint>? MapPanMoved;
     public event Action<GlobalMousePoint>? MapPanEnded;
     public event Action? FollowMapRequested;
+    public event Action? MarkerZoomInRequested;
+    public event Action? MarkerZoomOutRequested;
 
     public Func<GlobalMousePoint, bool>? CanStartMapPan { get; set; }
 
@@ -43,6 +46,9 @@ public sealed class GlobalMouseShortcutHook : IDisposable
 
     public static bool IsActivationKeyPressed() =>
         (GetAsyncKeyState(VirtualKeyAlt) & 0x8000) != 0;
+
+    public static bool IsControlKeyPressed() =>
+        (GetAsyncKeyState(VirtualKeyControl) & 0x8000) != 0;
 
     public bool Install()
     {
@@ -155,8 +161,19 @@ public sealed class GlobalMouseShortcutHook : IDisposable
             }
         }
 
+        if (IsControlKeyPressed() && mouseMessage == WmMouseWheel)
+        {
+            var details = Marshal.PtrToStructure<LowLevelMouseDetails>(data);
+            var delta = unchecked((short)(details.MouseData >> 16));
+            _dispatcher.BeginInvoke(delta > 0
+                ? () => MarkerZoomInRequested?.Invoke()
+                : () => MarkerZoomOutRequested?.Invoke());
+            return (IntPtr)1;
+        }
+
         return CallNextHookEx(_hook, code, message, data);
     }
+
 
     private bool ShouldStartMapPan(GlobalMousePoint point)
     {
@@ -245,5 +262,5 @@ public readonly record struct GlobalMousePoint(int X, int Y);
 internal static class MouseShortcutActivationPolicy
 {
     public static bool ShouldInstall(bool activationKeyPressed, bool gestureActive) =>
-        activationKeyPressed || gestureActive;
+        activationKeyPressed || gestureActive || GlobalMouseShortcutHook.IsControlKeyPressed();
 }

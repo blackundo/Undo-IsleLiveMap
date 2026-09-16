@@ -73,6 +73,7 @@ public partial class MainWindow : Window
     private GlobalMouseShortcutHook? _mouseShortcuts;
     private HwndSource? _windowSource;
     private double _mapZoom = MapZoomRules.DefaultZoom;
+    private double _markerScale = 1.0d;
     private double _mapPanStartImageWidth;
     private double _mapPanStartImageHeight;
     private double _mapPanStartDpiScaleX = 1d;
@@ -501,6 +502,8 @@ public partial class MainWindow : Window
         _mouseShortcuts.MapPanMoved += MoveMapPan;
         _mouseShortcuts.MapPanEnded += EndMapPan;
         _mouseShortcuts.FollowMapRequested += FollowPlayerMap;
+        _mouseShortcuts.MarkerZoomInRequested += MarkerZoomIn;
+        _mouseShortcuts.MarkerZoomOutRequested += MarkerZoomOut;
         _mouseShortcutActivationTimer = new DispatcherTimer(
             MouseShortcutActivationPollInterval,
             DispatcherPriority.Background,
@@ -674,7 +677,7 @@ public partial class MainWindow : Window
             var exact = player.ExactVitals;
 
             var degraded = snapshot.SessionState is TelemetrySessionState.Reconnecting or TelemetrySessionState.Stale;
-            SetTelemetryOpacity(degraded ? 0.58d : 1d);
+            SetTelemetryOpacity(degraded ? 0.35d : 1d);
             SetConnectionState(
                 ConnectionText(snapshot.SessionState, player.ExactVitalsSource),
                 degraded ? WaitingBrush : OnlineBrush);
@@ -1225,6 +1228,30 @@ public partial class MainWindow : Window
     private void ZoomInButton_Click(object sender, RoutedEventArgs e) => ZoomInMap();
 
     private void ZoomOutButton_Click(object sender, RoutedEventArgs e) => ZoomOutMap();
+
+    private void MarkerZoomIn()
+    {
+        _markerScale = Math.Min(_markerScale + 0.1d, 3.0d);
+        ApplyMarkerScale();
+    }
+
+    private void MarkerZoomOut()
+    {
+        _markerScale = Math.Max(_markerScale - 0.1d, 0.3d);
+        ApplyMarkerScale();
+    }
+
+    private void ApplyMarkerScale()
+    {
+        PlayerMarker.RenderTransformOrigin = new Point(0.5, 0.5);
+        PlayerMarker.RenderTransform = new ScaleTransform(_markerScale, _markerScale);
+
+        foreach (var marker in _teamMapMarkers.Values)
+        {
+            marker.Root.RenderTransformOrigin = new Point(0.5, 0.5);
+            marker.Root.RenderTransform = new ScaleTransform(_markerScale, _markerScale);
+        }
+    }
 
     private void MapFocusModeButton_Click(object sender, RoutedEventArgs e) => FollowPlayerMap();
 
@@ -2108,6 +2135,8 @@ public partial class MainWindow : Window
             _mouseShortcuts.MapPanMoved -= MoveMapPan;
             _mouseShortcuts.MapPanEnded -= EndMapPan;
             _mouseShortcuts.FollowMapRequested -= FollowPlayerMap;
+            _mouseShortcuts.MarkerZoomInRequested -= MarkerZoomIn;
+            _mouseShortcuts.MarkerZoomOutRequested -= MarkerZoomOut;
             _mouseShortcuts.Dispose();
         }
         _windowSource?.RemoveHook(WindowMessageHook);
