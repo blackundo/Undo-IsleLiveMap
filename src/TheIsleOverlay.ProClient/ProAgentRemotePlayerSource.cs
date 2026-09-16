@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Pipes;
+using System.Collections.Concurrent;
 using System.Threading.Channels;
 using IsleLiveMap.Activation;
 using TheIsleOverlay.Core;
@@ -29,6 +30,8 @@ public sealed class ProAgentRemotePlayerSource :
             SingleReader = true,
             SingleWriter = false
         });
+    private readonly ConcurrentDictionary<string, TaskCompletionSource<ProFeatureCommandResult>>
+        _pendingFeatureCommands = new(StringComparer.Ordinal);
     private int _watchStarted;
     private int _disposed;
     private RemotePlayerCaptureHealth _captureHealth = RemotePlayerCaptureHealth.Starting;
@@ -57,28 +60,32 @@ public sealed class ProAgentRemotePlayerSource :
     internal static ProAgentRemotePlayerSource ForDeviceLease(string path, string hostVersion, string activationId, string lease) =>
         new(path, hostVersion, activationId, lease, localActivation: true);
 
-    public bool TryToggleSkinEditor(ProSkinEditorContext context)
+    public Task<ProFeatureCommandResult> ToggleSkinEditorAsync(
+        ProSkinEditorContext context,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
-        return Volatile.Read(ref _disposed) == 0
-            && _featureCommands.Writer.TryWrite(new HostCommand(
-                "feature",
-                "skin-editor",
-                context.Server,
-                context.Species,
-                context.Female));
+        return SendFeatureCommandAsync(
+            "skin-editor",
+            context.Server,
+            context.Species,
+            context.Female,
+            null,
+            cancellationToken);
     }
 
-    public bool TryToggleGarage(ProGarageContext context)
+    public Task<ProFeatureCommandResult> ToggleGarageAsync(
+        ProGarageContext context,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
-        return Volatile.Read(ref _disposed) == 0
-            && _featureCommands.Writer.TryWrite(new HostCommand(
-                "feature",
-                "garage",
-                context.Server,
-                context.Species,
-                Growth: context.Growth));
+        return SendFeatureCommandAsync(
+            "garage",
+            context.Server,
+            context.Species,
+            null,
+            context.Growth,
+            cancellationToken);
     }
 
     private HostHello CreateHello(bool probeOnly = false) => _localActivation
@@ -258,6 +265,16 @@ public sealed class ProAgentRemotePlayerSource :
                         Volatile.Write(ref _captureHealth, MapCaptureHealth(captureStatus));
                     }
 
+                    if (message.FeatureResult is { } featureResult
+                        && _pendingFeatureCommands.TryRemove(
+                            featureResult.CommandId,
+                            out var completion))
+                    {
+                        completion.TrySetResult(new ProFeatureCommandResult(
+                            featureResult.Success,
+                            featureResult.ErrorMessage));
+                    }
+
                     if (message.Telemetry is not { } telemetry || telemetry.Sequence <= lastSequence)
                     {
                         continue;
@@ -300,6 +317,11 @@ public sealed class ProAgentRemotePlayerSource :
         if (Interlocked.Exchange(ref _disposed, 1) == 0)
         {
             _disposeCancellation.Cancel();
+            foreach (var pending in _pendingFeatureCommands.Values)
+            {
+                pending.TrySetResult(new ProFeatureCommandResult(false, "Pro Agent đã dừng."));
+            }
+            _pendingFeatureCommands.Clear();
             _disposeCancellation.Dispose();
         }
 
@@ -314,7 +336,76 @@ public sealed class ProAgentRemotePlayerSource :
                            .ReadAllAsync(cancellationToken)
                            .ConfigureAwait(false))
         {
-            await ipc.WriteAsync(command, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await ipc.WriteAsync(command, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                if (_pendingFeatureCommands.TryRemove(command.CommandId, out var completion))
+                {
+                    completion.TrySetResult(new ProFeatureCommandResult(
+                        false,
+                        $"Không gửi được lệnh tới Pro Agent: {exception.Message}"));
+                }
+                throw;
+            }
+        }
+    }
+
+    private async Task<ProFeatureCommandResult> SendFeatureCommandAsync(
+        string feature,
+        string? server,
+        string? species,
+        bool? female,
+        double? growth,
+        CancellationToken cancellationToken)
+    {
+        if (Volatile.Read(ref _disposed) != 0)
+        {
+            return new ProFeatureCommandResult(false, "Pro Agent đã dừng.");
+        }
+
+        var commandId = Guid.NewGuid().ToString("N");
+        var completion = new TaskCompletionSource<ProFeatureCommandResult>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        if (!_pendingFeatureCommands.TryAdd(commandId, completion))
+        {
+            return new ProFeatureCommandResult(false, "Không thể tạo lệnh Pro.");
+        }
+
+        if (!_featureCommands.Writer.TryWrite(new HostCommand(
+                "feature",
+                feature,
+                commandId,
+                server,
+                species,
+                female,
+                growth)))
+        {
+            _pendingFeatureCommands.TryRemove(commandId, out _);
+            return new ProFeatureCommandResult(false, "Pro Agent chưa sẵn sàng nhận lệnh.");
+        }
+
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken,
+            _disposeCancellation.Token);
+        timeout.CancelAfter(TimeSpan.FromSeconds(10));
+        try
+        {
+            return await completion.Task.WaitAsync(timeout.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            return new ProFeatureCommandResult(
+                false,
+                cancellationToken.IsCancellationRequested
+                    ? "Lệnh Pro đã bị hủy."
+                    : "Pro Agent không phản hồi lệnh trong 10 giây.");
+        }
+        finally
+        {
+            _pendingFeatureCommands.TryRemove(commandId, out _);
         }
     }
 

@@ -10,9 +10,15 @@ public sealed record ProGarageContext(
     string? Species,
     double? Growth);
 
+public sealed record ProFeatureCommandResult(bool Success, string? ErrorMessage = null);
+
 public interface IProFeatureController
 {
-    bool TryToggleSkinEditor(ProSkinEditorContext context);
+    Task<ProFeatureCommandResult> ToggleSkinEditorAsync(
+        ProSkinEditorContext context,
+        CancellationToken cancellationToken = default);
 
-    bool TryToggleGarage(ProGarageContext context);
+    Task<ProFeatureCommandResult> ToggleGarageAsync(
+        ProGarageContext context,
+        CancellationToken cancellationToken = default);
 }

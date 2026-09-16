@@ -7,7 +7,7 @@ namespace TheIsleOverlay.ProClient;
 
 public sealed class ProApiClient
 {
-    private const long MaximumDownloadBytes = 128L * 1024L * 1024L;
+    private const long MaximumDownloadBytes = 256L * 1024L * 1024L;
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly HttpClient _httpClient;

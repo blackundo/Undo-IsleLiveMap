@@ -19,6 +19,8 @@ public sealed class LocalPositionTelemetrySession :
     private int _watchStarted;
     private int _disposed;
 
+    public IRemotePlayerTelemetrySource? RemotePlayerSource => _remotePlayerSource;
+
     public LocalPositionTelemetrySession(
         ITelemetrySession? remoteSession = null,
         ILocalMovementSource? localSource = null,

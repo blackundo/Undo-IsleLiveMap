@@ -21,6 +21,7 @@ internal sealed record HostHello(
 internal sealed record HostCommand(
     string Type,
     string Feature,
+    string CommandId,
     string? Server = null,
     string? Species = null,
     bool? Female = null,
@@ -37,12 +38,19 @@ internal sealed record AgentHello(
 
 internal sealed record AgentError(string Code, string Message, bool Fatal);
 
+internal sealed record AgentFeatureResult(
+    string CommandId,
+    string Feature,
+    bool Success,
+    string? ErrorMessage = null);
+
 internal sealed record AgentMessage(
     string Type,
     AgentHello? Hello,
     ProTelemetryFrame? Telemetry,
     AgentError? Error,
-    AgentCaptureStatus? CaptureStatus = null);
+    AgentCaptureStatus? CaptureStatus = null,
+    AgentFeatureResult? FeatureResult = null);
 
 internal sealed record AgentCaptureStatus(
     string State,

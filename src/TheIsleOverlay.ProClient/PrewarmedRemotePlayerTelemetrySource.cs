@@ -58,13 +58,19 @@ public sealed class PrewarmedRemotePlayerTelemetrySource :
         }
     }
 
-    public bool TryToggleSkinEditor(ProSkinEditorContext context) =>
+    public Task<ProFeatureCommandResult> ToggleSkinEditorAsync(
+        ProSkinEditorContext context,
+        CancellationToken cancellationToken = default) =>
         _inner is IProFeatureController controller
-        && controller.TryToggleSkinEditor(context);
+            ? controller.ToggleSkinEditorAsync(context, cancellationToken)
+            : Task.FromResult(new ProFeatureCommandResult(false, "Pro Agent không hỗ trợ Skin Editor."));
 
-    public bool TryToggleGarage(ProGarageContext context) =>
+    public Task<ProFeatureCommandResult> ToggleGarageAsync(
+        ProGarageContext context,
+        CancellationToken cancellationToken = default) =>
         _inner is IProFeatureController controller
-        && controller.TryToggleGarage(context);
+            ? controller.ToggleGarageAsync(context, cancellationToken)
+            : Task.FromResult(new ProFeatureCommandResult(false, "Pro Agent không hỗ trợ Garage."));
 
     public async IAsyncEnumerable<RemotePlayerTelemetryFrame> WatchAsync(
         [System.Runtime.CompilerServices.EnumeratorCancellation]

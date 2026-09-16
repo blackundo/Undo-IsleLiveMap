@@ -24,8 +24,9 @@ public sealed class SkinEditorProVersionGateTests
             source,
             StringComparison.Ordinal);
         Assert.Contains("IProFeatureController", source, StringComparison.Ordinal);
-        Assert.Contains("TryToggleSkinEditor", source, StringComparison.Ordinal);
-        Assert.Contains("TryToggleGarage", source, StringComparison.Ordinal);
+        Assert.Contains("ToggleSkinEditorAsync", source, StringComparison.Ordinal);
+        Assert.Contains("ToggleGarageAsync", source, StringComparison.Ordinal);
+        Assert.Contains("LocalPositionTelemetrySession)?.RemotePlayerSource", source, StringComparison.Ordinal);
         Assert.Contains("Garage chỉ có trong phiên bản Undo-IsleLiveMap Pro", source, StringComparison.Ordinal);
         Assert.DoesNotContain("LoadFromAssemblyPath", source, StringComparison.Ordinal);
         Assert.Contains("HasCurrentProFeatures", source, StringComparison.Ordinal);

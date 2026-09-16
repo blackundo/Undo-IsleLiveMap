@@ -13,7 +13,7 @@ public sealed class ProReleaseManagerTests
     [InlineData("1.5.1", true, false)]
     [InlineData("2.0.0", true, false)]
     [InlineData("1.5.2", false, false)]
-    public async Task EnsureAvailableAsync_UsesCompatibleLocalAgentWithoutNetwork(
+    public async Task EnsureAvailableAsync_ChecksForUpdatesAndFallsBackToCompatibleLocalAgent(
         string hostVersion, bool executableExists, bool expectedLocal)
     {
         var root = TemporaryDirectory();
@@ -50,7 +50,7 @@ public sealed class ProReleaseManagerTests
                     hostVersion, "access-token", TestContext.Current.CancellationToken);
                 Assert.Equal("0.3.22", installation.Version);
                 Assert.Equal(executable, installation.ExecutablePath);
-                Assert.Equal(0, handler.RequestCount);
+                Assert.Equal(1, handler.RequestCount);
             }
             else
             {
@@ -77,6 +77,54 @@ public sealed class ProReleaseManagerTests
         {
             RequestCount++;
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
+        }
+    }
+
+    [Fact]
+    public async Task EnsureAvailableAsync_ReplacesOlderCompatibleLocalAgent()
+    {
+        var root = TemporaryDirectory();
+        var executable = Encoding.UTF8.GetBytes("new-agent");
+        using var key = RSA.Create(2048);
+        var manifest = SignManifest(key, executable, "0.3.27");
+        using var httpClient = new HttpClient(new ReleaseHandler(manifest, executable));
+        try
+        {
+            var oldRoot = Path.Combine(root, "versions", "0.3.23");
+            Directory.CreateDirectory(oldRoot);
+            await File.WriteAllTextAsync(
+                Path.Combine(oldRoot, "IsleLiveMap.Pro.Agent.exe"),
+                "old-agent",
+                TestContext.Current.CancellationToken);
+            await File.WriteAllTextAsync(Path.Combine(root, "current.json"),
+                System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    version = "0.3.23",
+                    ipcApiMajor = ProReleaseManager.IpcApiMajor,
+                    minHostVersion = "1.4.0",
+                    maxHostVersionExclusive = "2.0.0",
+                    artifactSha256 = new string('a', 64),
+                    artifactSignature = "old-signature"
+                }), TestContext.Current.CancellationToken);
+
+            using var manager = new ProReleaseManager(
+                new ProApiClient(httpClient, new Uri("https://isle.test/")),
+                root,
+                key.ExportSubjectPublicKeyInfoPem());
+            var installation = await manager.EnsureAvailableAsync(
+                "1.4.0", "access-token", TestContext.Current.CancellationToken);
+
+            Assert.Equal("0.3.27", installation.Version);
+            Assert.Equal("new-agent", await File.ReadAllTextAsync(
+                installation.ExecutablePath,
+                TestContext.Current.CancellationToken));
+        }
+        finally
+        {
+            if (Directory.Exists(root))
+            {
+                Directory.Delete(root, recursive: true);
+            }
         }
     }
 
@@ -166,10 +214,13 @@ public sealed class ProReleaseManagerTests
         }
     }
 
-    private static ProReleaseManifest SignManifest(RSA key, byte[] executable)
+    private static ProReleaseManifest SignManifest(
+        RSA key,
+        byte[] executable,
+        string version = "0.1.0")
     {
         var unsigned = new ProReleaseManifest(
-            "0.1.0",
+            version,
             ProReleaseManager.IpcApiMajor,
             "1.4.0",
             "2.0.0",

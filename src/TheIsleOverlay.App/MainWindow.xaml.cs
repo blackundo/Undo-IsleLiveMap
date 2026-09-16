@@ -207,7 +207,8 @@ public partial class MainWindow : Window
         _requestedSource = source;
         _providedCookie = cookieValue;
         _providedSession = telemetrySession;
-        _remotePlayerSource = remotePlayerSource;
+        _remotePlayerSource = remotePlayerSource
+                              ?? (telemetrySession as LocalPositionTelemetrySession)?.RemotePlayerSource;
         _providedLocalSource = localSource;
         _proFeatureAccess = proFeatureAccess;
         if (!string.IsNullOrWhiteSpace(displayName))
@@ -2114,9 +2115,48 @@ public partial class MainWindow : Window
     private bool IsIslePilotSource =>
         string.Equals(_configuredSource, "ISLEPILOT", StringComparison.OrdinalIgnoreCase);
 
-    private void ToggleSkinEditor()
+    private async void ToggleSkinEditor()
     {
         var player = _latestIslePilotPlayer;
+        
+
+        if (!HasCurrentProFeatures)
+        {
+            MessageBox.Show(
+                this,
+                "Skin Editor chỉ có trong phiên bản Undo-IsleLiveMap Pro. Hãy dùng bản Pro để đổi skin trực tiếp trong overlay.",
+                "Cần phiên bản Pro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (_remotePlayerSource is not IProFeatureController controller)
+        {
+            MessageBox.Show(
+                this,
+                "Pro Agent chưa sẵn sàng nhận lệnh Skin Editor. Hãy chờ Agent kết nối lại rồi thử lại.",
+                "Pro Agent chưa sẵn sàng",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+
+
+        var result = await controller.ToggleSkinEditorAsync(
+            new ProSkinEditorContext(player.Server, player.Class, player.Female.Value),
+            _shutdown.Token);
+        if (!result.Success)
+        {
+            MessageBox.Show(
+                this,
+                result.ErrorMessage ?? "Không mở được Skin Editor trong Pro Agent.",
+                "Lỗi Skin Editor Pro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+
         if (!IsIslePilotSource
             || player is null
             || string.IsNullOrWhiteSpace(player.Class)
@@ -2130,34 +2170,11 @@ public partial class MainWindow : Window
                 MessageBoxImage.Information);
             return;
         }
-
-        if (!HasCurrentProFeatures)
-        {
-            MessageBox.Show(
-                this,
-                "Skin Editor chỉ có trong phiên bản Undo-IsleLiveMap Pro. Hãy dùng bản Pro để đổi skin trực tiếp trong overlay.",
-                "Cần phiên bản Pro",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-            return;
-        }
-
-        if (_remotePlayerSource is not IProFeatureController controller
-            || !controller.TryToggleSkinEditor(new ProSkinEditorContext(
-                player.Server,
-                player.Class,
-                player.Female.Value)))
-        {
-            MessageBox.Show(
-                this,
-                "Pro Agent chưa sẵn sàng nhận lệnh Skin Editor. Hãy chờ Agent kết nối lại rồi thử lại.",
-                "Pro Agent chưa sẵn sàng",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-        }
     }
 
-    private void ToggleGarage()
+    
+
+    private async void ToggleGarage()
     {
         if (!IsIslePilotSource)
         {
@@ -2183,11 +2200,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (_remotePlayerSource is not IProFeatureController controller
-            || !controller.TryToggleGarage(new ProGarageContext(
-                player?.Server,
-                player?.Class,
-                growth)))
+        if (_remotePlayerSource is not IProFeatureController controller)
         {
             MessageBox.Show(
                 this,
@@ -2195,6 +2208,20 @@ public partial class MainWindow : Window
                 "Pro Agent chưa sẵn sàng",
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
+            return;
+        }
+
+        var result = await controller.ToggleGarageAsync(
+            new ProGarageContext(player?.Server, player?.Class, growth),
+            _shutdown.Token);
+        if (!result.Success)
+        {
+            MessageBox.Show(
+                this,
+                result.ErrorMessage ?? "Không mở được Garage trong Pro Agent.",
+                "Lỗi Garage Pro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 

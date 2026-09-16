@@ -7,7 +7,7 @@ public sealed class ProReleaseManager : IDisposable
 {
     public const int IpcApiMajor = 2;
 
-    private const long MaximumArtifactBytes = 128L * 1024L * 1024L;
+    private const long MaximumArtifactBytes = 256L * 1024L * 1024L;
     private const string AgentExecutableName = "IsleLiveMap.Pro.Agent.exe";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
@@ -40,10 +40,19 @@ public sealed class ProReleaseManager : IDisposable
         string accessToken,
         CancellationToken cancellationToken = default)
     {
-        // Activation can start the compatible local agent without waiting for updates.
         var installed = await LoadInstalledAsync(hostVersion, cancellationToken).ConfigureAwait(false);
-        return installed ?? await EnsureLatestAsync(hostVersion, accessToken, cancellationToken)
-            .ConfigureAwait(false);
+        try
+        {
+            return await EnsureLatestAsync(hostVersion, accessToken, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception exception) when (
+            installed is not null &&
+            exception is ProApiException or IOException or InvalidDataException or UnauthorizedAccessException)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return installed;
+        }
     }
 
     public async Task<ProAgentInstallation> EnsureLatestAsync(

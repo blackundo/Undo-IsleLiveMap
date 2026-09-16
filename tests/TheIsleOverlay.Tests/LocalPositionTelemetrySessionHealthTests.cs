@@ -7,6 +7,17 @@ namespace TheIsleOverlay.Tests;
 public sealed class LocalPositionTelemetrySessionHealthTests
 {
     [Fact]
+    public async Task RemotePlayerSource_ExposesConfiguredSourceForFeatureCommands()
+    {
+        var remotePlayers = new SilentRemotePlayerSource();
+        await using var session = new LocalPositionTelemetrySession(
+            localSource: new FakeLocalSource(),
+            remotePlayerSource: remotePlayers);
+
+        Assert.Same(remotePlayers, session.RemotePlayerSource);
+    }
+
+    [Fact]
     public async Task WatchAsync_PublishesProCaptureHealthWithoutTelemetryFrame()
     {
         var local = new FakeLocalSource();
