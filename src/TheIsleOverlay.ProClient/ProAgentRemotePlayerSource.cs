@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Pipes;
+using System.Threading.Channels;
 using IsleLiveMap.Activation;
 using TheIsleOverlay.Core;
 
@@ -9,7 +10,8 @@ public sealed class ProAgentException(string message) : Exception(message);
 
 public sealed class ProAgentRemotePlayerSource :
     IRemotePlayerTelemetrySource,
-    IRemotePlayerTelemetryHealthSource
+    IRemotePlayerTelemetryHealthSource,
+    IProFeatureController
 {
     private static readonly TimeSpan ConnectionTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan HandshakeTimeout = TimeSpan.FromSeconds(15);
@@ -21,6 +23,12 @@ public sealed class ProAgentRemotePlayerSource :
     private readonly string _offlineLicenseToken;
     private readonly bool _localActivation;
     private readonly CancellationTokenSource _disposeCancellation = new();
+    private readonly Channel<HostCommand> _featureCommands =
+        Channel.CreateUnbounded<HostCommand>(new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = false
+        });
     private int _watchStarted;
     private int _disposed;
     private RemotePlayerCaptureHealth _captureHealth = RemotePlayerCaptureHealth.Starting;
@@ -48,6 +56,30 @@ public sealed class ProAgentRemotePlayerSource :
 
     internal static ProAgentRemotePlayerSource ForDeviceLease(string path, string hostVersion, string activationId, string lease) =>
         new(path, hostVersion, activationId, lease, localActivation: true);
+
+    public bool TryToggleSkinEditor(ProSkinEditorContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return Volatile.Read(ref _disposed) == 0
+            && _featureCommands.Writer.TryWrite(new HostCommand(
+                "feature",
+                "skin-editor",
+                context.Server,
+                context.Species,
+                context.Female));
+    }
+
+    public bool TryToggleGarage(ProGarageContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return Volatile.Read(ref _disposed) == 0
+            && _featureCommands.Writer.TryWrite(new HostCommand(
+                "feature",
+                "garage",
+                context.Server,
+                context.Species,
+                Growth: context.Growth));
+    }
 
     private HostHello CreateHello(bool probeOnly = false) => _localActivation
         ? new(ProAgentProtocol.IpcApiMajor, _hostVersion, string.Empty,
@@ -205,40 +237,56 @@ public sealed class ProAgentRemotePlayerSource :
             }
 
             ValidateHandshake(response);
+            using var commandCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var commandTask = PublishFeatureCommandsAsync(ipc, commandCancellation.Token);
             long lastSequence = 0;
             var hasCaptureStatus = false;
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                var message = await ipc.ReadAsync<AgentMessage>(cancellationToken).ConfigureAwait(false);
-                if (message.Error is { Fatal: true } error)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    SetFaultedHealth(error.Message);
-                    throw new ProAgentException($"Pro Agent stopped: {error.Code}.");
-                }
-
-                if (message.CaptureStatus is { } captureStatus)
-                {
-                    hasCaptureStatus = true;
-                    Volatile.Write(ref _captureHealth, MapCaptureHealth(captureStatus));
-                }
-
-                if (message.Telemetry is not { } telemetry || telemetry.Sequence <= lastSequence)
-                {
-                    continue;
-                }
-
-                lastSequence = telemetry.Sequence;
-                if (!hasCaptureStatus)
-                {
-                    Volatile.Write(ref _captureHealth, CaptureHealth with
+                    var message = await ipc.ReadAsync<AgentMessage>(cancellationToken).ConfigureAwait(false);
+                    if (message.Error is { Fatal: true } error)
                     {
-                        State = RemotePlayerCaptureState.Receiving,
-                        GameProcessFound = true,
-                        LastGamePacketAt = DateTimeOffset.UtcNow,
-                        Message = null
-                    });
+                        SetFaultedHealth(error.Message);
+                        throw new ProAgentException($"Pro Agent stopped: {error.Code}.");
+                    }
+
+                    if (message.CaptureStatus is { } captureStatus)
+                    {
+                        hasCaptureStatus = true;
+                        Volatile.Write(ref _captureHealth, MapCaptureHealth(captureStatus));
+                    }
+
+                    if (message.Telemetry is not { } telemetry || telemetry.Sequence <= lastSequence)
+                    {
+                        continue;
+                    }
+
+                    lastSequence = telemetry.Sequence;
+                    if (!hasCaptureStatus)
+                    {
+                        Volatile.Write(ref _captureHealth, CaptureHealth with
+                        {
+                            State = RemotePlayerCaptureState.Receiving,
+                            GameProcessFound = true,
+                            LastGamePacketAt = DateTimeOffset.UtcNow,
+                            Message = null
+                        });
+                    }
+                    yield return MapFrame(telemetry);
                 }
-                yield return MapFrame(telemetry);
+            }
+            finally
+            {
+                commandCancellation.Cancel();
+                try
+                {
+                    await commandTask.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (commandCancellation.IsCancellationRequested)
+                {
+                }
             }
         }
         finally
@@ -256,6 +304,18 @@ public sealed class ProAgentRemotePlayerSource :
         }
 
         return ValueTask.CompletedTask;
+    }
+
+    private async Task PublishFeatureCommandsAsync(
+        IpcJsonStream ipc,
+        CancellationToken cancellationToken)
+    {
+        await foreach (var command in _featureCommands.Reader
+                           .ReadAllAsync(cancellationToken)
+                           .ConfigureAwait(false))
+        {
+            await ipc.WriteAsync(command, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     private Process StartAgent(string pipeName)

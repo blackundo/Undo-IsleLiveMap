@@ -18,6 +18,14 @@ internal sealed record HostHello(
     string? ActivationKey = null,
     bool ProbeOnly = false);
 
+internal sealed record HostCommand(
+    string Type,
+    string Feature,
+    string? Server = null,
+    string? Species = null,
+    bool? Female = null,
+    double? Growth = null);
+
 internal sealed record AgentHello(
     bool Accepted,
     int IpcApiMajor,

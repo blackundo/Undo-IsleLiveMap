@@ -12,7 +12,8 @@ namespace TheIsleOverlay.ProClient;
 /// </summary>
 public sealed class PrewarmedRemotePlayerTelemetrySource :
     IRemotePlayerTelemetrySource,
-    IRemotePlayerTelemetryHealthSource
+    IRemotePlayerTelemetryHealthSource,
+    IProFeatureController
 {
     private readonly IRemotePlayerTelemetrySource _inner;
     private readonly CancellationTokenSource _shutdown = new();
@@ -56,6 +57,14 @@ public sealed class PrewarmedRemotePlayerTelemetrySource :
             _pumpTask = PumpAsync(_shutdown.Token);
         }
     }
+
+    public bool TryToggleSkinEditor(ProSkinEditorContext context) =>
+        _inner is IProFeatureController controller
+        && controller.TryToggleSkinEditor(context);
+
+    public bool TryToggleGarage(ProGarageContext context) =>
+        _inner is IProFeatureController controller
+        && controller.TryToggleGarage(context);
 
     public async IAsyncEnumerable<RemotePlayerTelemetryFrame> WatchAsync(
         [System.Runtime.CompilerServices.EnumeratorCancellation]

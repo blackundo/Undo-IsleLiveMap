@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using TheIsleOverlay.Core;
 using TheIsleOverlay.IslePilot;
 using TheIsleOverlay.LocalTelemetry;
+using TheIsleOverlay.ProClient;
 
 namespace TheIsleOverlay.App;
 
@@ -113,10 +114,6 @@ public partial class MainWindow : Window
     private volatile MapScreenBounds? _mapScreenBounds;
     private FrameworkElement? _draggedWidget;
     private PlayerTelemetry? _latestIslePilotPlayer;
-    private Window? _skinEditorWindow;
-    private Window? _garageWindow;
-    private IAsyncDisposable? _skinSession;
-    private IAsyncDisposable? _garageSession;
     private Point _widgetDragStart;
     private Point _widgetOrigin;
 
@@ -2090,18 +2087,6 @@ public partial class MainWindow : Window
         {
             await _remotePlayerSource.DisposeAsync();
         }
-        _skinEditorWindow?.Close();
-        _skinEditorWindow = null;
-        _garageWindow?.Close();
-        _garageWindow = null;
-        if (_skinSession is not null)
-        {
-            await _skinSession.DisposeAsync();
-        }
-        if (_garageSession is not null)
-        {
-            await _garageSession.DisposeAsync();
-        }
         var handle = new WindowInteropHelper(this).Handle;
         if (_skinEditorHotkeyRegistered) UnregisterHotKey(handle, SkinEditorHotkeyId);
         if (_garageHotkeyRegistered) UnregisterHotKey(handle, GarageHotkeyId);
@@ -2131,12 +2116,6 @@ public partial class MainWindow : Window
 
     private void ToggleSkinEditor()
     {
-        if (_skinEditorWindow is not null)
-        {
-            _skinEditorWindow.Close();
-            return;
-        }
-
         var player = _latestIslePilotPlayer;
         if (!IsIslePilotSource
             || player is null
@@ -2152,7 +2131,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!TryCreateProSkinEditorWindow(player, out var window))
+        if (!HasCurrentProFeatures)
         {
             MessageBox.Show(
                 this,
@@ -2163,71 +2142,23 @@ public partial class MainWindow : Window
             return;
         }
 
-        window.Owner = this;
-        _skinEditorWindow = window;
-        window.Closed += (_, _) => _skinEditorWindow = null;
-        window.Show();
-        window.Activate();
-    }
-
-    private bool TryCreateProSkinEditorWindow(PlayerTelemetry player, out Window window)
-    {
-        window = null!;
-        var assemblyPath = Path.Combine(
-            AppContext.BaseDirectory,
-            "ProAgent",
-            "IsleLiveMap.Pro.SkinEditor.dll");
-        if (!File.Exists(assemblyPath))
-        {
-            return false;
-        }
-
-        try
-        {
-            var assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-            var sessionType = assembly.GetType("TheIsleOverlay.App.IslePilotSkinSession", throwOnError: false);
-            var windowType = assembly.GetType("TheIsleOverlay.App.IslePilotSkinWindow", throwOnError: false);
-            if (sessionType is null || windowType is null || !typeof(Window).IsAssignableFrom(windowType))
-            {
-                return false;
-            }
-
-            _skinSession ??= Activator.CreateInstance(
-                sessionType,
-                AppPaths.IslePilotCredential,
-                _telemetrySession as IRealtimeConnectionControl) as IAsyncDisposable;
-            if (_skinSession is null)
-            {
-                return false;
-            }
-
-            window = (Window?)Activator.CreateInstance(
-                windowType,
-                _skinSession,
+        if (_remotePlayerSource is not IProFeatureController controller
+            || !controller.TryToggleSkinEditor(new ProSkinEditorContext(
                 player.Server,
                 player.Class,
-                player.Female!.Value) ?? null!;
-            return window is not null;
-        }
-        catch (Exception exception) when (exception is BadImageFormatException
-            or FileLoadException
-            or FileNotFoundException
-            or MissingMethodException
-            or MemberAccessException
-            or TargetInvocationException)
+                player.Female.Value)))
         {
-            return false;
+            MessageBox.Show(
+                this,
+                "Pro Agent chưa sẵn sàng nhận lệnh Skin Editor. Hãy chờ Agent kết nối lại rồi thử lại.",
+                "Pro Agent chưa sẵn sàng",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
     private void ToggleGarage()
     {
-        if (_garageWindow is not null)
-        {
-            _garageWindow.Close();
-            return;
-        }
-
         if (!IsIslePilotSource)
         {
             MessageBox.Show(
@@ -2240,78 +2171,30 @@ public partial class MainWindow : Window
         }
 
         var player = _latestIslePilotPlayer;
-        if (!TryCreateProGarageWindow(player, out var window, out var loadError))
+        var growth = player?.ExactVitals?.Growth ?? player?.GrowthPercent;
+        if (!HasCurrentProFeatures)
         {
-            var message = string.IsNullOrWhiteSpace(loadError)
-                ? "Garage chỉ có trong phiên bản Undo-IsleLiveMap Pro. Hãy dùng bản Pro để xem kho dino và park/restore trực tiếp trong overlay."
-                : $"Không mở được Garage Pro:\n\n{loadError}";
             MessageBox.Show(
                 this,
-                message,
-                string.IsNullOrWhiteSpace(loadError) ? "Cần phiên bản Pro" : "Lỗi Garage Pro",
+                "Garage chỉ có trong phiên bản Undo-IsleLiveMap Pro. Hãy dùng bản Pro để xem kho dino và park/restore trực tiếp trong overlay.",
+                "Cần phiên bản Pro",
                 MessageBoxButton.OK,
-                string.IsNullOrWhiteSpace(loadError) ? MessageBoxImage.Information : MessageBoxImage.Error);
+                MessageBoxImage.Information);
             return;
         }
 
-        window.Owner = this;
-        _garageWindow = window;
-        window.Closed += (_, _) => _garageWindow = null;
-        window.Show();
-        window.Activate();
-    }
-
-    private bool TryCreateProGarageWindow(PlayerTelemetry? player, out Window window, out string? loadError)
-    {
-        window = null!;
-        loadError = null;
-        var assemblyPath = Path.Combine(
-            AppContext.BaseDirectory,
-            "ProAgent",
-            "IsleLiveMap.Pro.Garage.dll");
-        if (!File.Exists(assemblyPath))
-        {
-            return false;
-        }
-
-        try
-        {
-            var assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-            var sessionType = assembly.GetType("TheIsleOverlay.App.IslePilotGarageSession", throwOnError: false);
-            var windowType = assembly.GetType("TheIsleOverlay.App.IslePilotGarageWindow", throwOnError: false);
-            if (sessionType is null || windowType is null || !typeof(Window).IsAssignableFrom(windowType))
-            {
-                return false;
-            }
-
-            _garageSession ??= Activator.CreateInstance(
-                sessionType,
-                AppPaths.IslePilotCredential) as IAsyncDisposable;
-            if (_garageSession is null)
-            {
-                return false;
-            }
-
-            var growth = player?.ExactVitals?.Growth ?? player?.GrowthPercent;
-            window = (Window?)Activator.CreateInstance(
-                windowType,
-                _garageSession,
+        if (_remotePlayerSource is not IProFeatureController controller
+            || !controller.TryToggleGarage(new ProGarageContext(
                 player?.Server,
                 player?.Class,
-                growth) ?? null!;
-            return window is not null;
-        }
-        catch (Exception exception) when (exception is BadImageFormatException
-            or FileLoadException
-            or FileNotFoundException
-            or MissingMethodException
-            or MemberAccessException
-            or TargetInvocationException)
+                growth)))
         {
-            loadError = exception is TargetInvocationException { InnerException: not null }
-                ? exception.InnerException.Message
-                : exception.Message;
-            return false;
+            MessageBox.Show(
+                this,
+                "Pro Agent chưa sẵn sàng nhận lệnh Garage. Hãy chờ Agent kết nối lại rồi thử lại.",
+                "Pro Agent chưa sẵn sàng",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
