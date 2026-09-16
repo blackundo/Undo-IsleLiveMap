@@ -2177,19 +2177,6 @@ public partial class MainWindow : Window
 
 
 
-        var result = await controller.ToggleSkinEditorAsync(
-            new ProSkinEditorContext(player.Server, player.Class, player.Female.Value),
-            _shutdown.Token);
-        if (!result.Success)
-        {
-            MessageBox.Show(
-                this,
-                result.ErrorMessage ?? "Không mở được Skin Editor trong Pro Agent.",
-                "Lỗi Skin Editor Pro",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-        }
-
         if (!IsIslePilotSource
             || player is null
             || string.IsNullOrWhiteSpace(player.Class)
@@ -2202,6 +2189,19 @@ public partial class MainWindow : Window
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             return;
+        }
+
+        var result = await controller.ToggleSkinEditorAsync(
+            new ProSkinEditorContext(player.Server, player.Class, player.Female.Value),
+            _shutdown.Token);
+        if (!result.Success)
+        {
+            MessageBox.Show(
+                this,
+                result.ErrorMessage ?? "Không mở được Skin Editor trong Pro Agent.",
+                "Lỗi Skin Editor Pro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 
