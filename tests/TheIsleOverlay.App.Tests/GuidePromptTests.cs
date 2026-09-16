@@ -31,7 +31,7 @@ public sealed class GuidePromptTests
 
         Assert.Contains("CTRL + SHIFT + O", allCopy, StringComparison.Ordinal);
         Assert.Contains("ALT + M", allCopy, StringComparison.Ordinal);
-        Assert.Contains("NHỚ 8 PHÍM TẮT NÀY", allCopy, StringComparison.Ordinal);
+        Assert.Contains("NHỚ CÁC PHÍM TẮT NÀY.", allCopy, StringComparison.Ordinal);
         Assert.Contains("ALT + KÉO CHUỘT TRÁI", allCopy, StringComparison.Ordinal);
         Assert.Contains("ALT + CHUỘT PHẢI", allCopy, StringComparison.Ordinal);
         Assert.Contains("PRO · ĐẶT SET POINT", allCopy, StringComparison.Ordinal);
@@ -40,8 +40,8 @@ public sealed class GuidePromptTests
         Assert.Contains("ALT + N", allCopy, StringComparison.Ordinal);
         Assert.Contains("ALT + P", allCopy, StringComparison.Ordinal);
         Assert.Contains("ALT + S", allCopy, StringComparison.Ordinal);
-        Assert.Contains("ISLEPILOT · ĐỔI SKIN", allCopy, StringComparison.Ordinal);
-        Assert.Contains("ẨN / HIỆN TOÀN BỘ HUD", allCopy, StringComparison.Ordinal);
+        Assert.Contains("PRO · ĐỔI SKIN", allCopy, StringComparison.Ordinal);
+        Assert.Contains("FREE · ẨN / HIỆN HUD", allCopy, StringComparison.Ordinal);
         Assert.Contains("NHIỆM VỤ PRIME TIẾNG VIỆT", allCopy, StringComparison.Ordinal);
         Assert.Contains("NHÓM TẠM + VỊ TRÍ ĐỒNG ĐỘI", allCopy, StringComparison.Ordinal);
         Assert.Equal("ĐÃ HIỂU · VÀO TOOL  →", (string?)Control("EnterToolButton").Attribute("Content"));
