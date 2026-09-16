@@ -255,8 +255,8 @@ public partial class HomeWindow
         };
         TeamStateDot.Fill = HomeBrush(state.ConnectionState switch
         {
-            TeamRelayConnectionState.Live => "#3745D4",
-            TeamRelayConnectionState.Connecting or TeamRelayConnectionState.Reconnecting => "#AF4EE7",
+            TeamRelayConnectionState.Live => "#43D883",
+            TeamRelayConnectionState.Connecting or TeamRelayConnectionState.Reconnecting => "#F3B63F",
             TeamRelayConnectionState.Expired or TeamRelayConnectionState.Error => "#DC5A56",
             _ => "#60687E"
         });
@@ -345,7 +345,7 @@ public partial class HomeWindow
             ? "Khuyên dùng relay Undo-Isle: nhóm 15 người và được ưu tiên hỗ trợ."
             : "Relay KLongDev cũ chỉ hỗ trợ tối đa 10 người. Khuyên chuyển sang Undo-Isle.";
         TeamRelayRecommendationLabel.Foreground = HomeBrush(
-            endpoint.IsRecommended ? "#3745D4" : "#AF4EE7");
+            endpoint.IsRecommended ? "#43D883" : "#F3B63F");
     }
 
     private static string NormalizeInviteCode(string? value) => new(

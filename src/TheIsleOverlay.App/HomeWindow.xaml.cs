@@ -19,7 +19,7 @@ public partial class HomeWindow : Window
     private readonly GitHubUpdateService _updateService = new();
     private bool _connecting;
     private MapLaunchGateState _mapLaunchGateState = MapLaunchGateState.Checking;
-    private string _mapLaunchAccentColor = "#AF4EE7";
+    private string _mapLaunchAccentColor = "#F3B63F";
 
     public HomeWindow()
     {
@@ -131,7 +131,7 @@ public partial class HomeWindow : Window
             MapLaunchGateState.Checking,
             "ĐANG KIỂM TRA CẬP NHẬT",
             "MỞ MAP sẽ tự mở khóa ngay khi kiểm tra hoàn tất.",
-            "#AF4EE7");
+            "#F3B63F");
         ApplyUpdateButton.Visibility = Visibility.Collapsed;
 
         var result = await _updateService.PrepareUpdateAsync(
@@ -142,7 +142,7 @@ public partial class HomeWindow : Window
                     MapLaunchGateState.Checking,
                     $"ĐANG TẢI BẢN MỚI · {progress}%",
                     "Hoàn tất bản cập nhật trước khi mở map.",
-                    "#AF4EE7");
+                    "#F3B63F");
             }),
             _shutdown.Token);
 
@@ -160,7 +160,7 @@ public partial class HomeWindow : Window
                     MapLaunchGatePolicy.FromUpdate(result.State),
                     $"CÓ BẢN {result.Version}",
                     "Bấm CẬP NHẬT & KHỞI ĐỘNG LẠI trước khi mở map.",
-                    "#AF4EE7");
+                    "#F3B63F");
                 break;
             case UpdatePreparationState.DevelopmentBuild:
                 UpdateStatusLabel.Text = $"BẢN CHẠY THỬ · v{CurrentVersion()}";
@@ -168,7 +168,7 @@ public partial class HomeWindow : Window
                     MapLaunchGatePolicy.FromUpdate(result.State),
                     "BẢN CHẠY THỬ · MỞ MAP ĐÃ SẴN SÀNG",
                     "Inbound và outbound được đọc trực tiếp từ game trên mọi server.",
-                    "#3745D4");
+                    "#43D883");
                 break;
             case UpdatePreparationState.Unavailable:
                 UpdateStatusLabel.Text = $"v{CurrentVersion()} · KHÔNG KIỂM TRA ĐƯỢC UPDATE";
@@ -176,7 +176,7 @@ public partial class HomeWindow : Window
                     MapLaunchGatePolicy.FromUpdate(result.State),
                     "KHÔNG KIỂM TRA ĐƯỢC CẬP NHẬT",
                     "Bạn vẫn có thể mở map; app sẽ thử kiểm tra lại ở lần khởi động sau.",
-                    "#AF4EE7");
+                    "#F3B63F");
                 break;
             default:
                 UpdateStatusLabel.Text = $"v{CurrentVersion()} · ĐÃ CẬP NHẬT";
@@ -184,7 +184,7 @@ public partial class HomeWindow : Window
                     MapLaunchGatePolicy.FromUpdate(result.State),
                     "MỞ MAP ĐÃ SẴN SÀNG",
                     "Inbound và outbound được đọc trực tiếp từ game trên mọi server.",
-                    "#3745D4");
+                    "#43D883");
                 break;
         }
     }

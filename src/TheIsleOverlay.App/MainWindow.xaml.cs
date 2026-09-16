@@ -40,8 +40,8 @@ public partial class MainWindow : Window
     private const int WsExTransparent = 0x00000020;
     private const int WsExNoActivate = 0x08000000;
 
-    private static readonly SolidColorBrush OnlineBrush = BrushFrom("#3745D4");
-    private static readonly SolidColorBrush WaitingBrush = BrushFrom("#AF4EE7");
+    private static readonly SolidColorBrush OnlineBrush = BrushFrom("#43D883");
+    private static readonly SolidColorBrush WaitingBrush = BrushFrom("#F3B63F");
     private static readonly SolidColorBrush ErrorBrush = BrushFrom("#DC5A56");
 
     private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(12) };
@@ -677,7 +677,7 @@ public partial class MainWindow : Window
             var exact = player.ExactVitals;
 
             var degraded = snapshot.SessionState is TelemetrySessionState.Reconnecting or TelemetrySessionState.Stale;
-            SetTelemetryOpacity(degraded ? 0.35d : 1d);
+            SetTelemetryOpacity(degraded ? 0.25d : 1d);
             SetConnectionState(
                 ConnectionText(snapshot.SessionState, player.ExactVitalsSource),
                 degraded ? WaitingBrush : OnlineBrush);

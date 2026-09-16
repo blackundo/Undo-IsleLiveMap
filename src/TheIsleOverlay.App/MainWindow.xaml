@@ -125,7 +125,7 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock x:Name="RemoteTrackingStatusLabel" Text="PRO · ĐANG KHỞI TẠO"
-                                   Visibility="Collapsed" Foreground="#AF4EE7"
+                                   Visibility="Collapsed" Foreground="#3745D4"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="7.2"
                                    FontWeight="SemiBold" Margin="0,2,0,0"
                                    TextTrimming="CharacterEllipsis" MaxWidth="270" />
@@ -200,7 +200,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                         <TextBlock Text="GROWTH" Foreground="{StaticResource MutedBrush}" FontFamily="Bahnschrift SemiCondensed" FontSize="8" HorizontalAlignment="Right" />
-                        <TextBlock x:Name="GrowthLabel" Text="—" Foreground="#AF4EE7" FontFamily="Bahnschrift" FontSize="15" HorizontalAlignment="Right" />
+                        <TextBlock x:Name="GrowthLabel" Text="—" Foreground="#3745D4" FontFamily="Bahnschrift" FontSize="15" HorizontalAlignment="Right" />
                     </StackPanel>
                 </Grid>
 
@@ -235,7 +235,7 @@
 
                 <Grid Grid.Row="3" Margin="0,8,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <Ellipse x:Name="ConnectionDot" Width="5" Height="5" Fill="#AF4EE7" VerticalAlignment="Center" />
+                    <Ellipse x:Name="ConnectionDot" Width="5" Height="5" Fill="#3745D4" VerticalAlignment="Center" />
                     <TextBlock x:Name="ConnectionLabel" Grid.Column="1" Text="ĐANG KHỞI TẠO" Foreground="#646C82" FontFamily="Bahnschrift SemiCondensed" FontSize="8" Margin="6,0,0,0" />
                     <TextBlock x:Name="UpdatedLabel" Grid.Column="2" Text="—" Foreground="#646C82" FontFamily="Bahnschrift" FontSize="8" />
                 </Grid>
@@ -373,7 +373,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Ellipse Width="6" Height="6" Fill="#AF4EE7" Margin="0,0,7,0" VerticalAlignment="Center" />
+                    <Ellipse Width="6" Height="6" Fill="#3745D4" Margin="0,0,7,0" VerticalAlignment="Center" />
                     <TextBlock Grid.Column="1" Text="NHIỆM VỤ PRIME · ISLEPILOT" Foreground="#E9EFF4"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="SemiBold" />
                     <TextBlock x:Name="MissionProgressLabel" Grid.Column="2" Text="0 / 0"
@@ -436,7 +436,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                         <TextBlock Text="HUD SCALE // " Foreground="#BCC3D0"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="9" FontWeight="SemiBold" />
-                        <TextBlock x:Name="OverlayScaleLabel" Text="100%" Foreground="#AF4EE7"
+                        <TextBlock x:Name="OverlayScaleLabel" Text="100%" Foreground="#3745D4"
                                    FontFamily="Bahnschrift" FontSize="9" FontWeight="SemiBold" />
                     </StackPanel>
                 </StackPanel>
@@ -556,7 +556,7 @@
             </Grid>
             <Button x:Name="ResetWidgetLayoutButton" Style="{StaticResource ChromeButton}"
                     Content="ĐẶT LẠI VỊ TRÍ &amp; KÍCH THƯỚC BLOCK" Height="26" Margin="0,7,0,0"
-                    Foreground="#AF4EE7" BorderBrush="#664F315A"
+                    Foreground="#3745D4" BorderBrush="#664F315A"
                     AutomationProperties.Name="Đặt lại vị trí các block overlay"
                     Click="ResetWidgetLayoutButton_Click" />
             </StackPanel>
@@ -602,7 +602,7 @@
                     <ColumnDefinition Width="4" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Rectangle Fill="#AF4EE7" RadiusX="1" RadiusY="1" />
+                <Rectangle Fill="#3745D4" RadiusX="1" RadiusY="1" />
                 <StackPanel Grid.Column="1" Margin="10,0,0,0">
                     <TextBlock Text="NHIỆM VỤ HOÀN THÀNH" Foreground="#DB8AFF"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="9" FontWeight="SemiBold" />

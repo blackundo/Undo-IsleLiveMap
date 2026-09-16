@@ -124,7 +124,7 @@
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="16" FontWeight="Bold" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,14,0">
-                        <TextBlock x:Name="NoteCountLabel" Text="0 MỐC" Foreground="#AF4EE7"
+                        <TextBlock x:Name="NoteCountLabel" Text="0 MỐC" Foreground="#3745D4"
                                    FontFamily="Bahnschrift" FontSize="10" HorizontalAlignment="Right" />
                         <TextBlock x:Name="CloseShortcutLabel" Text="ALT + M / ESC ĐỂ ĐÓNG" Foreground="#71798E"
                                    FontFamily="Bahnschrift" FontSize="8.5" />

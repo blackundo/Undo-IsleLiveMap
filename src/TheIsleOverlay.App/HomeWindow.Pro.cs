@@ -195,7 +195,7 @@ public partial class HomeWindow
             ProAccountLabel.Text = "  ·  ĐANG ĐỌC PHIÊN ĐÃ LƯU";
             ProAccessDetailLabel.Text = "Đang kiểm tra quyền và phiên bản Pro Agent…";
             ProAccessActionLabel.Text = "ĐỢI…";
-            ProAccessStateBar.Fill = HomeBrush("#AF4EE7");
+            ProAccessStateBar.Fill = (Brush)FindResource("HomeAccent");
             ProAccessFootnoteLabel.Text = "Đang đọc quyền đã lưu an toàn trên thiết bị này.";
             LogoutProButton.Visibility = Visibility.Collapsed;
             return;
@@ -211,7 +211,7 @@ public partial class HomeWindow
             ProTierLabel.Text = "PRO / KEY ĐÃ LƯU";
             ProAccessDetailLabel.Text = "Chưa kết nối được Pro Agent; bấm để thử lại";
             ProAccessActionLabel.Text = "THỬ LẠI →";
-            ProAccessStateBar.Fill = HomeBrush("#AF4EE7");
+            ProAccessStateBar.Fill = (Brush)FindResource("HomeAccent");
             ProAccessFootnoteLabel.Text = "Không tải hoặc khởi động được Pro Agent; hãy kiểm tra mạng rồi thử lại.";
             SourceStatusLabel.Text = "Key đã lưu; Pro Agent chưa kết nối được.";
             return;
@@ -238,7 +238,7 @@ public partial class HomeWindow
                 ? "Không có mạng và chưa có Pro Agent tương thích trên máy"
                 : "Chưa tải được Pro Agent tương thích; đăng xuất rồi đăng nhập lại để thử lại";
             ProAccessActionLabel.Text = "AGENT CHƯA SẴN SÀNG";
-            ProAccessStateBar.Fill = HomeBrush("#AF4EE7");
+            ProAccessStateBar.Fill = (Brush)FindResource("HomeAccent");
             ProAccessFootnoteLabel.Text = "Quyền Pro còn hiệu lực; Agent cần hoàn tất trước khi ghép player và AI vào map.";
             SourceStatusLabel.Text = "Tài khoản có Pro nhưng Agent tương thích chưa sẵn sàng.";
             return;

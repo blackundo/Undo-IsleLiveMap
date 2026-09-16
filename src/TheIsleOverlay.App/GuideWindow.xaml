@@ -13,7 +13,7 @@
         <SolidColorBrush x:Key="GuideBone" Color="#E9EFF4" />
         <SolidColorBrush x:Key="GuideMuted" Color="#9EA4B3" />
         <SolidColorBrush x:Key="GuideTeal" Color="#3745D4" />
-        <SolidColorBrush x:Key="GuideAmber" Color="#AF4EE7" />
+        <SolidColorBrush x:Key="GuideAmber" Color="#3745D4" />
 
         <Style x:Key="GuideButton" TargetType="Button">
             <Setter Property="Foreground" Value="#F1F5FF" />
