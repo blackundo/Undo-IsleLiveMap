@@ -1,3 +1,5 @@
+using TheIsleOverlay.Core;
+
 namespace TheIsleOverlay.ProClient;
 
 public sealed record ProSkinEditorContext(
@@ -21,4 +23,9 @@ public interface IProFeatureController
     Task<ProFeatureCommandResult> ToggleGarageAsync(
         ProGarageContext context,
         CancellationToken cancellationToken = default);
+}
+
+public interface IProRealtimeConnectionBridge
+{
+    void AttachRealtimeConnectionControl(IRealtimeConnectionControl control);
 }

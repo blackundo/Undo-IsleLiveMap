@@ -16,7 +16,8 @@ internal sealed record HostHello(
     string OfflineLicenseToken,
     string? ActivationMode = null,
     string? ActivationKey = null,
-    bool ProbeOnly = false);
+    bool ProbeOnly = false,
+    bool SupportsRealtimeControl = false);
 
 internal sealed record HostCommand(
     string Type,
@@ -25,7 +26,8 @@ internal sealed record HostCommand(
     string? Server = null,
     string? Species = null,
     bool? Female = null,
-    double? Growth = null);
+    double? Growth = null,
+    HostRealtimeControlResult? RealtimeControlResult = null);
 
 internal sealed record AgentHello(
     bool Accepted,
@@ -44,13 +46,23 @@ internal sealed record AgentFeatureResult(
     bool Success,
     string? ErrorMessage = null);
 
+internal sealed record AgentRealtimeControlRequest(
+    string RequestId,
+    bool Pause);
+
+internal sealed record HostRealtimeControlResult(
+    string RequestId,
+    bool Success,
+    string? ErrorMessage = null);
+
 internal sealed record AgentMessage(
     string Type,
     AgentHello? Hello,
     ProTelemetryFrame? Telemetry,
     AgentError? Error,
     AgentCaptureStatus? CaptureStatus = null,
-    AgentFeatureResult? FeatureResult = null);
+    AgentFeatureResult? FeatureResult = null,
+    AgentRealtimeControlRequest? RealtimeControl = null);
 
 internal sealed record AgentCaptureStatus(
     string State,

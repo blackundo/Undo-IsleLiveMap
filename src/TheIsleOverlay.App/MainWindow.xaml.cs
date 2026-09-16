@@ -388,6 +388,12 @@ public partial class MainWindow : Window
             _remotePlayerSourceOwnedBySession = _remotePlayerSource is not null;
         }
 
+        if (_remotePlayerSource is IProRealtimeConnectionBridge realtimeBridge
+            && _telemetrySession is IRealtimeConnectionControl realtimeControl)
+        {
+            realtimeBridge.AttachRealtimeConnectionControl(realtimeControl);
+        }
+
         StartUiRenderTimer();
         LoadMap();
         _telemetryWatchTask = WatchTelemetryAsync();

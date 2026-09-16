@@ -12,7 +12,8 @@ public sealed class ProAgentException(string message) : Exception(message);
 public sealed class ProAgentRemotePlayerSource :
     IRemotePlayerTelemetrySource,
     IRemotePlayerTelemetryHealthSource,
-    IProFeatureController
+    IProFeatureController,
+    IProRealtimeConnectionBridge
 {
     private static readonly TimeSpan ConnectionTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan HandshakeTimeout = TimeSpan.FromSeconds(15);
@@ -34,6 +35,8 @@ public sealed class ProAgentRemotePlayerSource :
         _pendingFeatureCommands = new(StringComparer.Ordinal);
     private int _watchStarted;
     private int _disposed;
+    private IRealtimeConnectionControl? _realtimeControl;
+    private int _realtimePausedByAgent;
     private RemotePlayerCaptureHealth _captureHealth = RemotePlayerCaptureHealth.Starting;
 
     public RemotePlayerCaptureHealth CaptureHealth =>
@@ -90,8 +93,16 @@ public sealed class ProAgentRemotePlayerSource :
 
     private HostHello CreateHello(bool probeOnly = false) => _localActivation
         ? new(ProAgentProtocol.IpcApiMajor, _hostVersion, string.Empty,
-            LocalProActivation.Mode, _offlineLicenseToken, probeOnly)
-        : new(ProAgentProtocol.IpcApiMajor, _hostVersion, _offlineLicenseToken);
+            LocalProActivation.Mode, _offlineLicenseToken, probeOnly,
+            SupportsRealtimeControl: true)
+        : new(ProAgentProtocol.IpcApiMajor, _hostVersion, _offlineLicenseToken,
+            SupportsRealtimeControl: true);
+
+    public void AttachRealtimeConnectionControl(IRealtimeConnectionControl control)
+    {
+        ArgumentNullException.ThrowIfNull(control);
+        Volatile.Write(ref _realtimeControl, control);
+    }
 
     internal async Task<string> ProbeAsync(CancellationToken cancellationToken)
     {
@@ -275,6 +286,23 @@ public sealed class ProAgentRemotePlayerSource :
                             featureResult.ErrorMessage));
                     }
 
+                    if (message.RealtimeControl is { } realtimeControl)
+                    {
+                        var result = await HandleRealtimeControlAsync(
+                                realtimeControl,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+                        if (!_featureCommands.Writer.TryWrite(new HostCommand(
+                                "realtime-control-result",
+                                "realtime",
+                                realtimeControl.RequestId,
+                                RealtimeControlResult: result)))
+                        {
+                            throw new ProAgentException(
+                                "Không thể phản hồi yêu cầu điều khiển realtime của Pro Agent.");
+                        }
+                    }
+
                     if (message.Telemetry is not { } telemetry || telemetry.Sequence <= lastSequence)
                     {
                         continue;
@@ -308,6 +336,7 @@ public sealed class ProAgentRemotePlayerSource :
         }
         finally
         {
+            ReleaseRealtimeControl();
             StopAgent(process);
         }
     }
@@ -322,10 +351,69 @@ public sealed class ProAgentRemotePlayerSource :
                 pending.TrySetResult(new ProFeatureCommandResult(false, "Pro Agent đã dừng."));
             }
             _pendingFeatureCommands.Clear();
+            ReleaseRealtimeControl();
             _disposeCancellation.Dispose();
         }
 
         return ValueTask.CompletedTask;
+    }
+
+    internal async Task<HostRealtimeControlResult> HandleRealtimeControlAsync(
+        AgentRealtimeControlRequest request,
+        CancellationToken cancellationToken)
+    {
+        var control = Volatile.Read(ref _realtimeControl);
+        if (control is null)
+        {
+            return new HostRealtimeControlResult(
+                request.RequestId,
+                false,
+                "Phiên dino stats chưa sẵn sàng để chuyển quyền WebSocket.");
+        }
+
+        try
+        {
+            if (request.Pause)
+            {
+                if (Volatile.Read(ref _realtimePausedByAgent) == 0)
+                {
+                    try
+                    {
+                        await control.PauseRealtimeAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // PauseRealtimeAsync marks the session paused before it waits
+                        // for the active socket to finish. If that wait is cancelled or
+                        // fails, undo the pause even though no ACK will be sent.
+                        control.ResumeRealtime();
+                        throw;
+                    }
+                    Volatile.Write(ref _realtimePausedByAgent, 1);
+                }
+            }
+            else if (Interlocked.Exchange(ref _realtimePausedByAgent, 0) != 0)
+            {
+                control.ResumeRealtime();
+            }
+
+            return new HostRealtimeControlResult(request.RequestId, true);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            return new HostRealtimeControlResult(
+                request.RequestId,
+                false,
+                $"Không chuyển được quyền WebSocket: {exception.Message}");
+        }
+    }
+
+    private void ReleaseRealtimeControl()
+    {
+        if (Interlocked.Exchange(ref _realtimePausedByAgent, 0) != 0)
+        {
+            Volatile.Read(ref _realtimeControl)?.ResumeRealtime();
+        }
     }
 
     private async Task PublishFeatureCommandsAsync(

@@ -6,8 +6,6 @@ Phát triển độc lập từ [klong-dev/IsleLiveMap](https://github.com/klong
 
 Ứng dụng overlay miễn phí, mã nguồn mở cho **The Isle Evrima**. Isle Live Map chạy ngoài process game, luôn nổi trên màn hình và hiển thị minimap Gateway bằng telemetry inbound/outbound đọc trực tiếp trên máy người chơi.
 
-[Facebook K-Long.dev](https://www.facebook.com/klong.dev) · [YouTube Long Hoàng Kim](https://www.youtube.com/@longhoangkim2246) · [GitHub](https://github.com/klong-dev/IsleLiveMap)
-
 > Nếu dự án hữu ích, xin một ⭐ cho repository và chia sẻ để nhiều người biết tới dự án phi lợi nhuận này hơn.
 
 ## Nguồn telemetry
@@ -51,19 +49,19 @@ Nhóm không phải tài khoản cố định: mã, thành viên và telemetry c
 
 ## Phím tắt toàn cục
 
-| Phím | Tác dụng |
-|---|---|
+| Phím                            | Tác dụng                                                                         |
+| ------------------------------- | -------------------------------------------------------------------------------- |
 | `Alt + kéo chuột trái trên map` | Chuyển sang Free Look; map đứng yên tại vùng đang xem trong khi GPS vẫn cập nhật |
-| `Alt + chuột phải trên map` | Trở về Follow GPS và tự center người chơi |
-| `Alt + cuộn lên` | Zoom in map |
-| `Alt + cuộn xuống` | Zoom out map |
-| `Alt + nút chuột giữa` | Ẩn / hiện map |
-| `Alt + N` | Ẩn / hiện danh sách nhiệm vụ Prime |
-| `Alt + P` | Ẩn / hiện toàn bộ HUD |
-| `Alt + S` | Mở / đóng Skin Editor native trên server IslePilot đang bật Live Skin |
-| `Alt + G` | Mở / đóng Garage IslePilot Pro để xem dino đã park và park/restore trực tiếp |
-| `Ctrl + Shift + O` | Mở / khóa Edit Mode để kéo và resize riêng từng block, chọn map Tròn / Vuông |
-| `Alt + M` | Mở / đóng toàn bản đồ để tạo, đổi loại hoặc xóa mốc |
+| `Alt + chuột phải trên map`     | Trở về Follow GPS và tự center người chơi                                        |
+| `Alt + cuộn lên`                | Zoom in map                                                                      |
+| `Alt + cuộn xuống`              | Zoom out map                                                                     |
+| `Alt + nút chuột giữa`          | Ẩn / hiện map                                                                    |
+| `Alt + N`                       | Ẩn / hiện danh sách nhiệm vụ Prime                                               |
+| `Alt + P`                       | Ẩn / hiện toàn bộ HUD                                                            |
+| `Alt + S`                       | Mở / đóng Skin Editor native trên server IslePilot đang bật Live Skin            |
+| `Alt + G`                       | Mở / đóng Garage IslePilot Pro để xem dino đã park và park/restore trực tiếp     |
+| `Ctrl + Shift + O`              | Mở / khóa Edit Mode để kéo và resize riêng từng block, chọn map Tròn / Vuông     |
+| `Alt + M`                       | Mở / đóng toàn bản đồ để tạo, đổi loại hoặc xóa mốc                              |
 
 Các phím tắt hoạt động kể cả khi game hoặc ứng dụng khác đang focus. `Alt + S` dùng Bearer Token đã đăng nhập để kết nối Live Skin WebSocket trung tâm; IslePilot tự xác định server, loài và giới tính đang online nên không cần cấu hình domain, server ID hoặc cookie dashboard riêng. Low-level mouse hook chỉ nhận tổ hợp có `Alt`, không inject DLL và không đọc memory game.
 

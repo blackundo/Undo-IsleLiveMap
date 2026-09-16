@@ -13,7 +13,8 @@ namespace TheIsleOverlay.ProClient;
 public sealed class PrewarmedRemotePlayerTelemetrySource :
     IRemotePlayerTelemetrySource,
     IRemotePlayerTelemetryHealthSource,
-    IProFeatureController
+    IProFeatureController,
+    IProRealtimeConnectionBridge
 {
     private readonly IRemotePlayerTelemetrySource _inner;
     private readonly CancellationTokenSource _shutdown = new();
@@ -71,6 +72,15 @@ public sealed class PrewarmedRemotePlayerTelemetrySource :
         _inner is IProFeatureController controller
             ? controller.ToggleGarageAsync(context, cancellationToken)
             : Task.FromResult(new ProFeatureCommandResult(false, "Pro Agent không hỗ trợ Garage."));
+
+    public void AttachRealtimeConnectionControl(IRealtimeConnectionControl control)
+    {
+        ArgumentNullException.ThrowIfNull(control);
+        if (_inner is IProRealtimeConnectionBridge bridge)
+        {
+            bridge.AttachRealtimeConnectionControl(control);
+        }
+    }
 
     public async IAsyncEnumerable<RemotePlayerTelemetryFrame> WatchAsync(
         [System.Runtime.CompilerServices.EnumeratorCancellation]

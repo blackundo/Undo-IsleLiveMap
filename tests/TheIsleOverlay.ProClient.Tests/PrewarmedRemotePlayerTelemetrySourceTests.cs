@@ -64,6 +64,18 @@ public sealed class PrewarmedRemotePlayerTelemetrySourceTests
         Assert.True(source.CaptureHealth.GameProcessFound);
     }
 
+    [Fact]
+    public async Task AttachRealtimeConnectionControl_ForwardsControlToInnerBridge()
+    {
+        var inner = new FakeRemotePlayerTelemetrySource();
+        await using var source = new PrewarmedRemotePlayerTelemetrySource(inner);
+        var control = new FakeRealtimeConnectionControl();
+
+        source.AttachRealtimeConnectionControl(control);
+
+        Assert.Same(control, inner.RealtimeControl);
+    }
+
     private static RemotePlayerTelemetryFrame Frame(long sequence) => new(
         sequence,
         DateTimeOffset.UtcNow,
@@ -73,7 +85,9 @@ public sealed class PrewarmedRemotePlayerTelemetrySourceTests
         RemoteEntities: []);
 
     private sealed class FakeRemotePlayerTelemetrySource
-        : IRemotePlayerTelemetrySource, IRemotePlayerTelemetryHealthSource
+        : IRemotePlayerTelemetrySource,
+          IRemotePlayerTelemetryHealthSource,
+          IProRealtimeConnectionBridge
     {
         private readonly Channel<RemotePlayerTelemetryFrame> _channel =
             Channel.CreateUnbounded<RemotePlayerTelemetryFrame>();
@@ -81,6 +95,11 @@ public sealed class PrewarmedRemotePlayerTelemetrySourceTests
 
         public RemotePlayerCaptureHealth CaptureHealth { get; set; } =
             RemotePlayerCaptureHealth.Starting;
+
+        public IRealtimeConnectionControl? RealtimeControl { get; private set; }
+
+        public void AttachRealtimeConnectionControl(IRealtimeConnectionControl control) =>
+            RealtimeControl = control;
 
         public void Publish(RemotePlayerTelemetryFrame frame) =>
             _channel.Writer.TryWrite(frame);
@@ -112,6 +131,16 @@ public sealed class PrewarmedRemotePlayerTelemetrySourceTests
         {
             _channel.Writer.TryComplete();
             return ValueTask.CompletedTask;
+        }
+    }
+
+    private sealed class FakeRealtimeConnectionControl : IRealtimeConnectionControl
+    {
+        public Task PauseRealtimeAsync(CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public void ResumeRealtime()
+        {
         }
     }
 

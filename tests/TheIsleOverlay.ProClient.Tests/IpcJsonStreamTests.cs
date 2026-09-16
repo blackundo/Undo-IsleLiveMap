@@ -12,7 +12,8 @@ public sealed class IpcJsonStreamTests
         var expected = new HostHello(
             ProAgentProtocol.IpcApiMajor,
             "1.4.0",
-            "signed-license");
+            "signed-license",
+            SupportsRealtimeControl: true);
 
         await ipc.WriteAsync(expected, TestContext.Current.CancellationToken);
         memory.Position = 0;
@@ -107,6 +108,36 @@ public sealed class IpcJsonStreamTests
             TestContext.Current.CancellationToken);
 
         Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public async Task RoundTrip_PreservesRealtimeControlHandshake()
+    {
+        await using var memory = new MemoryStream();
+        await using var ipc = new IpcJsonStream(memory);
+        var expectedRequest = new AgentMessage(
+            "realtime-control",
+            null,
+            null,
+            null,
+            RealtimeControl: new AgentRealtimeControlRequest("pause-1", Pause: true));
+        var expectedResult = new HostCommand(
+            "realtime-control-result",
+            "realtime",
+            "pause-1",
+            RealtimeControlResult: new HostRealtimeControlResult("pause-1", true));
+
+        await ipc.WriteAsync(expectedRequest, TestContext.Current.CancellationToken);
+        await ipc.WriteAsync(expectedResult, TestContext.Current.CancellationToken);
+        memory.Position = 0;
+
+        var actualRequest = await ipc.ReadAsync<AgentMessage>(
+            TestContext.Current.CancellationToken);
+        var actualResult = await ipc.ReadAsync<HostCommand>(
+            TestContext.Current.CancellationToken);
+
+        Assert.Equal(expectedRequest, actualRequest);
+        Assert.Equal(expectedResult, actualResult);
     }
 
     [Fact]
