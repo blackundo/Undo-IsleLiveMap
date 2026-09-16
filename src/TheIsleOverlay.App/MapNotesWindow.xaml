@@ -9,8 +9,8 @@
         PreviewKeyDown="Window_PreviewKeyDown">
     <Window.Resources>
         <Style x:Key="NotePaletteButton" TargetType="Button">
-            <Setter Property="Background" Value="#E10B201D" />
-            <Setter Property="BorderBrush" Value="#4B655F" />
+            <Setter Property="Background" Value="#E10B0E20" />
+            <Setter Property="BorderBrush" Value="#4B5165" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Margin" Value="3" />
             <Setter Property="Padding" Value="7,6" />
@@ -26,11 +26,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#F01B4942" />
-                                <Setter Property="BorderBrush" Value="#79C5B8" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#F01B2249" />
+                                <Setter Property="BorderBrush" Value="#7986C5" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#FF28675E" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#FF283167" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -38,9 +38,9 @@
             </Setter>
         </Style>
         <Style x:Key="CoordinateSubmitButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="#171304" />
-            <Setter Property="Background" Value="#F1C75B" />
-            <Setter Property="BorderBrush" Value="#FFE49A" />
+            <Setter Property="Foreground" Value="#120417" />
+            <Setter Property="Background" Value="#C05BF1" />
+            <Setter Property="BorderBrush" Value="#DF9AFF" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
             <Setter Property="FontSize" Value="10" />
@@ -56,8 +56,8 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#FFE184" /></Trigger>
-                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#D6A83E" /></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#DB84FF" /></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#A03ED6" /></Trigger>
                             <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.48" /></Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="#FFFFFF" /><Setter Property="BorderThickness" Value="2" /></Trigger>
                         </ControlTemplate.Triggers>
@@ -98,8 +98,8 @@
         </Style>
     </Window.Resources>
 
-    <Border x:Name="WindowChrome" Margin="12" Background="#F2071717"
-            BorderBrush="#7858736C" BorderThickness="1" CornerRadius="6">
+    <Border x:Name="WindowChrome" Margin="12" Background="#F2070717"
+            BorderBrush="#78585F73" BorderThickness="1" CornerRadius="6">
         <Border.Effect>
             <DropShadowEffect Color="#000000" BlurRadius="28" ShadowDepth="5" Opacity="0.82" />
         </Border.Effect>
@@ -110,7 +110,7 @@
                 <RowDefinition Height="40" />
             </Grid.RowDefinitions>
 
-            <Border BorderBrush="#34544E" BorderThickness="0,0,0,1">
+            <Border BorderBrush="#343A54" BorderThickness="0,0,0,1">
                 <Grid Margin="15,0,10,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -118,15 +118,15 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="GATEWAY // FIELD NOTES" Foreground="#37D4C6"
+                        <TextBlock Text="GATEWAY // FIELD NOTES" Foreground="#3745D4"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="SemiBold" />
-                        <TextBlock Text="CLICK BẢN ĐỒ ĐỂ ĐẶT MỐC" Foreground="#E9F4EE"
+                        <TextBlock Text="CLICK BẢN ĐỒ ĐỂ ĐẶT MỐC" Foreground="#E9EFF4"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="16" FontWeight="Bold" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,14,0">
-                        <TextBlock x:Name="NoteCountLabel" Text="0 MỐC" Foreground="#E7B74E"
+                        <TextBlock x:Name="NoteCountLabel" Text="0 MỐC" Foreground="#AF4EE7"
                                    FontFamily="Bahnschrift" FontSize="10" HorizontalAlignment="Right" />
-                        <TextBlock x:Name="CloseShortcutLabel" Text="ALT + M / ESC ĐỂ ĐÓNG" Foreground="#718E86"
+                        <TextBlock x:Name="CloseShortcutLabel" Text="ALT + M / ESC ĐỂ ĐÓNG" Foreground="#71798E"
                                    FontFamily="Bahnschrift" FontSize="8.5" />
                     </StackPanel>
                     <Button Grid.Column="2" Style="{StaticResource ChromeButton}" Content="×"
@@ -136,15 +136,15 @@
             </Border>
 
             <Border x:Name="MapFrame" Grid.Row="1" Margin="10,10,10,0"
-                    Background="#102423" BorderBrush="#4A655E" BorderThickness="1"
+                    Background="#101124" BorderBrush="#4A5165" BorderThickness="1"
                     ClipToBounds="True">
                 <Grid>
-                    <Grid x:Name="MapSurface" Background="#102423"
+                    <Grid x:Name="MapSurface" Background="#101124"
                           AutomationProperties.Name="Bề mặt đặt mốc Gateway"
                           MouseLeftButtonUp="MapSurface_MouseLeftButtonUp"
                           SizeChanged="MapSurface_SizeChanged">
                         <Image x:Name="MapImage" Stretch="Fill" Opacity="0.96" IsHitTestVisible="False" />
-                        <Rectangle Fill="#0800BBAA" IsHitTestVisible="False" />
+                        <Rectangle Fill="#080011BB" IsHitTestVisible="False" />
                         <Canvas x:Name="NoteLineLayer" IsHitTestVisible="False" />
                         <Canvas x:Name="NoteMarkerLayer" />
                         <Canvas x:Name="PlayerLayer" IsHitTestVisible="False" />
@@ -153,7 +153,7 @@
                     <Border x:Name="CoordinateEntryPanel" Panel.ZIndex="4"
                             Width="390" HorizontalAlignment="Left" VerticalAlignment="Top"
                             Margin="14" Padding="10,9" CornerRadius="4"
-                            Background="#F2071513" BorderBrush="#A88E793D" BorderThickness="1">
+                            Background="#F2070915" BorderBrush="#A8753D8E" BorderThickness="1">
                         <Border.Effect>
                             <DropShadowEffect Color="#000000" BlurRadius="16" ShadowDepth="3" Opacity="0.72" />
                         </Border.Effect>
@@ -165,18 +165,18 @@
                             </Grid.RowDefinitions>
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                <TextBlock Text="ĐẶT MỐC BẰNG TỌA ĐỘ" Foreground="#FFE18A"
+                                <TextBlock Text="ĐẶT MỐC BẰNG TỌA ĐỘ" Foreground="#DB8AFF"
                                            FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="Bold" />
-                                <TextBlock Grid.Column="1" Text="PRO · XYZ" Foreground="#8CA59D"
+                                <TextBlock Grid.Column="1" Text="PRO · XYZ" Foreground="#8C94A5"
                                            FontFamily="Bahnschrift" FontSize="8.5" VerticalAlignment="Center" />
                             </Grid>
                             <Grid Grid.Row="1" Margin="0,7,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="88" /></Grid.ColumnDefinitions>
-                                <Border x:Name="CoordinateInputBorder" Background="#E50A1B18"
-                                        BorderBrush="#526B63" BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="CoordinateInputBorder" Background="#E50A0D1B"
+                                        BorderBrush="#525A6B" BorderThickness="1" CornerRadius="2">
                                     <TextBox x:Name="CoordinateInputTextBox"
                                              Background="Transparent" BorderThickness="0" Foreground="#F2F4EC"
-                                             CaretBrush="#FFE18A" FontFamily="Cascadia Mono, Consolas" FontSize="10.5"
+                                             CaretBrush="#DB8AFF" FontFamily="Cascadia Mono, Consolas" FontSize="10.5"
                                              Padding="8,6" VerticalContentAlignment="Center"
                                              ToolTip="Ví dụ: -238,743.261, 88,587.6, 28,509.171"
                                              AutomationProperties.Name="Tọa độ X Y Z để đặt mốc"
@@ -191,7 +191,7 @@
                             </Grid>
                             <TextBlock x:Name="CoordinateFeedbackLabel" Grid.Row="2"
                                        Text="Dán X, Y, Z · Enter để đặt · map định vị theo X/Y"
-                                       Foreground="#7F9991" FontSize="8.8" Margin="1,6,0,0" />
+                                       Foreground="#7F8799" FontSize="8.8" Margin="1,6,0,0" />
                         </Grid>
                     </Border>
                 </Grid>
@@ -204,7 +204,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="SelectionDetailLabel" Text="Chọn một vị trí trên bản đồ"
-                           Foreground="#8CA59D" FontFamily="Bahnschrift" FontSize="9.5"
+                           Foreground="#8C94A5" FontFamily="Bahnschrift" FontSize="9.5"
                            VerticalAlignment="Center" />
                 <Button x:Name="DeleteSelectedButton" Grid.Column="1"
                         Style="{StaticResource DeleteNoteButtonStyle}"
@@ -213,14 +213,14 @@
                         AutomationProperties.Name="Xóa mốc đang chọn"
                         Click="DeleteSelectedButton_Click" />
                 <TextBlock Grid.Column="2" Text="BẢN ĐỒ CỐ ĐỊNH · KHÔNG ZOOM"
-                           Foreground="#58766E" FontFamily="Bahnschrift SemiCondensed" FontSize="8.5"
+                           Foreground="#586076" FontFamily="Bahnschrift SemiCondensed" FontSize="8.5"
                            VerticalAlignment="Center" />
             </Grid>
 
             <Popup x:Name="MarkerPalettePopup" PlacementTarget="{Binding ElementName=MapSurface}"
                    Placement="Relative" AllowsTransparency="True" StaysOpen="False"
                    PopupAnimation="Fade">
-                <Border Background="#FA071716" BorderBrush="#806F8E86" BorderThickness="1"
+                <Border Background="#FA070817" BorderBrush="#806F778E" BorderThickness="1"
                         CornerRadius="5" Padding="6">
                     <Border.Effect>
                         <DropShadowEffect Color="#000000" BlurRadius="18" ShadowDepth="3" Opacity="0.8" />

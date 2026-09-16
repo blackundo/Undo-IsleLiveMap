@@ -4,7 +4,7 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="Kích hoạt Isle Live Map Pro · chỉ từ 28K" Width="1060" Height="760"
         MinWidth="820" MinHeight="620" WindowStartupLocation="CenterOwner"
-        Background="#071716" Foreground="#E9F4EE"
+        Background="#070817" Foreground="#E9EFF4"
         FontFamily="Segoe UI Variable Text"
         Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid>
@@ -14,48 +14,48 @@
             <RowDefinition Height="62" />
         </Grid.RowDefinitions>
 
-        <Border Background="#0B201E" BorderBrush="#5D5936" BorderThickness="0,0,0,1">
+        <Border Background="#0B0D20" BorderBrush="#57365D" BorderThickness="0,0,0,1">
             <Grid Margin="18,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="4" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Rectangle Fill="#E7B74E" RadiusX="1" RadiusY="1" Margin="0,13" />
+                <Rectangle Fill="#AF4EE7" RadiusX="1" RadiusY="1" Margin="0,13" />
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
                     <TextBlock Text="KÍCH HOẠT STEAM / PRO ACCESS"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="18"
-                               FontWeight="Bold" Foreground="#FFE5A0" />
+                               FontWeight="Bold" Foreground="#E0A0FF" />
                     <TextBlock Text="Một lần mua · dùng theo SteamID64 · không giới hạn thiết bị"
                                Foreground="#9B9A78" FontSize="10.5" Margin="0,3,0,0" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="CHỈ TỪ 28K" Foreground="#F1C75B"
+                    <TextBlock Text="CHỈ TỪ 28K" Foreground="#C05BF1"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="17"
                                FontWeight="Bold" HorizontalAlignment="Right" />
                     <TextBlock Text="PRO ACCESS · STEAMID64"
-                               Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="9" Margin="0,3,0,0"
+                               Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="9" Margin="0,3,0,0"
                                HorizontalAlignment="Right" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Border Grid.Row="1" Margin="12" Background="#0A1A19"
-                BorderBrush="#465D4E" BorderThickness="1">
+        <Border Grid.Row="1" Margin="12" Background="#0A0B1A"
+                BorderBrush="#46555D" BorderThickness="1">
             <Grid>
                 <wv2:WebView2 x:Name="LoginBrowser" />
-                <Border x:Name="BrowserLoadingPanel" Background="#F2071716">
+                <Border x:Name="BrowserLoadingPanel" Background="#F2070817">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Ellipse Width="24" Height="24" Stroke="#E7B74E" StrokeThickness="2" />
+                        <Ellipse Width="24" Height="24" Stroke="#AF4EE7" StrokeThickness="2" />
                         <TextBlock Text="ĐANG MỞ XÁC MINH STEAM…"
-                                   Foreground="#A29E7F" FontFamily="Bahnschrift SemiCondensed"
+                                   Foreground="#9C7FA2" FontFamily="Bahnschrift SemiCondensed"
                                    FontSize="10" Margin="0,12,0,0" />
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
 
-        <Border Grid.Row="2" Background="#0B201E" BorderBrush="#5D5936" BorderThickness="0,1,0,0">
+        <Border Grid.Row="2" Background="#0B0D20" BorderBrush="#57365D" BorderThickness="0,1,0,0">
             <Grid Margin="18,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -64,14 +64,14 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="LoginStatusLabel"
                            Text="CHỈ TỪ 28K · SteamID64 và token mã hóa DPAPI được lưu; không tạo khóa theo thiết bị."
-                           Foreground="#8F9E8A" FontSize="10.5" VerticalAlignment="Center"
+                           Foreground="#8A9E99" FontSize="10.5" VerticalAlignment="Center"
                            TextWrapping="Wrap" />
                 <Button Grid.Column="1" Content="THỬ LẠI" Padding="15,7" Margin="10,0,0,0"
-                        Click="RetryButton_Click" Background="#3B3820" Foreground="#FFF4C2"
-                        BorderBrush="#7B7041" FontFamily="Bahnschrift SemiCondensed" Cursor="Hand" />
+                        Click="RetryButton_Click" Background="#37203B" Foreground="#F1C2FF"
+                        BorderBrush="#6D417B" FontFamily="Bahnschrift SemiCondensed" Cursor="Hand" />
                 <Button Grid.Column="2" Content="HỦY" Padding="15,7" Margin="8,0,0,0"
-                        Click="CancelButton_Click" Background="Transparent" Foreground="#A8BBB5"
-                        BorderBrush="#48655F" FontFamily="Bahnschrift SemiCondensed" Cursor="Hand" />
+                        Click="CancelButton_Click" Background="Transparent" Foreground="#A8AEBB"
+                        BorderBrush="#484E65" FontFamily="Bahnschrift SemiCondensed" Cursor="Hand" />
             </Grid>
         </Border>
     </Grid>

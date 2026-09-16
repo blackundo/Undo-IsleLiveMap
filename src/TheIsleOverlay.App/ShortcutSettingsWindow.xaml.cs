@@ -123,7 +123,7 @@ public partial class ShortcutSettingsWindow : Window
     {
         FeedbackLabel.Text = message;
         FeedbackLabel.Foreground = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(isError ? "#EF8D7C" : "#8FE3D0"));
+            (Color)ColorConverter.ConvertFromString(isError ? "#EF8D7C" : "#8FA2E3"));
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e) => DialogResult = false;

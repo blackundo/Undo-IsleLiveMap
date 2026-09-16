@@ -7,14 +7,14 @@
         ShowInTaskbar="False" PreviewKeyDown="Window_PreviewKeyDown"
         FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
     <Window.Resources>
-        <SolidColorBrush x:Key="MutationBone" Color="#EEF4EC" />
-        <SolidColorBrush x:Key="MutationMuted" Color="#93A69E" />
-        <SolidColorBrush x:Key="MutationLine" Color="#36554C" />
-        <SolidColorBrush x:Key="MutationTeal" Color="#69DEC9" />
-        <SolidColorBrush x:Key="MutationGold" Color="#EAC35C" />
+        <SolidColorBrush x:Key="MutationBone" Color="#ECF4F2" />
+        <SolidColorBrush x:Key="MutationMuted" Color="#939BA6" />
+        <SolidColorBrush x:Key="MutationLine" Color="#363F55" />
+        <SolidColorBrush x:Key="MutationTeal" Color="#697EDE" />
+        <SolidColorBrush x:Key="MutationGold" Color="#BC5CEA" />
         <Style x:Key="MutationButton" TargetType="Button">
             <Setter Property="Foreground" Value="{StaticResource MutationBone}" />
-            <Setter Property="Background" Value="#172821" />
+            <Setter Property="Background" Value="#171E28" />
             <Setter Property="BorderBrush" Value="{StaticResource MutationLine}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="12,8" />
@@ -24,7 +24,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Margin="16" Background="#F407100D" BorderBrush="#587269" BorderThickness="1" CornerRadius="5">
+    <Border Margin="16" Background="#F4070A10" BorderBrush="#586172" BorderThickness="1" CornerRadius="5">
         <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="26" ShadowDepth="5" Opacity="0.75" /></Border.Effect>
         <Grid>
             <Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="46" /></Grid.RowDefinitions>
@@ -42,7 +42,7 @@
 
             <Grid Grid.Row="1" Margin="20,16,20,12">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                <Border Background="#0B1A16" BorderBrush="{StaticResource MutationLine}" BorderThickness="1" CornerRadius="2">
+                <Border Background="#0B0F1A" BorderBrush="{StaticResource MutationLine}" BorderThickness="1" CornerRadius="2">
                     <TextBox x:Name="SearchTextBox" Background="Transparent" BorderThickness="0" Foreground="{StaticResource MutationBone}"
                              CaretBrush="{StaticResource MutationTeal}" Padding="12,9" FontSize="12"
                              TextChanged="SearchTextBox_TextChanged" ToolTip="Tìm bằng tên hoặc mô tả, có hoặc không dấu" />
@@ -65,15 +65,15 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#B80C1B17" BorderBrush="#2D4A42" BorderThickness="1" CornerRadius="3" Padding="14,12">
+                        <Border Background="#B80C101B" BorderBrush="#2D354A" BorderThickness="1" CornerRadius="3" Padding="14,12">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="190" /><ColumnDefinition Width="18" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                 <StackPanel>
                                     <TextBlock Text="{Binding Name}" Foreground="{StaticResource MutationGold}" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding SecondaryLabel}" Foreground="#5D766D" FontFamily="Bahnschrift" FontSize="8.5" FontWeight="Bold" Margin="0,8,0,2" />
+                                    <TextBlock Text="{Binding SecondaryLabel}" Foreground="#5D6676" FontFamily="Bahnschrift" FontSize="8.5" FontWeight="Bold" Margin="0,8,0,2" />
                                     <TextBlock Text="{Binding SecondaryName}" Foreground="{StaticResource MutationMuted}" FontSize="10.5" TextWrapping="Wrap" />
                                 </StackPanel>
-                                <Rectangle Grid.Column="1" Width="1" Fill="#284139" HorizontalAlignment="Center" />
+                                <Rectangle Grid.Column="1" Width="1" Fill="#283041" HorizontalAlignment="Center" />
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Description}" Foreground="{StaticResource MutationBone}" FontSize="11.5" FontWeight="SemiBold" TextWrapping="Wrap" LineHeight="17" />
                                     <TextBlock Text="{Binding SecondaryDescription}" Foreground="{StaticResource MutationMuted}" FontSize="10.5" TextWrapping="Wrap" LineHeight="16" Margin="0,7,0,0" />

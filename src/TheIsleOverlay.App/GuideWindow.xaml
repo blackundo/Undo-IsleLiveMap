@@ -10,15 +10,15 @@
         UseLayoutRounding="True" SnapsToDevicePixels="True"
         Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown">
     <Window.Resources>
-        <SolidColorBrush x:Key="GuideBone" Color="#E9F4EE" />
-        <SolidColorBrush x:Key="GuideMuted" Color="#9EB3AD" />
-        <SolidColorBrush x:Key="GuideTeal" Color="#37D4C6" />
-        <SolidColorBrush x:Key="GuideAmber" Color="#E7B74E" />
+        <SolidColorBrush x:Key="GuideBone" Color="#E9EFF4" />
+        <SolidColorBrush x:Key="GuideMuted" Color="#9EA4B3" />
+        <SolidColorBrush x:Key="GuideTeal" Color="#3745D4" />
+        <SolidColorBrush x:Key="GuideAmber" Color="#AF4EE7" />
 
         <Style x:Key="GuideButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#F1FFFB" />
-            <Setter Property="Background" Value="#D41B4942" />
-            <Setter Property="BorderBrush" Value="#5C9D91" />
+            <Setter Property="Foreground" Value="#F1F5FF" />
+            <Setter Property="Background" Value="#D41B2249" />
+            <Setter Property="BorderBrush" Value="#5C689D" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
             <Setter Property="FontSize" Value="12" />
@@ -35,11 +35,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#285D54" />
-                                <Setter Property="BorderBrush" Value="#76C5B8" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#28315D" />
+                                <Setter Property="BorderBrush" Value="#7683C5" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#347166" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#343F71" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -48,8 +48,8 @@
         </Style>
 
         <Style x:Key="ShortcutKey" TargetType="Border">
-            <Setter Property="Background" Value="#D00A1D1B" />
-            <Setter Property="BorderBrush" Value="#526C65" />
+            <Setter Property="Background" Value="#D00A0C1D" />
+            <Setter Property="BorderBrush" Value="#52596C" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="9,5" />
@@ -58,7 +58,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Margin="14" Background="#FA071716" BorderBrush="#7258736C"
+    <Border Margin="14" Background="#FA070817" BorderBrush="#72585F73"
             BorderThickness="1" CornerRadius="7">
         <Border.Effect>
             <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="5" Opacity="0.8" />
@@ -69,7 +69,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border BorderBrush="#31534D" BorderThickness="0,0,0,1"
+            <Border BorderBrush="#313753" BorderThickness="0,0,0,1"
                     MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid Margin="16,0,10,0">
                     <Grid.ColumnDefinitions>
@@ -78,14 +78,14 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Grid Width="18" Height="18">
-                        <Ellipse Width="15" Height="15" Stroke="#37D4C6" StrokeThickness="1" />
-                        <Path Data="M9,1 L13,11 L9,9 L5,11 Z" Fill="#E9F4EE" Stroke="#37D4C6" StrokeThickness="0.6" />
+                        <Ellipse Width="15" Height="15" Stroke="#3745D4" StrokeThickness="1" />
+                        <Path Data="M9,1 L13,11 L9,9 L5,11 Z" Fill="#E9EFF4" Stroke="#3745D4" StrokeThickness="0.6" />
                     </Grid>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="9,0,0,0">
                         <TextBlock Text="FIELD BRIEFING // 60 SEC" Foreground="{StaticResource GuideBone}"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
                         <TextBlock Text="   ISLE LIVE MAP · HƯỚNG DẪN"
-                                   Foreground="#7F9B94" FontFamily="Bahnschrift" FontSize="9.5"
+                                   Foreground="#7F869B" FontFamily="Bahnschrift" FontSize="9.5"
                                    FontWeight="Medium" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button Grid.Column="2" Style="{StaticResource GuideButton}" Content="×"
@@ -119,138 +119,138 @@
                                    Foreground="{StaticResource GuideBone}" FontFamily="Bahnschrift SemiCondensed"
                                    FontSize="28" FontWeight="Bold" Margin="-1,2,0,0" />
                     </StackPanel>
-                    <TextBlock Grid.Column="1" Text="GLOBAL HOTKEYS · 11 PHÍM" Foreground="#6F8C84"
+                    <TextBlock Grid.Column="1" Text="GLOBAL HOTKEYS · 11 PHÍM" Foreground="#6F778C"
                                FontFamily="Bahnschrift" FontSize="10" VerticalAlignment="Bottom" Margin="0,0,0,6" />
                 </Grid>
 
-                <Border Grid.Row="1" Margin="0,15,0,16" Background="#8B0A1E1C"
-                        BorderBrush="#455F59" BorderThickness="1" CornerRadius="3" Padding="15,4">
+                <Border Grid.Row="1" Margin="0,15,0,16" Background="#8B0A0C1E"
+                        BorderBrush="#454B5F" BorderThickness="1" CornerRadius="3" Padding="15,4">
                     <StackPanel>
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <Border Style="{StaticResource ShortcutKey}">
-                                <TextBlock Text="CTRL + SHIFT + O" Foreground="#E9F4EE" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
+                                <TextBlock Text="CTRL + SHIFT + O" Foreground="#E9EFF4" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="FREE · CHỈNH OVERLAY" Foreground="#DCEAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="FREE · CHỈNH OVERLAY" Foreground="#DCE2EA" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Kéo vị trí, resize riêng từng block và đổi map Tròn / Vuông" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#756A3A">
-                                <TextBlock Text="ALT + S" Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
+                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#673A75">
+                                <TextBlock Text="ALT + S" Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="PRO · ĐỔI SKIN" Foreground="#FFE18A" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="PRO · ĐỔI SKIN" Foreground="#DB8AFF" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Mở bảng màu native và áp dụng thẳng vào dino đang chơi" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#756A3A">
-                                <TextBlock Text="ALT + G" Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
+                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#673A75">
+                                <TextBlock Text="ALT + G" Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="PRO · MỞ GARAGE" Foreground="#FFE18A" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="PRO · MỞ GARAGE" Foreground="#DB8AFF" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Mở garage - có thể slay, park và restore dino của bạn" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#756A3A">
-                                <TextBlock Text="ALT + M" Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
+                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#673A75">
+                                <TextBlock Text="ALT + M" Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="PRO · ĐẶT SET POINT" Foreground="#FFE18A" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="PRO · ĐẶT SET POINT" Foreground="#DB8AFF" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Mở map lớn, click hoặc dán tọa độ XYZ và chia sẻ nhóm" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <Border Style="{StaticResource ShortcutKey}">
-                                <TextBlock Text="ALT + KÉO CHUỘT TRÁI" Foreground="#E9F4EE" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
+                                <TextBlock Text="ALT + KÉO CHUỘT TRÁI" Foreground="#E9EFF4" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="FREE · DI CHUYỂN MAP" Foreground="#DCEAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="FREE · DI CHUYỂN MAP" Foreground="#DCE2EA" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Giữ chuột trái và kéo để quan sát tự do" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <Border Style="{StaticResource ShortcutKey}">
-                                <TextBlock Text="ALT + CHUỘT PHẢI" Foreground="#E9F4EE" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
+                                <TextBlock Text="ALT + CHUỘT PHẢI" Foreground="#E9EFF4" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="FREE · ĐẶT LẠI MAP" Foreground="#DCEAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="FREE · ĐẶT LẠI MAP" Foreground="#DCE2EA" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Đưa map về chính giữa và tiếp tục bám GPS" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#4B8177">
-                                <TextBlock Text="ALT + CUỘN CHUỘT" Foreground="#90E6DA" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
+                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#4B5581">
+                                <TextBlock Text="ALT + CUỘN CHUỘT" Foreground="#909CE6" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="FREE · ZOOM IN / OUT MAP" Foreground="#90E6DA" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="FREE · ZOOM IN / OUT MAP" Foreground="#909CE6" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Cuộn chuột để phóng to (Zoom In) và thu nhỏ (Zoom Out) bản đồ" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#4B8177">
-                                <TextBlock Text="CTRL + CUỘN CHUỘT" Foreground="#90E6DA" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
+                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#4B5581">
+                                <TextBlock Text="CTRL + CUỘN CHUỘT" Foreground="#909CE6" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="FREE · SIZE CHỈ HƯỚNG" Foreground="#90E6DA" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="FREE · SIZE CHỈ HƯỚNG" Foreground="#909CE6" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Cuộn chuột để zoom to / bé marker chỉ đường bạn và đồng đội" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <Border Style="{StaticResource ShortcutKey}">
-                                <TextBlock Text="ALT + NÚT GIỮA" Foreground="#E9F4EE" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
+                                <TextBlock Text="ALT + NÚT GIỮA" Foreground="#E9EFF4" FontFamily="Bahnschrift" FontSize="11.5" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="FREE · ẨN / HIỆN MAP" Foreground="#DCEAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="FREE · ẨN / HIỆN MAP" Foreground="#DCE2EA" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Giữ status trên màn hình khi không cần bản đồ" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#756A3A">
-                                <TextBlock Text="ALT + N" Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
+                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#673A75">
+                                <TextBlock Text="ALT + N" Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="PRO · ẨN / HIỆN NHIỆM VỤ" Foreground="#FFE18A" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="PRO · ẨN / HIỆN NHIỆM VỤ" Foreground="#DB8AFF" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Thu gọn danh sách nhưng vẫn theo dõi tiến độ" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#304A45" />
+                        <Rectangle Height="1" Fill="#30354A" />
                         <Grid Height="40">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="195" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#4B8177">
-                                <TextBlock Text="ALT + P" Foreground="#90E6DA" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
+                            <Border Style="{StaticResource ShortcutKey}" BorderBrush="#4B5581">
+                                <TextBlock Text="ALT + P" Foreground="#909CE6" FontFamily="Bahnschrift" FontSize="12" FontWeight="Bold" />
                             </Border>
-                            <TextBlock Grid.Column="1" Text="FREE · ẨN / HIỆN HUD" Foreground="#90E6DA" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="FREE · ẨN / HIỆN HUD" Foreground="#909CE6" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="Ẩn nhanh toàn bộ overlay khi cần quan sát" Foreground="{StaticResource GuideMuted}" FontSize="11.5" VerticalAlignment="Center" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <Rectangle Grid.Row="2" Fill="#35554F" />
+                <Rectangle Grid.Row="2" Fill="#353B55" />
 
                 <Grid Grid.Row="3" Margin="0,15,0,10">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <TextBlock Text="ISLE LIVE MAP LÀM ĐƯỢC GÌ?" Foreground="{StaticResource GuideBone}"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="15" FontWeight="SemiBold" />
-                    <TextBlock Grid.Column="1" Text="LOCAL MAP · LIVE DATA · TEAM LINK" Foreground="#718E86"
+                    <TextBlock Grid.Column="1" Text="LOCAL MAP · LIVE DATA · TEAM LINK" Foreground="#71798E"
                                FontFamily="Bahnschrift" FontSize="9.5" VerticalAlignment="Center" />
                 </Grid>
 
                 <Grid Grid.Row="4">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="25" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="01  MAP CỤC BỘ + HƯỚNG QUAY" Foreground="#D8EAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBlock Text="02  HP · STAMINA · HUNGER · WATER" Foreground="#D8EAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBlock Text="03  PING NHÓM · OWNER QUẢN LÝ" Foreground="#FFE18A" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBlock Text="04  MOVE + RESIZE TỪNG BLOCK · MAP TRÒN" Foreground="#D8EAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
+                        <TextBlock Text="01  MAP CỤC BỘ + HƯỚNG QUAY" Foreground="#D8DEEA" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock Text="02  HP · STAMINA · HUNGER · WATER" Foreground="#D8DEEA" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock Text="03  PING NHÓM · OWNER QUẢN LÝ" Foreground="#DB8AFF" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock Text="04  MOVE + RESIZE TỪNG BLOCK · MAP TRÒN" Foreground="#D8DEEA" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
                     </StackPanel>
-                    <Rectangle Grid.Column="1" Width="1" Fill="#304A45" HorizontalAlignment="Center" />
+                    <Rectangle Grid.Column="1" Width="1" Fill="#30354A" HorizontalAlignment="Center" />
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="05  NHIỆM VỤ PRIME TIẾNG VIỆT" Foreground="#FFE18A" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBlock Text="06  THÔNG BÁO KHI XONG NHIỆM VỤ" Foreground="#D8EAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBlock Text="07  NHÓM TẠM + VỊ TRÍ ĐỒNG ĐỘI" Foreground="#D8EAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBlock Text="08  TỰ CẬP NHẬT TỪ GITHUB" Foreground="#D8EAE4" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
+                        <TextBlock Text="05  NHIỆM VỤ PRIME TIẾNG VIỆT" Foreground="#DB8AFF" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock Text="06  THÔNG BÁO KHI XONG NHIỆM VỤ" Foreground="#D8DEEA" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock Text="07  NHÓM TẠM + VỊ TRÍ ĐỒNG ĐỘI" Foreground="#D8DEEA" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock Text="08  TỰ CẬP NHẬT TỪ GITHUB" Foreground="#D8DEEA" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
                     </StackPanel>
                 </Grid>
 
@@ -259,7 +259,7 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="MẸO" Foreground="{StaticResource GuideTeal}" FontFamily="Bahnschrift SemiCondensed" FontSize="9.5" FontWeight="SemiBold" />
                         <TextBlock Text="Mở game Borderless hoặc Windowed Fullscreen để overlay hiển thị ổn định."
-                                   Foreground="#819A93" FontSize="10.5" FontWeight="Medium" Margin="0,2,0,0" />
+                                   Foreground="#81889A" FontSize="10.5" FontWeight="Medium" Margin="0,2,0,0" />
                     </StackPanel>
                     <Button x:Name="EnterToolButton" Grid.Column="1" Style="{StaticResource GuideButton}"
                             Content="ĐÃ HIỂU · VÀO TOOL  →" Height="43" Padding="19,0"

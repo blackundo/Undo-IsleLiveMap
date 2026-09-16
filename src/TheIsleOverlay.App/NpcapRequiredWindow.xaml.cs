@@ -8,17 +8,17 @@ namespace TheIsleOverlay.App;
 
 public partial class NpcapRequiredWindow : Window
 {
-    private static readonly Brush ActiveBackground = MakeBrush("#193D37");
-    private static readonly Brush ActiveBorder = MakeBrush("#37D4C6");
-    private static readonly Brush ActiveForeground = MakeBrush("#DFFFF9");
-    private static readonly Brush CompleteBackground = MakeBrush("#15312D");
-    private static readonly Brush CompleteBorder = MakeBrush("#37645C");
-    private static readonly Brush CompleteForeground = MakeBrush("#8FC4B9");
-    private static readonly Brush IdleBackground = MakeBrush("#101F1D");
-    private static readonly Brush IdleBorder = MakeBrush("#2A4540");
-    private static readonly Brush IdleForeground = MakeBrush("#607B74");
+    private static readonly Brush ActiveBackground = MakeBrush("#191F3D");
+    private static readonly Brush ActiveBorder = MakeBrush("#3745D4");
+    private static readonly Brush ActiveForeground = MakeBrush("#DFE5FF");
+    private static readonly Brush CompleteBackground = MakeBrush("#151931");
+    private static readonly Brush CompleteBorder = MakeBrush("#373F64");
+    private static readonly Brush CompleteForeground = MakeBrush("#8F9AC4");
+    private static readonly Brush IdleBackground = MakeBrush("#10121F");
+    private static readonly Brush IdleBorder = MakeBrush("#2A2F45");
+    private static readonly Brush IdleForeground = MakeBrush("#60677B");
     private static readonly Brush ErrorBrush = MakeBrush("#FF8A7A");
-    private static readonly Brush WarningBrush = MakeBrush("#FFE18A");
+    private static readonly Brush WarningBrush = MakeBrush("#DB8AFF");
 
     private readonly INpcapSetupService _setupService;
     private CancellationTokenSource? _setupCancellation;

@@ -18,19 +18,19 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type primitives:Thumb}">
-                        <Border x:Name="WidgetGripChrome" Background="#ED0A211E"
-                                BorderBrush="#8A70B9AA" BorderThickness="1" CornerRadius="2">
-                            <TextBlock Text="↘" Foreground="#8FE3D0" FontFamily="Bahnschrift"
+                        <Border x:Name="WidgetGripChrome" Background="#ED0A0D21"
+                                BorderBrush="#8A707FB9" BorderThickness="1" CornerRadius="2">
+                            <TextBlock Text="↘" Foreground="#8FA2E3" FontFamily="Bahnschrift"
                                        FontSize="14" FontWeight="Bold" Margin="0,0,3,1"
                                        HorizontalAlignment="Right" VerticalAlignment="Bottom" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="WidgetGripChrome" Property="Background" Value="#F016403A" />
-                                <Setter TargetName="WidgetGripChrome" Property="BorderBrush" Value="#B78FE3D0" />
+                                <Setter TargetName="WidgetGripChrome" Property="Background" Value="#F0161C40" />
+                                <Setter TargetName="WidgetGripChrome" Property="BorderBrush" Value="#B78FA2E3" />
                             </Trigger>
                             <Trigger Property="IsDragging" Value="True">
-                                <Setter TargetName="WidgetGripChrome" Property="Background" Value="#F0275D54" />
+                                <Setter TargetName="WidgetGripChrome" Property="Background" Value="#F027305D" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -46,17 +46,17 @@
                 PreviewMouseLeftButtonDown="WidgetPanel_MouseLeftButtonDown"
                 PreviewMouseMove="WidgetPanel_MouseMove"
                 PreviewMouseLeftButtonUp="WidgetPanel_MouseLeftButtonUp"
-                Background="#0C2020" BorderBrush="#783E625B" BorderThickness="1" CornerRadius="4" ClipToBounds="True">
+                Background="#0C0C20" BorderBrush="#783E4562" BorderThickness="1" CornerRadius="4" ClipToBounds="True">
             <Grid>
-                <Ellipse x:Name="MapCircleChrome" Fill="#0C2020" Stroke="#783E625B"
+                <Ellipse x:Name="MapCircleChrome" Fill="#0C0C20" Stroke="#783E4562"
                          StrokeThickness="1" Visibility="Collapsed" IsHitTestVisible="False" />
                 <Grid x:Name="MapVisualRoot">
-                <Canvas x:Name="MapViewport" Background="#102423" SizeChanged="MapViewport_SizeChanged" ClipToBounds="True"
+                <Canvas x:Name="MapViewport" Background="#101124" SizeChanged="MapViewport_SizeChanged" ClipToBounds="True"
                         AutomationProperties.Name="Minimap Gateway viewport">
                     <Image x:Name="MapImage" Stretch="Fill" Opacity="0.93"
                            RenderOptions.BitmapScalingMode="Linear"
                            SnapsToDevicePixels="True" />
-                    <Rectangle x:Name="MapShade" Fill="#0D00BBAA" IsHitTestVisible="False" />
+                    <Rectangle x:Name="MapShade" Fill="#0D0011BB" IsHitTestVisible="False" />
                     <Canvas x:Name="MapHeatmapLayer" Panel.ZIndex="1" IsHitTestVisible="False" />
                     <Canvas x:Name="MapZoneLayer" Panel.ZIndex="2" IsHitTestVisible="False" />
                     <Canvas x:Name="MapFoodLayer" Panel.ZIndex="3" IsHitTestVisible="False" />
@@ -65,20 +65,20 @@
                     <Canvas x:Name="TeamMarkerLayer" Panel.ZIndex="6" IsHitTestVisible="False" />
                     <Canvas x:Name="RemotePlayerMarkerLayer" Panel.ZIndex="7" IsHitTestVisible="False" />
                     <Grid x:Name="PlayerMarker" Panel.ZIndex="8" Width="38" Height="38" IsHitTestVisible="False">
-                        <Ellipse Width="31" Height="31" Stroke="#B037D4C6" StrokeThickness="1" />
-                        <Ellipse Width="18" Height="18" Fill="#2B071719" Stroke="#ECF5F2" StrokeThickness="1" />
+                        <Ellipse Width="31" Height="31" Stroke="#B03745D4" StrokeThickness="1" />
+                        <Ellipse Width="18" Height="18" Fill="#2B090719" Stroke="#ECEFF5" StrokeThickness="1" />
                         <Grid x:Name="DirectionNeedle" Width="38" Height="38" RenderTransformOrigin="0.5,0.5">
                             <Grid.RenderTransform>
                                 <RotateTransform x:Name="PlayerHeadingTransform" Angle="0" />
                             </Grid.RenderTransform>
-                            <Path Data="M 19,1 L 25,22 L 19,18 L 13,22 Z" Fill="#F4FFFB" Stroke="#37D4C6" StrokeThickness="0.7" />
-                            <Line X1="19" Y1="20" X2="19" Y2="34" Stroke="#A337D4C6" StrokeThickness="1" />
+                            <Path Data="M 19,1 L 25,22 L 19,18 L 13,22 Z" Fill="#F4F8FF" Stroke="#3745D4" StrokeThickness="0.7" />
+                            <Line X1="19" Y1="20" X2="19" Y2="34" Stroke="#A33745D4" StrokeThickness="1" />
                         </Grid>
                     </Grid>
                 </Canvas>
 
                 <Border x:Name="MapInfoPanel" HorizontalAlignment="Left" VerticalAlignment="Top"
-                        Margin="7" MaxWidth="290" Background="#C0071517" BorderBrush="#503E625B"
+                        Margin="7" MaxWidth="290" Background="#C0090717" BorderBrush="#503E4562"
                         BorderThickness="1" CornerRadius="3" Padding="7,4">
                     <StackPanel>
                         <Grid>
@@ -88,23 +88,23 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="GATEWAY" Foreground="#DCE8E0"
+                                <TextBlock Text="GATEWAY" Foreground="#DCE4E8"
                                            FontFamily="Bahnschrift SemiCondensed" FontSize="9.5"
                                            FontWeight="SemiBold" />
-                                <Ellipse Width="4" Height="4" Fill="#37D4C6"
+                                <Ellipse Width="4" Height="4" Fill="#3745D4"
                                          Margin="6,0,4,0" VerticalAlignment="Center" />
-                                <TextBlock Text="LIVE" Foreground="#75B9AE"
+                                <TextBlock Text="LIVE" Foreground="#7580B9"
                                            FontFamily="Bahnschrift SemiCondensed" FontSize="7.5"
                                            FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
                             <TextBlock x:Name="RemotePlayerCountLabel" Grid.Column="2"
                                        Text="P 0 · AI 0" Visibility="Collapsed"
-                                       Foreground="#C9DDD6" FontFamily="Bahnschrift SemiCondensed"
+                                       Foreground="#C9D0DD" FontFamily="Bahnschrift SemiCondensed"
                                        FontSize="8" FontWeight="SemiBold" Margin="10,0,0,0"
                                        VerticalAlignment="Center" />
                         </Grid>
                         <TextBlock x:Name="CoordinateLabel" Text="X —  Y —  Z —"
-                                   Foreground="#82A49B" FontFamily="Bahnschrift" FontSize="8.2"
+                                   Foreground="#828BA4" FontFamily="Bahnschrift" FontSize="8.2"
                                    Margin="0,1,0,0" />
                         <Grid Margin="0,1,0,0">
                             <Grid.ColumnDefinitions>
@@ -112,37 +112,37 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="MapLayerSummaryLabel" Text="MMZ — · PZ — · FOOD —"
-                                       Foreground="#76968D" FontFamily="Bahnschrift SemiCondensed"
+                                       Foreground="#767F96" FontFamily="Bahnschrift SemiCondensed"
                                        FontSize="6.8" VerticalAlignment="Center" />
                             <StackPanel x:Name="RemoteEntityLegend" Grid.Column="1"
                                         Orientation="Horizontal" HorizontalAlignment="Right"
                                         Visibility="Collapsed" Margin="9,0,0,0">
                                 <TextBlock Text="● THỊT" Foreground="#F04444" FontFamily="Bahnschrift SemiCondensed" FontSize="6.8" Margin="0,0,5,0" />
-                                <TextBlock Text="● CÙNG" Foreground="#42D66B" FontFamily="Bahnschrift SemiCondensed" FontSize="6.8" Margin="0,0,5,0" />
+                                <TextBlock Text="● CÙNG" Foreground="#42ADD6" FontFamily="Bahnschrift SemiCondensed" FontSize="6.8" Margin="0,0,5,0" />
                                 <TextBlock Text="● CỎ" Foreground="#3EA6FF" FontFamily="Bahnschrift SemiCondensed" FontSize="6.8" Margin="0,0,5,0" />
-                                <TextBlock Text="● AI" Foreground="#F5C542" FontFamily="Bahnschrift SemiCondensed" FontSize="6.8" Margin="0,0,5,0" />
+                                <TextBlock Text="● AI" Foreground="#BC42F5" FontFamily="Bahnschrift SemiCondensed" FontSize="6.8" Margin="0,0,5,0" />
                                 <TextBlock Text="● ?" Foreground="#C7D0D4" FontFamily="Bahnschrift SemiCondensed" FontSize="6.8" />
                             </StackPanel>
                         </Grid>
                         <TextBlock x:Name="RemoteTrackingStatusLabel" Text="PRO · ĐANG KHỞI TẠO"
-                                   Visibility="Collapsed" Foreground="#E7B74E"
+                                   Visibility="Collapsed" Foreground="#AF4EE7"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="7.2"
                                    FontWeight="SemiBold" Margin="0,2,0,0"
                                    TextTrimming="CharacterEllipsis" MaxWidth="270" />
                     </StackPanel>
                 </Border>
 
-                <Border x:Name="MapHeadingPanel" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="9" Background="#92071517" Padding="7,4">
-                    <TextBlock x:Name="HeadingModeLabel" Text="COURSE · WAITING" Foreground="#7DA89F" FontFamily="Bahnschrift SemiCondensed" FontSize="9" />
+                <Border x:Name="MapHeadingPanel" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="9" Background="#92090717" Padding="7,4">
+                    <TextBlock x:Name="HeadingModeLabel" Text="COURSE · WAITING" Foreground="#7D86A8" FontFamily="Bahnschrift SemiCondensed" FontSize="9" />
                 </Border>
 
                 <Button x:Name="MapFocusModeButton" Style="{StaticResource ChromeButton}"
                         Content="FOLLOW · GPS" HorizontalAlignment="Left" VerticalAlignment="Bottom"
                         Margin="9,0,0,33" MinWidth="88" Padding="8,4" FontSize="8.5"
-                        FontWeight="SemiBold" Background="#E30A1718" BorderBrush="#8A37D4C6"
-                        Foreground="#72E4D8" Click="MapFocusModeButton_Click"
+                        FontWeight="SemiBold" Background="#E30B0A18" BorderBrush="#8A3745D4"
+                        Foreground="#727EE4" Click="MapFocusModeButton_Click"
                         ToolTip="Map tự bám theo GPS. ALT + kéo chuột trái để quan sát tự do." />
-                <TextBlock x:Name="MapStateLabel" Text="ĐANG TẢI BẢN ĐỒ" Foreground="#A5BDB5" Background="#C0091718" Padding="10,6" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
+                <TextBlock x:Name="MapStateLabel" Text="ĐANG TẢI BẢN ĐỒ" Foreground="#A5ADBD" Background="#C00A0918" Padding="10,6" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
                 </Grid>
 
                 <StackPanel x:Name="MapLayerControls" Orientation="Horizontal"
@@ -177,11 +177,11 @@
                 PreviewMouseLeftButtonDown="WidgetPanel_MouseLeftButtonDown"
                 PreviewMouseMove="WidgetPanel_MouseMove"
                 PreviewMouseLeftButtonUp="WidgetPanel_MouseLeftButtonUp"
-                BorderBrush="#5A3E625B" BorderThickness="1" CornerRadius="4" Padding="11,9,11,8">
+                BorderBrush="#5A3E4562" BorderThickness="1" CornerRadius="4" Padding="11,9,11,8">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#A3071517" Offset="0" />
-                    <GradientStop Color="#76071517" Offset="1" />
+                    <GradientStop Color="#A3090717" Offset="0" />
+                    <GradientStop Color="#76090717" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
             <Grid>
@@ -200,50 +200,50 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                         <TextBlock Text="GROWTH" Foreground="{StaticResource MutedBrush}" FontFamily="Bahnschrift SemiCondensed" FontSize="8" HorizontalAlignment="Right" />
-                        <TextBlock x:Name="GrowthLabel" Text="—" Foreground="#E7B74E" FontFamily="Bahnschrift" FontSize="15" HorizontalAlignment="Right" />
+                        <TextBlock x:Name="GrowthLabel" Text="—" Foreground="#AF4EE7" FontFamily="Bahnschrift" FontSize="15" HorizontalAlignment="Right" />
                     </StackPanel>
                 </Grid>
 
-                <Rectangle Grid.Row="1" Fill="#425D57" Margin="0,8,0,0" />
+                <Rectangle Grid.Row="1" Fill="#42485D" Margin="0,8,0,0" />
 
                 <StackPanel Grid.Row="2" Margin="0,10,0,0">
                     <Grid Margin="0,0,0,7">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="55" /><ColumnDefinition Width="*" /><ColumnDefinition Width="62" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="HEALTH" Foreground="#D6E4DE" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
+                        <TextBlock Text="HEALTH" Foreground="#D6DCE4" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
                         <ProgressBar x:Name="HealthBar" Grid.Column="1" Style="{StaticResource TelemetryBar}" Foreground="#EF6461" VerticalAlignment="Center" />
-                        <TextBlock x:Name="HealthValue" Grid.Column="2" Text="— / —" Foreground="#AFC3BC" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
+                        <TextBlock x:Name="HealthValue" Grid.Column="2" Text="— / —" Foreground="#AFB6C3" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
                     </Grid>
                     <Grid Margin="0,0,0,7">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="55" /><ColumnDefinition Width="*" /><ColumnDefinition Width="62" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="STAMINA" Foreground="#D6E4DE" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
-                        <ProgressBar x:Name="StaminaBar" Grid.Column="1" Style="{StaticResource TelemetryBar}" Foreground="#37D4C6" VerticalAlignment="Center" />
-                        <TextBlock x:Name="StaminaValue" Grid.Column="2" Text="— / —" Foreground="#AFC3BC" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
+                        <TextBlock Text="STAMINA" Foreground="#D6DCE4" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
+                        <ProgressBar x:Name="StaminaBar" Grid.Column="1" Style="{StaticResource TelemetryBar}" Foreground="#3745D4" VerticalAlignment="Center" />
+                        <TextBlock x:Name="StaminaValue" Grid.Column="2" Text="— / —" Foreground="#AFB6C3" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
                     </Grid>
                     <Grid Margin="0,0,0,7">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="55" /><ColumnDefinition Width="*" /><ColumnDefinition Width="62" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="HUNGER" Foreground="#D6E4DE" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
-                        <ProgressBar x:Name="HungerBar" Grid.Column="1" Style="{StaticResource TelemetryBar}" Foreground="#D8874D" VerticalAlignment="Center" />
-                        <TextBlock x:Name="HungerValue" Grid.Column="2" Text="— / —" Foreground="#AFC3BC" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
+                        <TextBlock Text="HUNGER" Foreground="#D6DCE4" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
+                        <ProgressBar x:Name="HungerBar" Grid.Column="1" Style="{StaticResource TelemetryBar}" Foreground="#804DD8" VerticalAlignment="Center" />
+                        <TextBlock x:Name="HungerValue" Grid.Column="2" Text="— / —" Foreground="#AFB6C3" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="55" /><ColumnDefinition Width="*" /><ColumnDefinition Width="62" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="WATER" Foreground="#D6E4DE" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
+                        <TextBlock Text="WATER" Foreground="#D6DCE4" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
                         <ProgressBar x:Name="WaterBar" Grid.Column="1" Style="{StaticResource TelemetryBar}" Foreground="#4B9BD4" VerticalAlignment="Center" />
-                        <TextBlock x:Name="WaterValue" Grid.Column="2" Text="— / —" Foreground="#AFC3BC" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
+                        <TextBlock x:Name="WaterValue" Grid.Column="2" Text="— / —" Foreground="#AFB6C3" FontFamily="Bahnschrift" FontSize="9" HorizontalAlignment="Right" />
                     </Grid>
                 </StackPanel>
 
                 <Grid Grid.Row="3" Margin="0,8,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <Ellipse x:Name="ConnectionDot" Width="5" Height="5" Fill="#E7B74E" VerticalAlignment="Center" />
-                    <TextBlock x:Name="ConnectionLabel" Grid.Column="1" Text="ĐANG KHỞI TẠO" Foreground="#64827A" FontFamily="Bahnschrift SemiCondensed" FontSize="8" Margin="6,0,0,0" />
-                    <TextBlock x:Name="UpdatedLabel" Grid.Column="2" Text="—" Foreground="#64827A" FontFamily="Bahnschrift" FontSize="8" />
+                    <Ellipse x:Name="ConnectionDot" Width="5" Height="5" Fill="#AF4EE7" VerticalAlignment="Center" />
+                    <TextBlock x:Name="ConnectionLabel" Grid.Column="1" Text="ĐANG KHỞI TẠO" Foreground="#646C82" FontFamily="Bahnschrift SemiCondensed" FontSize="8" Margin="6,0,0,0" />
+                    <TextBlock x:Name="UpdatedLabel" Grid.Column="2" Text="—" Foreground="#646C82" FontFamily="Bahnschrift" FontSize="8" />
                 </Grid>
                 <Border x:Name="StatsMoveBadge" Panel.ZIndex="20" Visibility="Collapsed"
                         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-5,0,0"
-                        Background="#E10D2925" BorderBrush="#647F766E" BorderThickness="1"
+                        Background="#E10D1129" BorderBrush="#647F766E" BorderThickness="1"
                         CornerRadius="2" Padding="8,3" Cursor="SizeAll">
-                    <TextBlock Text="STATUS · MOVE" Foreground="#C9DBD5"
+                    <TextBlock Text="STATUS · MOVE" Foreground="#C9CFDB"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="8" />
                 </Border>
                 <primitives:Thumb x:Name="StatsResizeGrip" Tag="stats" Panel.ZIndex="60"
@@ -260,8 +260,8 @@
                 PreviewMouseLeftButtonDown="WidgetPanel_MouseLeftButtonDown"
                 PreviewMouseMove="WidgetPanel_MouseMove"
                 PreviewMouseLeftButtonUp="WidgetPanel_MouseLeftButtonUp"
-                BorderBrush="#5A3E625B" BorderThickness="1" CornerRadius="4"
-                Padding="10,8" Background="#A8071717">
+                BorderBrush="#5A3E4562" BorderThickness="1" CornerRadius="4"
+                Padding="10,8" Background="#A8070717">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -276,28 +276,28 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal">
-                        <Ellipse x:Name="TeamConnectionDot" Width="5" Height="5" Fill="#37D4C6"
+                        <Ellipse x:Name="TeamConnectionDot" Width="5" Height="5" Fill="#3745D4"
                                  VerticalAlignment="Center" Margin="0,0,6,0" />
-                        <TextBlock x:Name="TeamCodeLabel" Text="TEAM // ——————" Foreground="#DDEBE5"
+                        <TextBlock x:Name="TeamCodeLabel" Text="TEAM // ——————" Foreground="#DDE3EB"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="SemiBold" />
                     </StackPanel>
                     <TextBlock x:Name="TeamConnectionLabel" Grid.Column="1" Text="RELAY"
-                               Foreground="#67877F" FontFamily="Bahnschrift SemiCondensed" FontSize="8"
+                               Foreground="#676F87" FontFamily="Bahnschrift SemiCondensed" FontSize="8"
                                VerticalAlignment="Center" Margin="8,0,0,0" />
                     <TextBlock x:Name="TeamCountLabel" Grid.Column="2" Text="1 NGƯỜI"
-                               Foreground="#8EA79F" FontFamily="Bahnschrift" FontSize="8" />
+                               Foreground="#8E96A7" FontFamily="Bahnschrift" FontSize="8" />
                 </Grid>
 
-                <Rectangle Grid.Row="1" Fill="#405D56" Margin="0,7,0,0" />
+                <Rectangle Grid.Row="1" Fill="#40475D" Margin="0,7,0,0" />
 
                 <Grid Grid.Row="2" Margin="0,6,0,0">
                     <TextBlock x:Name="TeamEmptyLabel" Text="GỬI MÃ MỜI · ĐANG CHỜ ĐỒNG ĐỘI"
-                               Foreground="#6F8C84" FontFamily="Bahnschrift SemiCondensed" FontSize="8.5"
+                               Foreground="#6F778C" FontFamily="Bahnschrift SemiCondensed" FontSize="8.5"
                                HorizontalAlignment="Center" Margin="0,3" />
                     <ItemsControl x:Name="TeamMembersList" Visibility="Collapsed">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="#620D2421" BorderBrush="#303F5E57" BorderThickness="0,0,0,1"
+                                <Border Background="#620D1024" BorderBrush="#303F465E" BorderThickness="0,0,0,1"
                                         Padding="3,4" Opacity="{Binding Opacity}">
                                     <Grid Height="29">
                                         <Grid.ColumnDefinitions>
@@ -313,7 +313,7 @@
                                             </Grid.ColumnDefinitions>
                                             <Rectangle Fill="{Binding AccentBrush}" RadiusX="1" RadiusY="1" Margin="0,1" />
                                             <StackPanel Grid.Column="1" Margin="6,-1,2,0">
-                                                <TextBlock Text="{Binding DisplayName}" Foreground="#E0ECE7"
+                                                <TextBlock Text="{Binding DisplayName}" Foreground="#E0E5EC"
                                                            FontFamily="Bahnschrift SemiCondensed" FontSize="10.5" FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Text="{Binding DetailText}" Foreground="{Binding DetailBrush}"
@@ -325,8 +325,8 @@
                                             <TextBlock Text="{Binding HealthText}" Foreground="#EF7772" FontFamily="Bahnschrift" FontSize="10" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                            <TextBlock Text="ĐÓI" Foreground="#98775E" FontFamily="Bahnschrift SemiCondensed" FontSize="7.5" />
-                                            <TextBlock Text="{Binding HungerText}" Foreground="#D99A68" FontFamily="Bahnschrift" FontSize="10" />
+                                            <TextBlock Text="ĐÓI" Foreground="#745E98" FontFamily="Bahnschrift SemiCondensed" FontSize="7.5" />
+                                            <TextBlock Text="{Binding HungerText}" Foreground="#9468D9" FontFamily="Bahnschrift" FontSize="10" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="3" VerticalAlignment="Center">
                                             <TextBlock Text="NƯỚC" Foreground="#6689A0" FontFamily="Bahnschrift SemiCondensed" FontSize="7.5" />
@@ -340,9 +340,9 @@
                 </Grid>
                 <Border x:Name="TeamMoveBadge" Panel.ZIndex="20" Visibility="Collapsed"
                         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-5,0,0"
-                        Background="#E10D2925" BorderBrush="#647F766E" BorderThickness="1"
+                        Background="#E10D1129" BorderBrush="#647F766E" BorderThickness="1"
                         CornerRadius="2" Padding="8,3" Cursor="SizeAll">
-                    <TextBlock Text="TEAM · MOVE" Foreground="#C9DBD5"
+                    <TextBlock Text="TEAM · MOVE" Foreground="#C9CFDB"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="8" />
                 </Border>
                 <primitives:Thumb x:Name="TeamResizeGrip" Tag="team" Panel.ZIndex="60"
@@ -359,8 +359,8 @@
                 PreviewMouseLeftButtonDown="WidgetPanel_MouseLeftButtonDown"
                 PreviewMouseMove="WidgetPanel_MouseMove"
                 PreviewMouseLeftButtonUp="WidgetPanel_MouseLeftButtonUp"
-                BorderBrush="#665A5131" BorderThickness="1" CornerRadius="4"
-                Padding="10,8" Background="#B50B1715">
+                BorderBrush="#664F315A" BorderThickness="1" CornerRadius="4"
+                Padding="10,8" Background="#B50B0D17">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -373,13 +373,13 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Ellipse Width="6" Height="6" Fill="#E7B74E" Margin="0,0,7,0" VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="1" Text="NHIỆM VỤ PRIME · ISLEPILOT" Foreground="#E9F4EE"
+                    <Ellipse Width="6" Height="6" Fill="#AF4EE7" Margin="0,0,7,0" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="NHIỆM VỤ PRIME · ISLEPILOT" Foreground="#E9EFF4"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="SemiBold" />
                     <TextBlock x:Name="MissionProgressLabel" Grid.Column="2" Text="0 / 0"
-                               Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="9" FontWeight="SemiBold" />
+                               Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="9" FontWeight="SemiBold" />
                 </Grid>
-                <Rectangle Grid.Row="1" Fill="#5A51442B" Margin="0,7,0,0" />
+                <Rectangle Grid.Row="1" Fill="#5A422B51" Margin="0,7,0,0" />
                 <ItemsControl x:Name="MissionList" Grid.Row="2" Margin="0,6,0,0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -399,9 +399,9 @@
                 </ItemsControl>
                 <Border x:Name="MissionMoveBadge" Panel.ZIndex="20" Visibility="Collapsed"
                         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-5,0,0"
-                        Background="#E10D2925" BorderBrush="#647F766E" BorderThickness="1"
+                        Background="#E10D1129" BorderBrush="#647F766E" BorderThickness="1"
                         CornerRadius="2" Padding="8,3" Cursor="SizeAll">
-                    <TextBlock Text="PRIME · MOVE" Foreground="#C9DBD5"
+                    <TextBlock Text="PRIME · MOVE" Foreground="#C9CFDB"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="8" />
                 </Border>
                 <primitives:Thumb x:Name="MissionResizeGrip" Tag="prime" Panel.ZIndex="60"
@@ -415,7 +415,7 @@
 
         <Border x:Name="LayoutControls" Width="304" Canvas.Left="0" Canvas.Top="790"
                 Padding="9,7"
-                Background="#E10A1F1D" BorderBrush="#6A52776F" BorderThickness="1"
+                Background="#E10A0C1F" BorderBrush="#6A525A77" BorderThickness="1"
                 CornerRadius="4">
             <StackPanel>
             <Grid>
@@ -431,12 +431,12 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="LAYOUT SETTINGS" Foreground="#789A92"
+                    <TextBlock Text="LAYOUT SETTINGS" Foreground="#78809A"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="8" />
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                        <TextBlock Text="HUD SCALE // " Foreground="#BCD0C9"
+                        <TextBlock Text="HUD SCALE // " Foreground="#BCC3D0"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="9" FontWeight="SemiBold" />
-                        <TextBlock x:Name="OverlayScaleLabel" Text="100%" Foreground="#E7B74E"
+                        <TextBlock x:Name="OverlayScaleLabel" Text="100%" Foreground="#AF4EE7"
                                    FontFamily="Bahnschrift" FontSize="9" FontWeight="SemiBold" />
                     </StackPanel>
                 </StackPanel>
@@ -470,22 +470,22 @@
                     <primitives:Thumb.Template>
                         <ControlTemplate TargetType="{x:Type primitives:Thumb}">
                             <Border x:Name="GripChrome" CornerRadius="2"
-                                    Background="#D5153732" BorderBrush="#64958B" BorderThickness="1">
+                                    Background="#D5151A37" BorderBrush="#646E95" BorderThickness="1">
                                 <Grid>
-                                    <TextBlock Text="DRAG" Foreground="#A8C8BF"
+                                    <TextBlock Text="DRAG" Foreground="#A8B1C8"
                                                FontFamily="Bahnschrift SemiCondensed" FontSize="7.5"
                                                Margin="6,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-                                    <TextBlock Text="↘" Foreground="#37D4C6" FontSize="15"
+                                    <TextBlock Text="↘" Foreground="#3745D4" FontSize="15"
                                                Margin="0,0,4,1" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
                                 </Grid>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="GripChrome" Property="Background" Value="#E21B4942" />
-                                    <Setter TargetName="GripChrome" Property="BorderBrush" Value="#79C5B8" />
+                                    <Setter TargetName="GripChrome" Property="Background" Value="#E21B2249" />
+                                    <Setter TargetName="GripChrome" Property="BorderBrush" Value="#7986C5" />
                                 </Trigger>
                                 <Trigger Property="IsDragging" Value="True">
-                                    <Setter TargetName="GripChrome" Property="Background" Value="#F0275D54" />
+                                    <Setter TargetName="GripChrome" Property="Background" Value="#F027305D" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -502,9 +502,9 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="BLOCK HIỂN THỊ" Foreground="#789A92"
+                    <TextBlock Text="BLOCK HIỂN THỊ" Foreground="#78809A"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="8" />
-                    <TextBlock Grid.Column="1" Text="LƯU TỰ ĐỘNG" Foreground="#58766E"
+                    <TextBlock Grid.Column="1" Text="LƯU TỰ ĐỘNG" Foreground="#586076"
                                FontFamily="Bahnschrift" FontSize="7.5" />
                 </Grid>
                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,0">
@@ -530,7 +530,7 @@
                     <Button x:Name="ShowAllWidgetsButton"
                             Style="{StaticResource ChromeButton}" Content="HIỆN TẤT CẢ"
                             Height="24" Padding="6,0" Margin="6,0,0,0" FontSize="7.5"
-                            Foreground="#8FE3D0" BorderBrush="#4E746B"
+                            Foreground="#8FA2E3" BorderBrush="#4E5774"
                             AutomationProperties.Name="Hiện lại tất cả block overlay"
                             Click="ShowAllWidgetsButton_Click" />
                 </StackPanel>
@@ -541,7 +541,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="MAP SHAPE" Foreground="#789A92"
+                <TextBlock Text="MAP SHAPE" Foreground="#78809A"
                            FontFamily="Bahnschrift SemiCondensed" FontSize="8"
                            VerticalAlignment="Center" Margin="0,0,8,0" />
                 <Button x:Name="MapShapeButton" Grid.Column="1"
@@ -551,12 +551,12 @@
                         ToolTip="Chuyển minimap giữa hình vuông và hình tròn"
                         Click="MapShapeButton_Click" />
                 <TextBlock Grid.Column="2" Text="Kéo ↘ để resize riêng"
-                           Foreground="#789A92" FontFamily="Bahnschrift SemiCondensed"
+                           Foreground="#78809A" FontFamily="Bahnschrift SemiCondensed"
                            FontSize="8" VerticalAlignment="Center" HorizontalAlignment="Right" />
             </Grid>
             <Button x:Name="ResetWidgetLayoutButton" Style="{StaticResource ChromeButton}"
                     Content="ĐẶT LẠI VỊ TRÍ &amp; KÍCH THƯỚC BLOCK" Height="26" Margin="0,7,0,0"
-                    Foreground="#E7B74E" BorderBrush="#665A5131"
+                    Foreground="#AF4EE7" BorderBrush="#664F315A"
                     AutomationProperties.Name="Đặt lại vị trí các block overlay"
                     Click="ResetWidgetLayoutButton_Click" />
             </StackPanel>
@@ -567,9 +567,9 @@
         <StackPanel x:Name="EditToolbar" Panel.ZIndex="90"
                     Orientation="Horizontal" HorizontalAlignment="Right"
                     VerticalAlignment="Top" Margin="0,12,12,0" Visibility="Collapsed">
-            <Border Background="#E7102424" BorderBrush="#5D7B7267"
+            <Border Background="#E7101024" BorderBrush="#5D7B7267"
                     BorderThickness="1" CornerRadius="2" Padding="8,4">
-                <TextBlock Text="EDIT MODE" Foreground="#8FE3D0"
+                <TextBlock Text="EDIT MODE" Foreground="#8FA2E3"
                            FontFamily="Bahnschrift SemiCondensed" FontSize="9" FontWeight="SemiBold" />
             </Border>
             <Button Style="{StaticResource ChromeButton}" Content="HOME"
@@ -592,7 +592,7 @@
 
         <Border x:Name="MissionToast" Panel.ZIndex="100" Visibility="Collapsed" Opacity="0"
                 HorizontalAlignment="Center" VerticalAlignment="Top" Margin="12,18,12,0"
-                Background="#F00B201D" BorderBrush="#B0E7B74E" BorderThickness="1"
+                Background="#F00B0E20" BorderBrush="#B0AF4EE7" BorderThickness="1"
                 CornerRadius="4" Padding="11,8" IsHitTestVisible="False">
             <Border.RenderTransform>
                 <TranslateTransform x:Name="MissionToastTransform" Y="-8" />
@@ -602,11 +602,11 @@
                     <ColumnDefinition Width="4" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Rectangle Fill="#E7B74E" RadiusX="1" RadiusY="1" />
+                <Rectangle Fill="#AF4EE7" RadiusX="1" RadiusY="1" />
                 <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                    <TextBlock Text="NHIỆM VỤ HOÀN THÀNH" Foreground="#FFE18A"
+                    <TextBlock Text="NHIỆM VỤ HOÀN THÀNH" Foreground="#DB8AFF"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="9" FontWeight="SemiBold" />
-                    <TextBlock x:Name="MissionToastLabel" Text="—" Foreground="#F0F7F3"
+                    <TextBlock x:Name="MissionToastLabel" Text="—" Foreground="#F0F4F7"
                                FontFamily="Segoe UI" FontSize="10.5" FontWeight="SemiBold"
                                TextWrapping="Wrap" Margin="0,2,0,0" />
                 </StackPanel>

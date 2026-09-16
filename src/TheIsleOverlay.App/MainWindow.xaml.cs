@@ -40,8 +40,8 @@ public partial class MainWindow : Window
     private const int WsExTransparent = 0x00000020;
     private const int WsExNoActivate = 0x08000000;
 
-    private static readonly SolidColorBrush OnlineBrush = BrushFrom("#37D4C6");
-    private static readonly SolidColorBrush WaitingBrush = BrushFrom("#E7B74E");
+    private static readonly SolidColorBrush OnlineBrush = BrushFrom("#3745D4");
+    private static readonly SolidColorBrush WaitingBrush = BrushFrom("#AF4EE7");
     private static readonly SolidColorBrush ErrorBrush = BrushFrom("#DC5A56");
 
     private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(12) };
@@ -1128,8 +1128,8 @@ public partial class MainWindow : Window
 
         var freeLook = _mapFocusMode == MapFocusMode.FreeLook;
         MapFocusModeButton.Content = freeLook ? "FREE · ALT+RMB" : "FOLLOW · GPS";
-        MapFocusModeButton.Foreground = freeLook ? BrushFrom("#F4CB69") : BrushFrom("#72E4D8");
-        MapFocusModeButton.BorderBrush = freeLook ? BrushFrom("#A8E7B74E") : BrushFrom("#8A37D4C6");
+        MapFocusModeButton.Foreground = freeLook ? BrushFrom("#C469F4") : BrushFrom("#727EE4");
+        MapFocusModeButton.BorderBrush = freeLook ? BrushFrom("#A8AF4EE7") : BrushFrom("#8A3745D4");
         MapFocusModeButton.ToolTip = freeLook
             ? "GPS vẫn cập nhật nhưng map đang đứng yên. ALT + chuột phải để bám GPS lại."
             : "Map tự bám theo GPS. ALT + kéo chuột trái để quan sát tự do.";
@@ -1563,8 +1563,8 @@ public partial class MainWindow : Window
             OverlayLayoutRules.CircleMapShape,
             StringComparison.Ordinal);
         MapPanel.CornerRadius = new CornerRadius(4d);
-        MapPanel.Background = isCircle ? Brushes.Transparent : BrushFrom("#0C2020");
-        MapPanel.BorderBrush = isCircle ? Brushes.Transparent : BrushFrom("#783E625B");
+        MapPanel.Background = isCircle ? Brushes.Transparent : BrushFrom("#0C0C20");
+        MapPanel.BorderBrush = isCircle ? Brushes.Transparent : BrushFrom("#783E4562");
         MapCircleChrome.Visibility = isCircle ? Visibility.Visible : Visibility.Collapsed;
         MapVisualRoot.Clip = isCircle
             ? new EllipseGeometry(new Point(152d, 152d), 151d, 151d)

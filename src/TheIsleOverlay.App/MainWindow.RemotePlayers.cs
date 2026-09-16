@@ -167,19 +167,19 @@ public partial class MainWindow
         category switch
         {
             RemoteEntityMapCategory.SameSpecies => new(
-                "#42D66B", "#E9FFEF", "#CFFFD9", "#B50B1A11",
+                "#42ADD6", "#E9F9FF", "#CFF5FF", "#B50B141A",
                 System.Windows.Media.Color.FromRgb(66, 214, 107)),
             RemoteEntityMapCategory.OtherHerbivore => new(
                 "#3EA6FF", "#EDF7FF", "#D6EDFF", "#B50A1722",
                 System.Windows.Media.Color.FromRgb(62, 166, 255)),
             RemoteEntityMapCategory.Ai => new(
-                "#F5C542", "#FFF8D7", "#FFF0A6", "#B51D1808",
+                "#BC42F5", "#F6D7FF", "#ECA6FF", "#B517081D",
                 System.Windows.Media.Color.FromRgb(245, 197, 66)),
             RemoteEntityMapCategory.UnclassifiedPlayer => new(
                 "#C7D0D4", "#F5FAFC", "#E6EDF0", "#B5111719",
                 System.Windows.Media.Color.FromRgb(199, 208, 212)),
             RemoteEntityMapCategory.OtherCarnivore => new(
-                "#F04444", "#FFF2F2", "#FFD6D6", "#B50B1717",
+                "#F04444", "#FFF2F2", "#FFD6D6", "#B50B0B17",
                 System.Windows.Media.Color.FromRgb(240, 68, 68)),
             _ => throw new ArgumentOutOfRangeException(nameof(category), category, null)
         };

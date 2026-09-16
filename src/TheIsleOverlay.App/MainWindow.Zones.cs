@@ -92,7 +92,7 @@ public partial class MainWindow
         MapFoodLayer.Visibility = Visibility.Collapsed;
         MapHeatmapLayer.Visibility = Visibility.Collapsed;
         MapLayerSummaryLabel.Text = "PRO MAP LAYERS";
-        MapLayerSummaryLabel.Foreground = BrushFrom("#84785A");
+        MapLayerSummaryLabel.Foreground = BrushFrom("#765A84");
     }
 
     private bool SyncPlayerHeatmap(MapTelemetry? map)
@@ -185,8 +185,8 @@ public partial class MainWindow
     private static FoodRegionVisual CreateFoodRegionVisual(GatewayFoodRegion region)
     {
         var aquatic = region.Foods.All(food => food is "Rùa" or "Cua");
-        var stroke = aquatic ? "#CB72E9FA" : "#D6DCF466";
-        var fill = aquatic ? "#2926C8E8" : "#28BFD84C";
+        var stroke = aquatic ? "#CB8372FA" : "#D6DCF466";
+        var fill = aquatic ? "#294626E8" : "#28BFD84C";
         var shape = new Ellipse
         {
             Fill = BrushFrom(fill),
@@ -207,7 +207,7 @@ public partial class MainWindow
         var label = new Border
         {
             Child = labelText,
-            Background = BrushFrom("#C80A1517"),
+            Background = BrushFrom("#C80C0A17"),
             BorderBrush = BrushFrom(stroke),
             BorderThickness = new Thickness(0.6d),
             CornerRadius = new CornerRadius(2d),
@@ -233,8 +233,8 @@ public partial class MainWindow
             GradientStops =
             {
                 new GradientStop((Color)ColorConverter.ConvertFromString("#E8FF4438"), 0d),
-                new GradientStop((Color)ColorConverter.ConvertFromString("#B8FF9E2F"), 0.38d),
-                new GradientStop((Color)ColorConverter.ConvertFromString("#42FFD057"), 0.68d),
+                new GradientStop((Color)ColorConverter.ConvertFromString("#B8942FFF"), 0.38d),
+                new GradientStop((Color)ColorConverter.ConvertFromString("#42C857FF"), 0.68d),
                 new GradientStop(Colors.Transparent, 1d)
             }
         };
@@ -249,11 +249,11 @@ public partial class MainWindow
     private static void ApplyZonePalette(MapZoneVisual visual)
     {
         var migration = visual.Kind == MapZoneKind.Migration;
-        var fill = migration ? "#2CF0A423" : "#28A78BFA";
-        var stroke = migration ? "#D6FFB84D" : "#CDBDA9FF";
+        var fill = migration ? "#2C9A23F0" : "#28A78BFA";
+        var stroke = migration ? "#D6AF4DFF" : "#CDBDA9FF";
         visual.Polygon.Fill = BrushFrom(fill);
         visual.Polygon.Stroke = BrushFrom(stroke);
-        visual.Label.Background = BrushFrom(migration ? "#CD21170A" : "#CC171125");
+        visual.Label.Background = BrushFrom(migration ? "#CD160A21" : "#CC171125");
         visual.Label.BorderBrush = BrushFrom(stroke);
         visual.LabelText.Foreground = BrushFrom(stroke);
     }

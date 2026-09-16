@@ -23,6 +23,12 @@ public partial class ProKeyActivationWindow : Window
 
     private void Window_Loaded(object sender, RoutedEventArgs e) => KeyInput.Focus();
 
+    private void TitleBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == System.Windows.Input.MouseButton.Left)
+            DragMove();
+    }
+
     private async void ActivateButton_Click(object sender, RoutedEventArgs e)
     {
         if (Access?.AgentReady == true)
@@ -33,7 +39,7 @@ public partial class ProKeyActivationWindow : Window
 
         if (!_activationStored && string.IsNullOrWhiteSpace(KeyInput.Text))
         {
-            ShowStatus("!", "Chưa có key", "Vui lòng nhập key kích hoạt.", "#E7B74E", "#342A14", "#6B5624");
+            ShowStatus("!", "Chưa có key", "Vui lòng nhập key kích hoạt.", "#AF4EE7", "#281434", "#52246B");
             KeyInput.Focus();
             return;
         }
@@ -43,7 +49,7 @@ public partial class ProKeyActivationWindow : Window
             _activationStored
                 ? "Đang dùng lease đã lưu; key sẽ không bị gửi lại hoặc sử dụng lần hai."
                 : "Đang xác thực với máy chủ, lưu lease và chuẩn bị Pro Agent…",
-            "#E7B74E", "#2A2518", "#665527");
+            "#AF4EE7", "#24182A", "#522766");
         try
         {
             Access = _activationStored
@@ -58,7 +64,7 @@ public partial class ProKeyActivationWindow : Window
                 CloseButton.Content = "ĐÓNG";
                 ShowStatus("✓", "Pro đã kích hoạt",
                     $"Pro Agent {Access.AgentVersion ?? ""} đã được xác minh và sẵn sàng sử dụng.",
-                    "#65D6A2", "#142D23", "#347257");
+                    "#6599D6", "#141E2D", "#344F72");
                 return;
             }
 
@@ -75,7 +81,7 @@ public partial class ProKeyActivationWindow : Window
                     _ => "Key đã được kích hoạt và lease đã lưu an toàn. Chưa tải hoặc khởi động được Pro Agent; kiểm tra mạng/Windows Security rồi thử lại."
                 };
                 ShowStatus("!", "Key đã lưu, Agent chưa sẵn sàng", detail,
-                    "#F0C35D", "#332A17", "#725D27");
+                    "#BC5DF0", "#291733", "#592772");
                 return;
             }
 
@@ -92,7 +98,7 @@ public partial class ProKeyActivationWindow : Window
         {
             ShowStatus("!", "Server đã nhận key nhưng máy chưa lưu được lease",
                 "Không thể ghi credential được mã hóa vào LocalAppData. Hãy kiểm tra quyền thư mục hoặc antivirus rồi bấm lại; cùng thiết bị có thể nhận lại lease mà không mất key.",
-                "#F0C35D", "#332A17", "#725D27");
+                "#BC5DF0", "#291733", "#592772");
         }
         catch (ProApiException exception) when (exception.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
         {
@@ -104,13 +110,13 @@ public partial class ProKeyActivationWindow : Window
         {
             ShowStatus("!", "Không kết nối được máy chủ cấp phép",
                 "Kiểm tra Internet rồi thử lại. Key chưa bị sử dụng nếu máy chủ chưa phản hồi.",
-                "#F0C35D", "#332A17", "#725D27");
+                "#BC5DF0", "#291733", "#592772");
         }
         catch (ProApiException exception)
         {
             ShowStatus("!", "Máy chủ chưa thể xử lý kích hoạt",
                 $"Yêu cầu bị từ chối (HTTP {(int?)exception.StatusCode ?? 0}). Vui lòng thử lại sau.",
-                "#F0C35D", "#332A17", "#725D27");
+                "#BC5DF0", "#291733", "#592772");
         }
         catch (ArgumentException)
         {
@@ -121,7 +127,7 @@ public partial class ProKeyActivationWindow : Window
         {
             ShowStatus("!", "Không hoàn tất được kích hoạt",
                 "Đã xảy ra lỗi cục bộ trước khi hoàn tất. Key không bị báo sai; hãy thử lại hoặc kiểm tra log ứng dụng.",
-                "#F0C35D", "#332A17", "#725D27");
+                "#BC5DF0", "#291733", "#592772");
         }
         finally
         {

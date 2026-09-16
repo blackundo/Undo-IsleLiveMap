@@ -5,26 +5,26 @@
         Width="590" Height="558"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
-        FontFamily="Segoe UI" FontSize="12" Foreground="#DCEAE4"
+        FontFamily="Segoe UI" FontSize="12" Foreground="#DCE2EA"
         Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown">
     <Window.Resources>
         <Style x:Key="ShortcutInput" TargetType="TextBox">
             <Setter Property="Height" Value="32" />
             <Setter Property="Width" Value="146" />
             <Setter Property="Padding" Value="9,5" />
-            <Setter Property="Foreground" Value="#F2F7F4" />
-            <Setter Property="Background" Value="#D5091917" />
-            <Setter Property="BorderBrush" Value="#4A6A62" />
+            <Setter Property="Foreground" Value="#F2F5F7" />
+            <Setter Property="Background" Value="#D5090B19" />
+            <Setter Property="BorderBrush" Value="#4A526A" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CaretBrush" Value="#37D4C6" />
-            <Setter Property="SelectionBrush" Value="#6A37D4C6" />
+            <Setter Property="CaretBrush" Value="#3745D4" />
+            <Setter Property="SelectionBrush" Value="#6A3745D4" />
             <Setter Property="FontFamily" Value="Cascadia Mono, Consolas" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
         <Style x:Key="ShortcutButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#B9CDC6" />
-            <Setter Property="Background" Value="#D710211E" />
-            <Setter Property="BorderBrush" Value="#46645D" />
+            <Setter Property="Foreground" Value="#B9C0CD" />
+            <Setter Property="Background" Value="#D7101321" />
+            <Setter Property="BorderBrush" Value="#464D64" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="12,7" />
             <Setter Property="Cursor" Value="Hand" />
@@ -33,7 +33,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Margin="13" Background="#FA071716" BorderBrush="#7858736C"
+    <Border Margin="13" Background="#FA070817" BorderBrush="#78585F73"
             BorderThickness="1" CornerRadius="7">
         <Border.Effect>
             <DropShadowEffect Color="#000000" BlurRadius="26" ShadowDepth="4" Opacity="0.8" />
@@ -45,13 +45,13 @@
                 <RowDefinition Height="62" />
             </Grid.RowDefinitions>
 
-            <Border BorderBrush="#34544E" BorderThickness="0,0,0,1"
+            <Border BorderBrush="#343A54" BorderThickness="0,0,0,1"
                     MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid Margin="17,0,11,0">
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="OVERLAY // INPUT" Foreground="#37D4C6"
+                        <TextBlock Text="OVERLAY // INPUT" Foreground="#3745D4"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="10" FontWeight="SemiBold" />
-                        <TextBlock Text="PHÍM TẮT OVERLAY" Foreground="#F0F7F3"
+                        <TextBlock Text="PHÍM TẮT OVERLAY" Foreground="#F0F4F7"
                                    FontFamily="Bahnschrift SemiCondensed" FontSize="18" FontWeight="Bold" />
                     </StackPanel>
                     <Button HorizontalAlignment="Right" Width="30" Height="27" Content="×"
@@ -77,7 +77,7 @@
 
                 <StackPanel>
                     <TextBlock Text="CHỈNH BỐ CỤC · EDIT MODE" FontFamily="Bahnschrift SemiCondensed" FontWeight="SemiBold" />
-                    <TextBlock Text="Vào/thoát chế độ di chuyển và resize block." Foreground="#78958D" FontSize="10" />
+                    <TextBlock Text="Vào/thoát chế độ di chuyển và resize block." Foreground="#788095" FontSize="10" />
                 </StackPanel>
                 <TextBox x:Name="EditModeInput" Grid.Column="1" Style="{StaticResource ShortcutInput}"
                          PreviewKeyDown="ShortcutInput_PreviewKeyDown"
@@ -85,7 +85,7 @@
 
                 <StackPanel Grid.Row="1">
                     <TextBlock Text="ẨN / HIỆN TOÀN HUD" FontFamily="Bahnschrift SemiCondensed" FontWeight="SemiBold" />
-                    <TextBlock Text="Không đổi Edit Mode hoặc lựa chọn block." Foreground="#78958D" FontSize="10" />
+                    <TextBlock Text="Không đổi Edit Mode hoặc lựa chọn block." Foreground="#788095" FontSize="10" />
                 </StackPanel>
                 <TextBox x:Name="ToggleHudInput" Grid.Row="1" Grid.Column="1" Style="{StaticResource ShortcutInput}"
                          PreviewKeyDown="ShortcutInput_PreviewKeyDown"
@@ -93,7 +93,7 @@
 
                 <StackPanel Grid.Row="2">
                     <TextBlock Text="ẨN / HIỆN PRIME" FontFamily="Bahnschrift SemiCondensed" FontWeight="SemiBold" />
-                    <TextBlock Text="Chỉ tác động danh sách nhiệm vụ Prime." Foreground="#78958D" FontSize="10" />
+                    <TextBlock Text="Chỉ tác động danh sách nhiệm vụ Prime." Foreground="#788095" FontSize="10" />
                 </StackPanel>
                 <TextBox x:Name="ToggleMissionsInput" Grid.Row="2" Grid.Column="1" Style="{StaticResource ShortcutInput}"
                          PreviewKeyDown="ShortcutInput_PreviewKeyDown"
@@ -101,7 +101,7 @@
 
                 <StackPanel Grid.Row="3">
                     <TextBlock Text="MỞ BẢN ĐỒ MỐC" FontFamily="Bahnschrift SemiCondensed" FontWeight="SemiBold" />
-                    <TextBlock Text="Mở map lớn để tạo, sửa hoặc xóa set point." Foreground="#78958D" FontSize="10" />
+                    <TextBlock Text="Mở map lớn để tạo, sửa hoặc xóa set point." Foreground="#788095" FontSize="10" />
                 </StackPanel>
                 <TextBox x:Name="MapNotesInput" Grid.Row="3" Grid.Column="1" Style="{StaticResource ShortcutInput}"
                          PreviewKeyDown="ShortcutInput_PreviewKeyDown"
@@ -109,7 +109,7 @@
 
                 <StackPanel Grid.Row="4">
                     <TextBlock Text="MỞ SỔ TAY MUTATION" FontFamily="Bahnschrift SemiCondensed" FontWeight="SemiBold" />
-                    <TextBlock Text="Overlay đối chiếu 43 Mutation Anh–Việt." Foreground="#78958D" FontSize="10" />
+                    <TextBlock Text="Overlay đối chiếu 43 Mutation Anh–Việt." Foreground="#788095" FontSize="10" />
                 </StackPanel>
                 <TextBox x:Name="MutationGuideInput" Grid.Row="4" Grid.Column="1" Style="{StaticResource ShortcutInput}"
                          PreviewKeyDown="ShortcutInput_PreviewKeyDown"
@@ -117,10 +117,10 @@
 
                 <TextBlock x:Name="FeedbackLabel" Grid.Row="5" Grid.ColumnSpan="2"
                            Text="Click ô rồi bấm tổ hợp mới. Mỗi tổ hợp cần Ctrl, Alt, Shift hoặc Win."
-                           Foreground="#829D95" TextWrapping="Wrap" VerticalAlignment="Bottom" />
+                           Foreground="#828A9D" TextWrapping="Wrap" VerticalAlignment="Bottom" />
             </Grid>
 
-            <Border Grid.Row="2" BorderBrush="#34544E" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" BorderBrush="#343A54" BorderThickness="0,1,0,0">
                 <Grid Margin="17,0">
                     <Button Style="{StaticResource ShortcutButton}" Content="KHÔI PHỤC MẶC ĐỊNH"
                             HorizontalAlignment="Left" Click="DefaultsButton_Click" />
@@ -128,7 +128,7 @@
                         <Button Style="{StaticResource ShortcutButton}" Content="HỦY"
                                 Margin="0,0,8,0" Click="CancelButton_Click" />
                         <Button Style="{StaticResource ShortcutButton}" Content="LƯU PHÍM TẮT"
-                                Foreground="#10201D" Background="#F1C75B" BorderBrush="#FFE49A"
+                                Foreground="#101320" Background="#C05BF1" BorderBrush="#DF9AFF"
                                 Click="SaveButton_Click" />
                     </StackPanel>
                 </Grid>

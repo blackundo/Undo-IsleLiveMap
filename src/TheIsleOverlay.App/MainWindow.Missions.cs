@@ -29,7 +29,7 @@ public partial class MainWindow
                     Name = PrimeQuestVietnamese.Translate(quest.Name),
                     StateGlyph = quest.Done == true ? "✓" : "◇",
                     StateBrush = quest.Done == true ? OnlineBrush : WaitingBrush,
-                    TextBrush = quest.Done == true ? BrushFrom("#8FA8A0") : BrushFrom("#E3EEE9")
+                    TextBrush = quest.Done == true ? BrushFrom("#8F97A8") : BrushFrom("#E3E8EE")
                 })
                 .ToArray();
         }

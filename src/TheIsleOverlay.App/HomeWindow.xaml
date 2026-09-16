@@ -8,23 +8,23 @@
         UseLayoutRounding="True" SnapsToDevicePixels="True"
         Loaded="Window_Loaded" Closed="Window_Closed">
     <Window.Resources>
-        <SolidColorBrush x:Key="HomeSurface" Color="#F2071716" />
-        <SolidColorBrush x:Key="HomePanel" Color="#C50B2421" />
-        <SolidColorBrush x:Key="HomePanelSoft" Color="#A50A211F" />
-        <SolidColorBrush x:Key="HomeInputSurface" Color="#A5071716" />
-        <SolidColorBrush x:Key="HomeBone" Color="#E9F4EE" />
-        <SolidColorBrush x:Key="HomeMuted" Color="#9EB3AD" />
-        <SolidColorBrush x:Key="HomeSubtle" Color="#78938C" />
-        <SolidColorBrush x:Key="HomeLine" Color="#35554F" />
-        <SolidColorBrush x:Key="HomeLineStrong" Color="#486C64" />
-        <SolidColorBrush x:Key="HomeShellLine" Color="#6A58736C" />
-        <SolidColorBrush x:Key="HomeAccent" Color="#37D4C6" />
-        <SolidColorBrush x:Key="HomeAccentBright" Color="#E8FFFA" />
-        <SolidColorBrush x:Key="HomeAccentDeep" Color="#163C38" />
-        <SolidColorBrush x:Key="HomeSelection" Color="#6A37D4C6" />
-        <SolidColorBrush x:Key="HomeButtonFill" Color="#C5193E38" />
-        <SolidColorBrush x:Key="HomeHover" Color="#183631" />
-        <SolidColorBrush x:Key="HomePressed" Color="#265048" />
+        <SolidColorBrush x:Key="HomeSurface" Color="#F2070817" />
+        <SolidColorBrush x:Key="HomePanel" Color="#C50B0E24" />
+        <SolidColorBrush x:Key="HomePanelSoft" Color="#A50A0C21" />
+        <SolidColorBrush x:Key="HomeInputSurface" Color="#A5070817" />
+        <SolidColorBrush x:Key="HomeBone" Color="#E9EFF4" />
+        <SolidColorBrush x:Key="HomeMuted" Color="#9EA4B3" />
+        <SolidColorBrush x:Key="HomeSubtle" Color="#787F93" />
+        <SolidColorBrush x:Key="HomeLine" Color="#353B55" />
+        <SolidColorBrush x:Key="HomeLineStrong" Color="#48506C" />
+        <SolidColorBrush x:Key="HomeShellLine" Color="#6A585F73" />
+        <SolidColorBrush x:Key="HomeAccent" Color="#3745D4" />
+        <SolidColorBrush x:Key="HomeAccentBright" Color="#E8EDFF" />
+        <SolidColorBrush x:Key="HomeAccentDeep" Color="#161A3C" />
+        <SolidColorBrush x:Key="HomeSelection" Color="#6A3745D4" />
+        <SolidColorBrush x:Key="HomeButtonFill" Color="#C5191F3E" />
+        <SolidColorBrush x:Key="HomeHover" Color="#181D36" />
+        <SolidColorBrush x:Key="HomePressed" Color="#262E50" />
 
         <Style x:Key="HomeChromeButton" TargetType="Button">
             <Setter Property="Foreground" Value="{DynamicResource HomeMuted}" />
@@ -382,13 +382,13 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Rectangle x:Name="MapLaunchStateBar" Fill="#E7B74E" RadiusX="1" RadiusY="1" />
+                            <Rectangle x:Name="MapLaunchStateBar" Fill="#AF4EE7" RadiusX="1" RadiusY="1" />
                             <Ellipse x:Name="MapLaunchStateDot" Grid.Column="1" Width="8" Height="8"
-                                     Fill="#E7B74E" Margin="12,0,9,0" VerticalAlignment="Center" />
+                                     Fill="#AF4EE7" Margin="12,0,9,0" VerticalAlignment="Center" />
                             <StackPanel Grid.Column="2">
                                 <TextBlock x:Name="MapLaunchStateLabel"
                                            Text="ĐANG KIỂM TRA CẬP NHẬT"
-                                           Foreground="#FFE18A" FontFamily="Bahnschrift SemiCondensed"
+                                           Foreground="#DB8AFF" FontFamily="Bahnschrift SemiCondensed"
                                            FontSize="11.5" FontWeight="SemiBold" />
                                 <TextBlock x:Name="MapLaunchStateDetail"
                                            Text="MỞ MAP sẽ tự mở khóa ngay khi kiểm tra hoàn tất."

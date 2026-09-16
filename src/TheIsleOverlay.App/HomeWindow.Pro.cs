@@ -195,7 +195,7 @@ public partial class HomeWindow
             ProAccountLabel.Text = "  ·  ĐANG ĐỌC PHIÊN ĐÃ LƯU";
             ProAccessDetailLabel.Text = "Đang kiểm tra quyền và phiên bản Pro Agent…";
             ProAccessActionLabel.Text = "ĐỢI…";
-            ProAccessStateBar.Fill = HomeBrush("#E7B74E");
+            ProAccessStateBar.Fill = HomeBrush("#AF4EE7");
             ProAccessFootnoteLabel.Text = "Đang đọc quyền đã lưu an toàn trên thiết bị này.";
             LogoutProButton.Visibility = Visibility.Collapsed;
             return;
@@ -211,7 +211,7 @@ public partial class HomeWindow
             ProTierLabel.Text = "PRO / KEY ĐÃ LƯU";
             ProAccessDetailLabel.Text = "Chưa kết nối được Pro Agent; bấm để thử lại";
             ProAccessActionLabel.Text = "THỬ LẠI →";
-            ProAccessStateBar.Fill = HomeBrush("#E7B74E");
+            ProAccessStateBar.Fill = HomeBrush("#AF4EE7");
             ProAccessFootnoteLabel.Text = "Không tải hoặc khởi động được Pro Agent; hãy kiểm tra mạng rồi thử lại.";
             SourceStatusLabel.Text = "Key đã lưu; Pro Agent chưa kết nối được.";
             return;
@@ -238,7 +238,7 @@ public partial class HomeWindow
                 ? "Không có mạng và chưa có Pro Agent tương thích trên máy"
                 : "Chưa tải được Pro Agent tương thích; đăng xuất rồi đăng nhập lại để thử lại";
             ProAccessActionLabel.Text = "AGENT CHƯA SẴN SÀNG";
-            ProAccessStateBar.Fill = HomeBrush("#E7B74E");
+            ProAccessStateBar.Fill = HomeBrush("#AF4EE7");
             ProAccessFootnoteLabel.Text = "Quyền Pro còn hiệu lực; Agent cần hoàn tất trước khi ghép player và AI vào map.";
             SourceStatusLabel.Text = "Tài khoản có Pro nhưng Agent tương thích chưa sẵn sàng.";
             return;
@@ -321,43 +321,43 @@ public partial class HomeWindow
         var palette = premium
             ? new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                ["HomeSurface"] = "#F20C0A06",
-                ["HomePanel"] = "#D0151008",
-                ["HomePanelSoft"] = "#B81A1408",
-                ["HomeInputSurface"] = "#AD100D07",
-                ["HomeBone"] = "#FFF5D8",
-                ["HomeMuted"] = "#C9B984",
-                ["HomeSubtle"] = "#927F55",
-                ["HomeLine"] = "#5C4720",
-                ["HomeLineStrong"] = "#8E6C24",
-                ["HomeShellLine"] = "#8A745131",
-                ["HomeAccent"] = "#E6B94C",
-                ["HomeAccentBright"] = "#FFE5A0",
-                ["HomeAccentDeep"] = "#3B2A07",
-                ["HomeSelection"] = "#6AE6B94C",
-                ["HomeButtonFill"] = "#D03A2A08",
-                ["HomeHover"] = "#2B2008",
-                ["HomePressed"] = "#47330A"
+                ["HomeSurface"] = "#F20A060C",
+                ["HomePanel"] = "#D00F0815",
+                ["HomePanelSoft"] = "#B813081A",
+                ["HomeInputSurface"] = "#AD0D0710",
+                ["HomeBone"] = "#F3D8FF",
+                ["HomeMuted"] = "#B684C9",
+                ["HomeSubtle"] = "#7C5592",
+                ["HomeLine"] = "#44205C",
+                ["HomeLineStrong"] = "#67248E",
+                ["HomeShellLine"] = "#8A4E3174",
+                ["HomeAccent"] = "#B14CE6",
+                ["HomeAccentBright"] = "#E0A0FF",
+                ["HomeAccentDeep"] = "#27073B",
+                ["HomeSelection"] = "#6AB14CE6",
+                ["HomeButtonFill"] = "#D028083A",
+                ["HomeHover"] = "#1E082B",
+                ["HomePressed"] = "#300A47"
             }
             : new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                ["HomeSurface"] = "#F2071716",
-                ["HomePanel"] = "#C50B2421",
-                ["HomePanelSoft"] = "#A50A211F",
-                ["HomeInputSurface"] = "#A5071716",
-                ["HomeBone"] = "#E9F4EE",
-                ["HomeMuted"] = "#9EB3AD",
-                ["HomeSubtle"] = "#78938C",
-                ["HomeLine"] = "#35554F",
-                ["HomeLineStrong"] = "#486C64",
-                ["HomeShellLine"] = "#6A58736C",
-                ["HomeAccent"] = "#37D4C6",
-                ["HomeAccentBright"] = "#E8FFFA",
-                ["HomeAccentDeep"] = "#163C38",
-                ["HomeSelection"] = "#6A37D4C6",
-                ["HomeButtonFill"] = "#C5193E38",
-                ["HomeHover"] = "#183631",
-                ["HomePressed"] = "#265048"
+                ["HomeSurface"] = "#F2070817",
+                ["HomePanel"] = "#C50B0E24",
+                ["HomePanelSoft"] = "#A50A0C21",
+                ["HomeInputSurface"] = "#A5070817",
+                ["HomeBone"] = "#E9EFF4",
+                ["HomeMuted"] = "#9EA4B3",
+                ["HomeSubtle"] = "#787F93",
+                ["HomeLine"] = "#353B55",
+                ["HomeLineStrong"] = "#48506C",
+                ["HomeShellLine"] = "#6A585F73",
+                ["HomeAccent"] = "#3745D4",
+                ["HomeAccentBright"] = "#E8EDFF",
+                ["HomeAccentDeep"] = "#161A3C",
+                ["HomeSelection"] = "#6A3745D4",
+                ["HomeButtonFill"] = "#C5191F3E",
+                ["HomeHover"] = "#181D36",
+                ["HomePressed"] = "#262E50"
             };
 
         foreach (var (key, color) in palette)

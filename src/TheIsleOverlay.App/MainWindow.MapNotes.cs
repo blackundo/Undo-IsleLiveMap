@@ -175,7 +175,7 @@ public partial class MainWindow
             Width = 20d,
             Height = 20d,
             CornerRadius = new CornerRadius(10d),
-            Background = BrushFrom("#D9071719"),
+            Background = BrushFrom("#D9090719"),
             BorderBrush = BrushFrom(item.Color),
             BorderThickness = new Thickness(1d),
             Child = MapNoteIconCatalog.CreatePath(item, 11d),

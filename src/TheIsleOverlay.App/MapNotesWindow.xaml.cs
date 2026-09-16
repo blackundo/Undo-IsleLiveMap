@@ -103,7 +103,7 @@ public partial class MapNotesWindow : Window
             content.Children.Add(new TextBlock
             {
                 Text = item.Label.ToUpperInvariant(),
-                Foreground = BrushFrom("#C9DBD5"),
+                Foreground = BrushFrom("#C9CFDB"),
                 FontFamily = new FontFamily("Bahnschrift SemiCondensed"),
                 FontSize = 8d,
                 Margin = new Thickness(0, 4, 0, 0),
@@ -272,8 +272,8 @@ public partial class MapNotesWindow : Window
     private void SetCoordinateFeedback(string message, bool isError)
     {
         CoordinateFeedbackLabel.Text = message;
-        CoordinateFeedbackLabel.Foreground = BrushFrom(isError ? "#EF8D7C" : "#8FE3D0");
-        CoordinateInputBorder.BorderBrush = BrushFrom(isError ? "#C9695C" : "#8E793D");
+        CoordinateFeedbackLabel.Foreground = BrushFrom(isError ? "#EF8D7C" : "#8FA2E3");
+        CoordinateInputBorder.BorderBrush = BrushFrom(isError ? "#C9695C" : "#753D8E");
     }
 
     private void NoteButton_Click(object sender, RoutedEventArgs e)
@@ -535,7 +535,7 @@ public partial class MapNotesWindow : Window
             Width = 30d,
             Height = 30d,
             CornerRadius = new CornerRadius(15d),
-            Background = BrushFrom(note.IsTeamPing ? "#ED0B2421" : "#DF071719"),
+            Background = BrushFrom(note.IsTeamPing ? "#ED0B0E24" : "#DF090719"),
             BorderBrush = borderBrush,
             BorderThickness = new Thickness(_selectedNoteId == note.Id ? 2d : 1d),
             Child = icon
@@ -574,8 +574,8 @@ public partial class MapNotesWindow : Window
         var path = new Path
         {
             Data = Geometry.Parse("M16,1 L23,24 L16,19 L9,24 Z"),
-            Fill = BrushFrom("#F4FFFB"),
-            Stroke = BrushFrom("#37D4C6"),
+            Fill = BrushFrom("#F4F8FF"),
+            Stroke = BrushFrom("#3745D4"),
             StrokeThickness = 1d,
             Stretch = Stretch.Uniform,
             Margin = new Thickness(5d)
@@ -589,7 +589,7 @@ public partial class MapNotesWindow : Window
         };
         marker.Children.Add(new Ellipse
         {
-            Stroke = BrushFrom("#A337D4C6"),
+            Stroke = BrushFrom("#A33745D4"),
             StrokeThickness = 1d
         });
         marker.Children.Add(path);
@@ -602,12 +602,12 @@ public partial class MapNotesWindow : Window
         {
             SelectionDetailLabel.Text = _durableSelectionFeedback;
             SelectionDetailLabel.Foreground = BrushFrom(
-                _durableSelectionFeedbackIsError ? "#EF8D7C" : "#8FE3D0");
+                _durableSelectionFeedbackIsError ? "#EF8D7C" : "#8FA2E3");
             RefreshDeleteButton();
             return;
         }
 
-        SelectionDetailLabel.Foreground = BrushFrom("#8CA59D");
+        SelectionDetailLabel.Foreground = BrushFrom("#8C94A5");
         var notes = VisibleNotes();
         var note = _selectedNoteId is { } id
             ? notes.FirstOrDefault(candidate => candidate.Id == id)

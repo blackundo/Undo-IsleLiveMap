@@ -13,8 +13,8 @@ public partial class MainWindow
 {
     private static readonly string[] TeamAccentColors =
     [
-        "#E7B74E", "#D77CB4", "#83C66B", "#78A7E8", "#D7854D",
-        "#B09CEC", "#7DD2A2", "#E86F64", "#63C1D5"
+        "#AF4EE7", "#D77CB4", "#6BC6AE", "#78A7E8", "#D7854D",
+        "#B09CEC", "#7DADD2", "#E86F64", "#63C1D5"
     ];
 
     private readonly Dictionary<Guid, TeamMapMarker> _teamMapMarkers = [];
@@ -236,7 +236,7 @@ public partial class MainWindow
         {
             Width = 22,
             Height = 22,
-            Fill = BrushFrom("#C20A1718"),
+            Fill = BrushFrom("#C20B0A18"),
             Stroke = accent,
             StrokeThickness = 1.2
         });
@@ -244,7 +244,7 @@ public partial class MainWindow
         {
             Data = Geometry.Parse("M 15,1 L 20,17 L 15,14 L 10,17 Z"),
             Fill = accent,
-            Stroke = BrushFrom("#E9F4EE"),
+            Stroke = BrushFrom("#E9EFF4"),
             StrokeThickness = 0.45,
             RenderTransform = heading,
             RenderTransformOrigin = new Point(0.5, 0.5)
@@ -255,7 +255,7 @@ public partial class MainWindow
         var nameLabel = new TextBlock
         {
             Text = member.DisplayName,
-            Foreground = BrushFrom("#E9F4EE"),
+            Foreground = BrushFrom("#E9EFF4"),
             FontFamily = new FontFamily("Bahnschrift SemiCondensed"),
             FontSize = 8,
             FontWeight = FontWeights.SemiBold,
@@ -264,7 +264,7 @@ public partial class MainWindow
         };
         root.Children.Add(new Border
         {
-            Background = BrushFrom("#C8071717"),
+            Background = BrushFrom("#C8070717"),
             BorderBrush = accent,
             BorderThickness = new Thickness(1, 0, 0, 0),
             Padding = new Thickness(5, 2, 5, 2),

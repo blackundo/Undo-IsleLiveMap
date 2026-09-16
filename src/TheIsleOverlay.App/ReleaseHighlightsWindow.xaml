@@ -5,20 +5,20 @@
         Width="1000" Height="700"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
-        FontFamily="Segoe UI" FontSize="13" Foreground="#93A79F"
+        FontFamily="Segoe UI" FontSize="13" Foreground="#939BA7"
         TextOptions.TextFormattingMode="Display" TextOptions.TextHintingMode="Fixed"
         UseLayoutRounding="True" SnapsToDevicePixels="True"
         Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown">
     <Window.Resources>
         <SolidColorBrush x:Key="Bone" Color="#F2F4EC" />
-        <SolidColorBrush x:Key="Muted" Color="#91A49D" />
-        <SolidColorBrush x:Key="Mint" Color="#8FE3D0" />
-        <SolidColorBrush x:Key="Gold" Color="#F1C75B" />
+        <SolidColorBrush x:Key="Muted" Color="#9198A4" />
+        <SolidColorBrush x:Key="Mint" Color="#8FA2E3" />
+        <SolidColorBrush x:Key="Gold" Color="#C05BF1" />
 
         <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#161304" />
-            <Setter Property="Background" Value="#F1C75B" />
-            <Setter Property="BorderBrush" Value="#FFE49A" />
+            <Setter Property="Foreground" Value="#120416" />
+            <Setter Property="Background" Value="#C05BF1" />
+            <Setter Property="BorderBrush" Value="#DF9AFF" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
             <Setter Property="FontSize" Value="12" />
@@ -35,8 +35,8 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#FFE184" /></Trigger>
-                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#D6A83E" /></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#DB84FF" /></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Background" Value="#A03ED6" /></Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="#FFFFFF" /><Setter Property="BorderThickness" Value="2" /></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -44,13 +44,13 @@
             </Setter>
         </Style>
         <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Foreground" Value="#C9D6D1" />
-            <Setter Property="Background" Value="#101F1B" />
-            <Setter Property="BorderBrush" Value="#3C5B52" />
+            <Setter Property="Foreground" Value="#C9CED6" />
+            <Setter Property="Background" Value="#10141F" />
+            <Setter Property="BorderBrush" Value="#3C455B" />
             <Setter Property="Padding" Value="14,0" />
         </Style>
         <Style x:Key="QuietButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#91A49D" />
+            <Setter Property="Foreground" Value="#9198A4" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
@@ -60,48 +60,48 @@
             <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" /></Border></ControlTemplate></Setter.Value></Setter>
         </Style>
         <Style x:Key="FreeTag" TargetType="Border">
-            <Setter Property="Background" Value="#152A24" />
-            <Setter Property="BorderBrush" Value="#4B8173" />
+            <Setter Property="Background" Value="#151B2A" />
+            <Setter Property="BorderBrush" Value="#4B5981" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="2" />
             <Setter Property="Padding" Value="7,4" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
         <Style x:Key="ProTag" TargetType="Border" BasedOn="{StaticResource FreeTag}">
-            <Setter Property="Background" Value="#332B13" />
-            <Setter Property="BorderBrush" Value="#8E793D" />
+            <Setter Property="Background" Value="#291333" />
+            <Setter Property="BorderBrush" Value="#753D8E" />
         </Style>
         <Style x:Key="Panel" TargetType="Border">
-            <Setter Property="BorderBrush" Value="#36564E" />
+            <Setter Property="BorderBrush" Value="#363E56" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Background" Value="#0D211C" />
+            <Setter Property="Background" Value="#0D1221" />
             <Setter Property="Padding" Value="17" />
         </Style>
         <Style x:Key="ProPanel" TargetType="Border" BasedOn="{StaticResource Panel}">
-            <Setter Property="BorderBrush" Value="#81703A" />
-            <Setter Property="Background" Value="#241F0E" />
+            <Setter Property="BorderBrush" Value="#6C3A81" />
+            <Setter Property="Background" Value="#1E0E24" />
         </Style>
     </Window.Resources>
 
-    <Border Margin="14" Background="#FD071411" BorderBrush="#685D716B" BorderThickness="1" CornerRadius="7">
+    <Border Margin="14" Background="#FD070A14" BorderBrush="#685D6371" BorderThickness="1" CornerRadius="7">
         <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="34" ShadowDepth="6" Opacity="0.86" /></Border.Effect>
         <Grid>
             <Grid.RowDefinitions><RowDefinition Height="48" /><RowDefinition Height="*" /><RowDefinition Height="68" /></Grid.RowDefinitions>
             <Grid.ColumnDefinitions><ColumnDefinition Width="218" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
 
-            <Border Grid.ColumnSpan="2" BorderBrush="#315049" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Border Grid.ColumnSpan="2" BorderBrush="#313850" BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid Margin="17,0,10,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                    <Grid Width="18" Height="18"><Ellipse Width="16" Height="16" Stroke="#F1C75B" StrokeThickness="1" /><Ellipse Width="5" Height="5" Fill="#8FE3D0" /></Grid>
+                    <Grid Width="18" Height="18"><Ellipse Width="16" Height="16" Stroke="#C05BF1" StrokeThickness="1" /><Ellipse Width="5" Height="5" Fill="#8FA2E3" /></Grid>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="9,0,0,0">
                         <TextBlock Text="FIELD UPDATE // 06 BRIEFINGS" Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
-                        <TextBlock x:Name="TitleVersionLabel" Text="   ISLE LIVE MAP · v2.0.0" Foreground="#718A83" FontFamily="Bahnschrift" FontSize="9.5" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TitleVersionLabel" Text="   ISLE LIVE MAP · v2.0.0" Foreground="#71788A" FontFamily="Bahnschrift" FontSize="9.5" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button Grid.Column="2" Style="{StaticResource QuietButton}" Content="×" Width="30" Height="26" FontSize="16" AutomationProperties.Name="Đóng; lần sau vẫn hiện" Click="CloseButton_Click" />
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Grid.RowSpan="2" Background="#0B1B17" BorderBrush="#315049" BorderThickness="0,0,1,0">
+            <Border Grid.Row="1" Grid.RowSpan="2" Background="#0B0F1B" BorderBrush="#313850" BorderThickness="0,0,1,0">
                 <Grid Margin="20,20,18,21">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
@@ -110,16 +110,16 @@
                         <TextBlock Text="Đi hết 6 mục để xem đủ thay đổi của bản 2.0.2." Foreground="{StaticResource Muted}" FontSize="10.5" Margin="0,6,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="1" Margin="0,22,0,0">
-                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepIntroMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="1" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="ORIGIN + GACHA" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Chọn nguồn dưới nút Mở Map" Foreground="#657E76" FontSize="9.5" /></StackPanel></Grid>
-                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepOneMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="2" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="STATS ĐA NGUỒN" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="IslePilot · Gacha chính thức" Foreground="#657E76" FontSize="9.5" /></StackPanel></Grid>
-                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepTwoMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="3" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="VIỆT HÓA + MUTATION" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="English · Tiếng Việt · Alt+U" Foreground="#657E76" FontSize="9.5" /></StackPanel></Grid>
-                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepThreeMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="4" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="MỐC TỌA ĐỘ DỄ XÓA" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Alt+M · XYZ · Delete" Foreground="#657E76" FontSize="9.5" /></StackPanel></Grid>
-                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepFourMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="5" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="PHÍM TẮT + BLOCK RIÊNG" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Ctrl+Shift+O · Alt+P · lưu nhớ" Foreground="#657E76" FontSize="9.5" /></StackPanel></Grid>
-                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepFiveMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="6" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="FREE / PRO RÕ RÀNG" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Quyền theo SteamID64" Foreground="#657E76" FontSize="9.5" /></StackPanel></Grid>
+                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepIntroMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="1" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="ORIGIN + GACHA" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Chọn nguồn dưới nút Mở Map" Foreground="#656D7E" FontSize="9.5" /></StackPanel></Grid>
+                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepOneMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="2" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="STATS ĐA NGUỒN" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="IslePilot · Gacha chính thức" Foreground="#656D7E" FontSize="9.5" /></StackPanel></Grid>
+                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepTwoMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="3" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="VIỆT HÓA + MUTATION" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="English · Tiếng Việt · Alt+U" Foreground="#656D7E" FontSize="9.5" /></StackPanel></Grid>
+                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepThreeMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="4" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="MỐC TỌA ĐỘ DỄ XÓA" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Alt+M · XYZ · Delete" Foreground="#656D7E" FontSize="9.5" /></StackPanel></Grid>
+                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepFourMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="5" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="PHÍM TẮT + BLOCK RIÊNG" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Ctrl+Shift+O · Alt+P · lưu nhớ" Foreground="#656D7E" FontSize="9.5" /></StackPanel></Grid>
+                        <Grid Height="47"><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Border x:Name="StepFiveMarker" Width="25" Height="25" BorderThickness="1" CornerRadius="13"><TextBlock Text="6" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border><StackPanel Grid.Column="1"><TextBlock Text="FREE / PRO RÕ RÀNG" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" /><TextBlock Text="Quyền theo SteamID64" Foreground="#656D7E" FontSize="9.5" /></StackPanel></Grid>
                     </StackPanel>
                     <StackPanel Grid.Row="3">
-                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · CHO MỌI USER" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="8.5" FontWeight="Bold" /></Border>
-                        <Border Style="{StaticResource ProTag}" Margin="0,7,0,0"><TextBlock Text="PRO · CẦN PRO ACCESS" Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="8.5" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · CHO MỌI USER" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="8.5" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource ProTag}" Margin="0,7,0,0"><TextBlock Text="PRO · CẦN PRO ACCESS" Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="8.5" FontWeight="Bold" /></Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -130,7 +130,7 @@
                 <Grid x:Name="PageIntro">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
-                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.2" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.2" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
                         <TextBlock Text="THÊM NGUỒN SERVER ORIGIN VÀ GACHA" Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="28" FontWeight="Bold" Margin="0,10,0,0" TextWrapping="Wrap" />
                         <TextBlock Text="Chọn nguồn phía dưới nút Mở Map để dùng đúng luồng stats của server." Foreground="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap" />
                     </StackPanel>
@@ -139,140 +139,140 @@
                         <Border Style="{StaticResource Panel}" Padding="16">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Border Width="52" Height="52" Background="#071611" BorderBrush="#4B8173" BorderThickness="1" CornerRadius="4" Padding="6" VerticalAlignment="Top">
+                                <Border Width="52" Height="52" Background="#070C16" BorderBrush="#4B5981" BorderThickness="1" CornerRadius="4" Padding="6" VerticalAlignment="Top">
                                     <Image Source="Assets/GachaLogo.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="13,0,0,0">
                                     <TextBlock Text="GACHA" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="18" FontWeight="Bold" />
-                                    <TextBlock Text="Stats chính thức · server Gacha" Foreground="#A9BAB4" FontSize="10.5" Margin="0,5,0,0" TextWrapping="Wrap" />
-                                    <TextBlock Text="Chọn GACHA bên dưới nút Mở Map" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="9.5" FontWeight="Bold" Margin="0,9,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="Stats chính thức · server Gacha" Foreground="#A9AFBA" FontSize="10.5" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="Chọn GACHA bên dưới nút Mở Map" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="9.5" FontWeight="Bold" Margin="0,9,0,0" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Grid>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="16">
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Border Width="52" Height="52" Background="#071611" BorderBrush="#4B8173" BorderThickness="1" CornerRadius="4" Padding="6" VerticalAlignment="Top">
+                                <Border Width="52" Height="52" Background="#070C16" BorderBrush="#4B5981" BorderThickness="1" CornerRadius="4" Padding="6" VerticalAlignment="Top">
                                     <Image Source="Assets/OriginLogo.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="13,0,0,0">
                                     <TextBlock Text="ORIGIN x5" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="18" FontWeight="Bold" />
-                                    <TextBlock Text="Main Origin · Voice Chat Server" Foreground="#A9BAB4" FontSize="10.5" Margin="0,5,0,0" TextWrapping="Wrap" />
-                                    <TextBlock Text="Chọn ORIGIN bên dưới nút Mở Map" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="9.5" FontWeight="Bold" Margin="0,9,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="Main Origin · Voice Chat Server" Foreground="#A9AFBA" FontSize="10.5" Margin="0,5,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="Chọn ORIGIN bên dưới nút Mở Map" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="9.5" FontWeight="Bold" Margin="0,9,0,0" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Grid>
                         </Border>
                     </Grid>
-                    <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="14"><TextBlock Text="IslePilot vẫn là nguồn mặc định. Live Map sẽ tự chuyển sang nguồn bạn đã chọn và giữ GPS hoạt động trên mọi server." Foreground="#B4C5BE" FontSize="10.5" TextWrapping="Wrap" /></Border>
+                    <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="14"><TextBlock Text="IslePilot vẫn là nguồn mặc định. Live Map sẽ tự chuyển sang nguồn bạn đã chọn và giữ GPS hoạt động trên mọi server." Foreground="#B4BBC5" FontSize="10.5" TextWrapping="Wrap" /></Border>
                 </Grid>
 
                 <Grid x:Name="PageOne">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
-                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.0" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.0" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
                         <TextBlock Text="DINO STATS ĐÚNG NGUỒN HƠN." Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="29" FontWeight="Bold" Margin="0,10,0,0" />
                         <TextBlock Text="Stats cá nhân lấy từ IslePilot; server Gacha có luồng chính thức riêng, không làm ảnh hưởng GPS." Foreground="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                     <Grid Grid.Row="1" Margin="0,30,0,0" VerticalAlignment="Center">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource Panel}" Padding="15"><StackPanel><TextBlock Text="01" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="ISLEPILOT" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" Margin="0,7,0,0" /><TextBlock Text="GPS + stats cá nhân" Foreground="#A9BAB4" FontSize="10" Margin="0,4,0,0" /></StackPanel></Border>
-                        <TextBlock Grid.Column="1" Text="→" Foreground="#8FE3D0" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="15"><StackPanel><TextBlock Text="02" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="GACHA" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" Margin="0,7,0,0" /><TextBlock Text="API + WebSocket chính thức" Foreground="#A9BAB4" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" /></StackPanel></Border>
-                        <TextBlock Grid.Column="3" Text="→" Foreground="#8FE3D0" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <Border Grid.Column="4" Style="{StaticResource Panel}" Padding="15"><StackPanel><TextBlock Text="03" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="STATE BỀN" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" Margin="0,7,0,0" /><TextBlock Text="Giữ stats qua heartbeat thưa" Foreground="#A9BAB4" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" /></StackPanel></Border>
+                        <Border Style="{StaticResource Panel}" Padding="15"><StackPanel><TextBlock Text="01" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="ISLEPILOT" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" Margin="0,7,0,0" /><TextBlock Text="GPS + stats cá nhân" Foreground="#A9AFBA" FontSize="10" Margin="0,4,0,0" /></StackPanel></Border>
+                        <TextBlock Grid.Column="1" Text="→" Foreground="#8FA2E3" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Grid.Column="2" Style="{StaticResource Panel}" Padding="15"><StackPanel><TextBlock Text="02" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="GACHA" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" Margin="0,7,0,0" /><TextBlock Text="API + WebSocket chính thức" Foreground="#A9AFBA" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" /></StackPanel></Border>
+                        <TextBlock Grid.Column="3" Text="→" Foreground="#8FA2E3" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border Grid.Column="4" Style="{StaticResource Panel}" Padding="15"><StackPanel><TextBlock Text="03" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="STATE BỀN" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" Margin="0,7,0,0" /><TextBlock Text="Giữ stats qua heartbeat thưa" Foreground="#A9AFBA" FontSize="10" Margin="0,4,0,0" TextWrapping="Wrap" /></StackPanel></Border>
                     </Grid>
-                    <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="14"><TextBlock Text="Bấm GACHA STATS trên Home để đăng nhập nguồn chính thức. Nếu chưa có nguồn, Live Map vẫn mở GPS bình thường." Foreground="#B4C5BE" FontSize="10.5" TextWrapping="Wrap" /></Border>
+                    <Border Grid.Row="2" Style="{StaticResource Panel}" Padding="14"><TextBlock Text="Bấm GACHA STATS trên Home để đăng nhập nguồn chính thức. Nếu chưa có nguồn, Live Map vẫn mở GPS bình thường." Foreground="#B4BBC5" FontSize="10.5" TextWrapping="Wrap" /></Border>
                 </Grid>
 
                 <Grid x:Name="PageTwo" Visibility="Collapsed">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
-                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.0" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.0" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
                         <TextBlock Text="VIỆT HÓA GAME, CÓ SỔ TAY MUTATION." Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="29" FontWeight="Bold" Margin="0,10,0,0" TextWrapping="Wrap" />
                         <TextBlock Text="Chọn English hoặc Tiếng Việt trên Home; mở sổ tay 43 Mutation bằng phím tắt, không inject vào game." Foreground="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                     <Grid Grid.Row="1" Margin="0,22,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="12" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                        <Border Style="{StaticResource Panel}"><StackPanel><TextBlock Text="TIẾNG VIỆT" Foreground="#8FE3D0" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Resource được xác minh checksum trước khi cài. Tắt game để đổi locale an toàn." Foreground="#A9BAB4" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
-                        <Border Grid.Column="2" Style="{StaticResource Panel}"><StackPanel><TextBlock Text="43 MUTATION" Foreground="#8FE3D0" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Sổ tay tra cứu tên và mô tả Việt hóa, mở bằng ALT + U ngay trong Live Map." Foreground="#A9BAB4" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
-                        <Border Grid.Row="2" Style="{StaticResource Panel}"><StackPanel><TextBlock Text="KHÔNG INJECT" Foreground="#8FE3D0" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Overlay tách riêng khỏi game; không đọc memory và không sửa native Mutation runtime." Foreground="#A9BAB4" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
-                        <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource Panel}"><StackPanel><TextBlock Text="REBRAND" Foreground="#F1C75B" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Credit hiển thị Phát triển bởi Isle Live Map trong resource Việt hóa." Foreground="#B4AA86" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
+                        <Border Style="{StaticResource Panel}"><StackPanel><TextBlock Text="TIẾNG VIỆT" Foreground="#8FA2E3" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Resource được xác minh checksum trước khi cài. Tắt game để đổi locale an toàn." Foreground="#A9AFBA" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
+                        <Border Grid.Column="2" Style="{StaticResource Panel}"><StackPanel><TextBlock Text="43 MUTATION" Foreground="#8FA2E3" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Sổ tay tra cứu tên và mô tả Việt hóa, mở bằng ALT + U ngay trong Live Map." Foreground="#A9AFBA" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
+                        <Border Grid.Row="2" Style="{StaticResource Panel}"><StackPanel><TextBlock Text="KHÔNG INJECT" Foreground="#8FA2E3" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Overlay tách riêng khỏi game; không đọc memory và không sửa native Mutation runtime." Foreground="#A9AFBA" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
+                        <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource Panel}"><StackPanel><TextBlock Text="REBRAND" Foreground="#C05BF1" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" /><TextBlock Text="Credit hiển thị Phát triển bởi Isle Live Map trong resource Việt hóa." Foreground="#A886B4" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" /></StackPanel></Border>
                     </Grid>
-                    <TextBlock Grid.Row="2" Text="Sổ tay Mutation là lớp hỗ trợ tra cứu; native UI của game vẫn giữ nguyên." Foreground="#718A83" FontFamily="Bahnschrift" FontSize="9.5" Margin="0,15,0,0" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="2" Text="Sổ tay Mutation là lớp hỗ trợ tra cứu; native UI của game vẫn giữ nguyên." Foreground="#71788A" FontFamily="Bahnschrift" FontSize="9.5" Margin="0,15,0,0" TextWrapping="Wrap" />
                 </Grid>
 
                 <Grid x:Name="PageThree" Visibility="Collapsed">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
-                        <Border Style="{StaticResource ProTag}"><TextBlock Text="PRO · 2.0.0" Foreground="#FFE18A" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource ProTag}"><TextBlock Text="PRO · 2.0.0" Foreground="#DB8AFF" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
                         <TextBlock Text="ĐẶT MỐC, NHẬP XYZ, XÓA NGAY." Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="30" FontWeight="Bold" Margin="0,10,0,0" TextWrapping="Wrap" />
                         <TextBlock Text="Alt + M mở bản đồ lớn; click mốc cũ để đổi icon hoặc chọn thùng rác để xóa đúng mốc của bạn." Foreground="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                     <Grid Grid.Row="1" Margin="0,20,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="1.12*" /><ColumnDefinition Width="20" /><ColumnDefinition Width="0.88*" /></Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" BorderBrush="#4B8173" BorderThickness="1" Background="#071611" Padding="8" ClipToBounds="True">
+                        <Border Grid.Column="0" BorderBrush="#4B5981" BorderThickness="1" Background="#070C16" Padding="8" ClipToBounds="True">
                             <Image Source="Assets/SetPointTip.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
                         </Border>
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock Text="ALT + M" Foreground="#F1C75B" FontFamily="Bahnschrift" FontSize="15" FontWeight="Bold" />
+                            <TextBlock Text="ALT + M" Foreground="#C05BF1" FontFamily="Bahnschrift" FontSize="15" FontWeight="Bold" />
                             <TextBlock Text="MỞ MAP LỚN" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="17" FontWeight="Bold" Margin="0,4,0,0" />
-                            <TextBlock Text="Click để đặt mốc. Nhập X, Y, Z theo format của game rồi bấm ĐẶT MỐC." Foreground="#A9BAB4" FontSize="10.5" TextWrapping="Wrap" Margin="0,6,0,18" />
+                            <TextBlock Text="Click để đặt mốc. Nhập X, Y, Z theo format của game rồi bấm ĐẶT MỐC." Foreground="#A9AFBA" FontSize="10.5" TextWrapping="Wrap" Margin="0,6,0,18" />
                             <TextBlock Text="CLICK MỐC CŨ" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="14" FontWeight="Bold" />
-                            <TextBlock Text="Icon thùng rác xuất hiện trong bảng icon. Phím Delete cũng xóa mốc local đang chọn." Foreground="#A9BAB4" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" />
+                            <TextBlock Text="Icon thùng rác xuất hiện trong bảng icon. Phím Delete cũng xóa mốc local đang chọn." Foreground="#A9AFBA" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" />
                         </StackPanel>
                     </Grid>
-                    <Border Grid.Row="2" Style="{StaticResource ProPanel}" Padding="14"><TextBlock Text="Mốc của đồng đội vẫn được phân biệt quyền sở hữu; bạn chỉ xóa được mốc do mình tạo." Foreground="#D0C495" FontSize="10.5" TextWrapping="Wrap" /></Border>
+                    <Border Grid.Row="2" Style="{StaticResource ProPanel}" Padding="14"><TextBlock Text="Mốc của đồng đội vẫn được phân biệt quyền sở hữu; bạn chỉ xóa được mốc do mình tạo." Foreground="#C195D0" FontSize="10.5" TextWrapping="Wrap" /></Border>
                 </Grid>
 
                 <Grid x:Name="PageFour" Visibility="Collapsed">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
-                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.0" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="FREE · 2.0.0" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
                         <TextBlock Text="PHÍM TẮT RÕ RÀNG, BLOCK TỰ CHỦ." Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="30" FontWeight="Bold" Margin="0,10,0,0" TextWrapping="Wrap" />
                         <TextBlock Text="Đổi phím ngay trong Home hoặc Edit Mode; từng block có thể bật/tắt và cấu hình được lưu cho lần mở sau." Foreground="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                     <Grid Grid.Row="1" Margin="0,22,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="1.35*" /><ColumnDefinition Width="22" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Grid Background="#091A16">
-                            <Border BorderBrush="#8FE3D0" BorderThickness="1" Margin="12,12,175,118"><Grid><TextBlock Text="MAP  ·  BẬT" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="10" Margin="10" /><TextBlock Text="↘" Foreground="#F1C75B" FontSize="18" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
-                            <Border BorderBrush="#526E65" BorderThickness="1" Margin="212,12,12,176"><Grid><TextBlock Text="STATUS  ·  BẬT" Foreground="#C8D4CF" FontFamily="Bahnschrift" FontSize="9" Margin="9" /><TextBlock Text="↘" Foreground="#F1C75B" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
-                            <Border BorderBrush="#526E65" BorderThickness="1" Margin="212,108,12,82"><Grid><TextBlock Text="TEAM  ·  TẮT" Foreground="#C8D4CF" FontFamily="Bahnschrift" FontSize="9" Margin="9" /><TextBlock Text="↘" Foreground="#F1C75B" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
-                            <Border BorderBrush="#526E65" BorderThickness="1" Margin="94,207,12,12"><Grid><TextBlock Text="PRIME  ·  BẬT" Foreground="#C8D4CF" FontFamily="Bahnschrift" FontSize="9" Margin="9" /><TextBlock Text="↘" Foreground="#F1C75B" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
+                        <Grid Background="#090D1A">
+                            <Border BorderBrush="#8FA2E3" BorderThickness="1" Margin="12,12,175,118"><Grid><TextBlock Text="MAP  ·  BẬT" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="10" Margin="10" /><TextBlock Text="↘" Foreground="#C05BF1" FontSize="18" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
+                            <Border BorderBrush="#525B6E" BorderThickness="1" Margin="212,12,12,176"><Grid><TextBlock Text="STATUS  ·  BẬT" Foreground="#C8CDD4" FontFamily="Bahnschrift" FontSize="9" Margin="9" /><TextBlock Text="↘" Foreground="#C05BF1" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
+                            <Border BorderBrush="#525B6E" BorderThickness="1" Margin="212,108,12,82"><Grid><TextBlock Text="TEAM  ·  TẮT" Foreground="#C8CDD4" FontFamily="Bahnschrift" FontSize="9" Margin="9" /><TextBlock Text="↘" Foreground="#C05BF1" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
+                            <Border BorderBrush="#525B6E" BorderThickness="1" Margin="94,207,12,12"><Grid><TextBlock Text="PRIME  ·  BẬT" Foreground="#C8CDD4" FontFamily="Bahnschrift" FontSize="9" Margin="9" /><TextBlock Text="↘" Foreground="#C05BF1" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Bottom" /></Grid></Border>
                         </Grid>
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock Text="CTRL + SHIFT + O" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="11" />
+                            <TextBlock Text="CTRL + SHIFT + O" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="11" />
                             <TextBlock Text="MỞ EDIT MODE" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontWeight="Bold" FontSize="14" Margin="0,5,0,0" />
-                            <TextBlock Text="Kéo để đổi vị trí hoặc resize riêng Map, Status, Team và Prime." Foreground="#91A49D" FontSize="10.5" TextWrapping="Wrap" Margin="0,4,0,14" />
+                            <TextBlock Text="Kéo để đổi vị trí hoặc resize riêng Map, Status, Team và Prime." Foreground="#9198A4" FontSize="10.5" TextWrapping="Wrap" Margin="0,4,0,14" />
                             <TextBlock Text="BẬT / TẮT TỪNG BLOCK" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontWeight="Bold" FontSize="14" />
-                            <TextBlock Text="Ẩn Team hoặc Prime mà không ảnh hưởng các block còn lại." Foreground="#91A49D" FontSize="10.5" TextWrapping="Wrap" Margin="0,4,0,14" />
-                            <TextBlock Text="ALT + P  ·  ẨN / HIỆN HUD" Foreground="#F1C75B" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10.5" />
-                            <TextBlock Text="Cài đặt phím tắt có kiểm tra xung đột; layout và trạng thái block tự động được ghi nhớ." Foreground="#B4AA86" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" />
+                            <TextBlock Text="Ẩn Team hoặc Prime mà không ảnh hưởng các block còn lại." Foreground="#9198A4" FontSize="10.5" TextWrapping="Wrap" Margin="0,4,0,14" />
+                            <TextBlock Text="ALT + P  ·  ẨN / HIỆN HUD" Foreground="#C05BF1" FontFamily="Bahnschrift" FontWeight="Bold" FontSize="10.5" />
+                            <TextBlock Text="Cài đặt phím tắt có kiểm tra xung đột; layout và trạng thái block tự động được ghi nhớ." Foreground="#A886B4" FontSize="10.5" TextWrapping="Wrap" Margin="0,5,0,0" />
                         </StackPanel>
                     </Grid>
-                    <TextBlock Grid.Row="2" Text="Cần làm mới giao diện? Dùng Đặt lại layout để khôi phục mặc định bất kỳ lúc nào." Foreground="#718A83" FontSize="10" Margin="0,15,0,0" TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="2" Text="Cần làm mới giao diện? Dùng Đặt lại layout để khôi phục mặc định bất kỳ lúc nào." Foreground="#71788A" FontSize="10" Margin="0,15,0,0" TextWrapping="Wrap" />
                 </Grid>
 
                 <Grid x:Name="PageFive" Visibility="Collapsed">
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
-                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="ACCESS SUMMARY · v2.0.0" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
+                        <Border Style="{StaticResource FreeTag}"><TextBlock Text="ACCESS SUMMARY · v2.0.0" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="9" FontWeight="Bold" /></Border>
                         <TextBlock Text="FREE LÀ NỀN TẢNG. PRO THÊM CHIỀU SÂU." Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="28" FontWeight="Bold" Margin="0,10,0,0" TextWrapping="Wrap" />
                         <TextBlock Text="Quyền được kiểm tra theo SteamID64; khi Pro hết hạn, Home tự trở về giao diện Free." Foreground="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                     <Grid Grid.Row="1" Margin="0,20,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="14" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource Panel}"><StackPanel><TextBlock Text="FREE" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="MAP + CẤU HÌNH" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="17" FontWeight="Bold" Margin="0,9,0,12" /><TextBlock Text="✓  GPS / Live Map trên mọi server" Foreground="#C5D2CD" FontSize="11" Margin="0,0,0,7" /><TextBlock Text="✓  Stats IslePilot và Gacha khi khả dụng" Foreground="#C5D2CD" FontSize="11" Margin="0,0,0,7" /><TextBlock Text="✓  English / Tiếng Việt + sổ tay 43 Mutation" Foreground="#C5D2CD" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,7" /><TextBlock Text="✓  Tròn / vuông, block riêng, phím tắt và tự nhớ" Foreground="#C5D2CD" FontSize="11" TextWrapping="Wrap" /><TextBlock Text="CTRL + SHIFT + O" Foreground="#8FE3D0" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" Margin="0,18,0,0" /></StackPanel></Border>
-                        <Border Grid.Column="2" Style="{StaticResource ProPanel}"><StackPanel><TextBlock Text="PRO" Foreground="#F1C75B" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="TRACKING + ZONE" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="17" FontWeight="Bold" Margin="0,9,0,12" /><TextBlock Text="✓  Player + AI trong vùng render" Foreground="#E0D4A4" FontSize="11" Margin="0,0,0,7" /><TextBlock Text="✓  Zone, heatmap và recovery khi reconnect" Foreground="#E0D4A4" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,7" /><TextBlock Text="✓  Alt + M: click / nhập XYZ / Delete mốc" Foreground="#E0D4A4" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,7" /><TextBlock Text="✓  Chia sẻ set point với đồng đội" Foreground="#E0D4A4" FontSize="11" TextWrapping="Wrap" /><TextBlock Text="PRO AGENT · PRIVATE CHANNEL" Foreground="#F1C75B" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" Margin="0,18,0,0" /></StackPanel></Border>
+                        <Border Style="{StaticResource Panel}"><StackPanel><TextBlock Text="FREE" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="MAP + CẤU HÌNH" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="17" FontWeight="Bold" Margin="0,9,0,12" /><TextBlock Text="✓  GPS / Live Map trên mọi server" Foreground="#C5CAD2" FontSize="11" Margin="0,0,0,7" /><TextBlock Text="✓  Stats IslePilot và Gacha khi khả dụng" Foreground="#C5CAD2" FontSize="11" Margin="0,0,0,7" /><TextBlock Text="✓  English / Tiếng Việt + sổ tay 43 Mutation" Foreground="#C5CAD2" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,7" /><TextBlock Text="✓  Tròn / vuông, block riêng, phím tắt và tự nhớ" Foreground="#C5CAD2" FontSize="11" TextWrapping="Wrap" /><TextBlock Text="CTRL + SHIFT + O" Foreground="#8FA2E3" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" Margin="0,18,0,0" /></StackPanel></Border>
+                        <Border Grid.Column="2" Style="{StaticResource ProPanel}"><StackPanel><TextBlock Text="PRO" Foreground="#C05BF1" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" /><TextBlock Text="TRACKING + ZONE" Foreground="#F2F4EC" FontFamily="Bahnschrift SemiCondensed" FontSize="17" FontWeight="Bold" Margin="0,9,0,12" /><TextBlock Text="✓  Player + AI trong vùng render" Foreground="#D1A4E0" FontSize="11" Margin="0,0,0,7" /><TextBlock Text="✓  Zone, heatmap và recovery khi reconnect" Foreground="#D1A4E0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,7" /><TextBlock Text="✓  Alt + M: click / nhập XYZ / Delete mốc" Foreground="#D1A4E0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,7" /><TextBlock Text="✓  Chia sẻ set point với đồng đội" Foreground="#D1A4E0" FontSize="11" TextWrapping="Wrap" /><TextBlock Text="PRO AGENT · PRIVATE CHANNEL" Foreground="#C05BF1" FontFamily="Bahnschrift" FontSize="10" FontWeight="Bold" Margin="0,18,0,0" /></StackPanel></Border>
                     </Grid>
-                    <CheckBox x:Name="DoNotShowAgainCheckBox" Grid.Row="2" Content="Không hiển thị lại thông báo này cho phiên bản 2.0.2" Foreground="#C6D2CD" FontSize="11" FontWeight="SemiBold" Margin="1,17,0,0" VerticalContentAlignment="Center" AutomationProperties.Name="Không hiển thị lại thông báo phiên bản 2.0.2" />
+                    <CheckBox x:Name="DoNotShowAgainCheckBox" Grid.Row="2" Content="Không hiển thị lại thông báo này cho phiên bản 2.0.2" Foreground="#C6CBD2" FontSize="11" FontWeight="SemiBold" Margin="1,17,0,0" VerticalContentAlignment="Center" AutomationProperties.Name="Không hiển thị lại thông báo phiên bản 2.0.2" />
                 </Grid>
             </Grid>
 
             <Grid Grid.Row="2" Grid.Column="1" Margin="28,0,28,0">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                 <Button x:Name="BackButton" Style="{StaticResource SecondaryButton}" Content="←  QUAY LẠI" Width="104" Height="40" Visibility="Hidden" Click="BackButton_Click" />
-                <TextBlock x:Name="PageProgressLabel" Grid.Column="1" Text="01 / 05" Foreground="#6E8780" FontFamily="Bahnschrift" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <TextBlock x:Name="PageProgressLabel" Grid.Column="1" Text="01 / 05" Foreground="#6E7587" FontFamily="Bahnschrift" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 <Button x:Name="OpenProButton" Grid.Column="2" Style="{StaticResource QuietButton}" Content="XEM CÁC GÓI PRO" Height="40" Padding="12,0" Margin="0,0,10,0" Visibility="Collapsed" Click="ShowProButton_Click" />
                 <Button x:Name="NextButton" Grid.Column="3" Style="{StaticResource PrimaryButton}" Content="TIẾP THEO  →" Height="40" MinWidth="122" Click="NextButton_Click" />
                 <Button x:Name="FinishButton" Grid.Column="4" Style="{StaticResource PrimaryButton}" Content="HOÀN TẤT" Height="40" MinWidth="122" Visibility="Collapsed" IsDefault="True" Click="FinishButton_Click" />

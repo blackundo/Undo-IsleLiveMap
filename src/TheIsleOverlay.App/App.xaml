@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="HomeWindow.xaml">
     <Application.Resources>
-        <SolidColorBrush x:Key="FogBrush" Color="#DDE8E1" />
-        <SolidColorBrush x:Key="MutedBrush" Color="#7F9993" />
-        <SolidColorBrush x:Key="LineBrush" Color="#34514C" />
+        <SolidColorBrush x:Key="FogBrush" Color="#E1EDF7" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#7A93A8" />
+        <SolidColorBrush x:Key="LineBrush" Color="#2A4057" />
 
         <Style x:Key="TelemetryBar" TargetType="ProgressBar">
             <Setter Property="Height" Value="5" />
@@ -15,7 +15,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ProgressBar">
                         <Grid SnapsToDevicePixels="True">
-                            <Border x:Name="PART_Track" Background="#18302F" />
+                            <Border x:Name="PART_Track" Background="#132333" />
                             <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" />
                         </Grid>
                     </ControlTemplate>
@@ -24,9 +24,9 @@
         </Style>
 
         <Style x:Key="ChromeButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#AFC3BC" />
+            <Setter Property="Foreground" Value="#B2C6DB" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="#34514C" />
+            <Setter Property="BorderBrush" Value="#2A4057" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
             <Setter Property="FontSize" Value="10" />
@@ -40,11 +40,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#193936" />
-                                <Setter Property="Foreground" Value="#E9F4EE" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#172B40" />
+                                <Setter Property="Foreground" Value="#ECF4FB" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#28534D" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#1F3D59" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -53,9 +53,9 @@
         </Style>
 
         <Style x:Key="MapLayerToggle" TargetType="ToggleButton">
-            <Setter Property="Foreground" Value="#79968F" />
-            <Setter Property="Background" Value="#D10A1718" />
-            <Setter Property="BorderBrush" Value="#405E58" />
+            <Setter Property="Foreground" Value="#7A94B0" />
+            <Setter Property="Background" Value="#D107141E" />
+            <Setter Property="BorderBrush" Value="#324961" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
             <Setter Property="FontSize" Value="7.5" />
@@ -75,13 +75,13 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#D020342F" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#8AB7A95A" />
-                                <Setter Property="Foreground" Value="#F3DE8D" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#D0152B42" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#8A4A9CB7" />
+                                <Setter Property="Foreground" Value="#8CE7FF" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#E22B413B" />
-                                <Setter Property="Foreground" Value="#F6F2DA" />
+                                <Setter TargetName="Chrome" Property="Background" Value="#E21C3754" />
+                                <Setter Property="Foreground" Value="#E8F4FA" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Chrome" Property="Opacity" Value="0.38" />
@@ -100,15 +100,15 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Thumb}">
                         <Border x:Name="ThumbBorder"
-                                Background="#35554F"
+                                Background="#26425C"
                                 CornerRadius="2"
                                 Margin="0" />
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ThumbBorder" Property="Background" Value="#4B8177" />
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#3A668F" />
                             </Trigger>
                             <Trigger Property="IsDragging" Value="True">
-                                <Setter TargetName="ThumbBorder" Property="Background" Value="#37D4C6" />
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#2B9DF0" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -134,6 +134,7 @@
             <Style.Triggers>
                 <Trigger Property="Orientation" Value="Vertical">
                     <Setter Property="Width" Value="3" />
+                    <Setter Property="MinWidth" Value="3" />
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ScrollBar}">
@@ -158,6 +159,7 @@
                 </Trigger>
                 <Trigger Property="Orientation" Value="Horizontal">
                     <Setter Property="Height" Value="3" />
+                    <Setter Property="MinHeight" Value="3" />
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ScrollBar}">
