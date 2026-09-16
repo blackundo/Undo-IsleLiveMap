@@ -3,6 +3,7 @@ namespace TheIsleOverlay.ProClient;
 public sealed record ProClientOptions
 {
     public static Uri ProductionBaseUri { get; } = new("https://isle-system.modundo.com/");
+    public static Uri FreeKeyPageUri { get; } = new("https://modundo.com/islevip");
 
     public Uri BaseUri { get; init; } = ProductionBaseUri;
 

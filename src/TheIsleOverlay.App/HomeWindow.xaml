@@ -469,7 +469,7 @@
 
                     <Rectangle Height="1" Fill="{DynamicResource HomeLine}" Margin="0,0,0,14" />
 
-                    <TextBlock x:Name="ProSectionHeading" Text="KÍCH HOẠT PRO · CHỈ TỪ 28K"
+                    <TextBlock x:Name="ProSectionHeading" Text="KÍCH HOẠT PRO · KEY MIỄN PHÍ"
                                Foreground="{DynamicResource HomeAccentBright}" FontSize="11.5"
                                FontWeight="SemiBold" Margin="0,0,0,9" />
 
@@ -513,7 +513,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="ProAccessFootnoteLabel"
-                                       Text="Nâng cấp tùy chọn: phân loại player, AI, loài và cân nặng. Free luôn hoạt động độc lập."
+                                        Text="Key Pro miễn phí: player, AI, Live Skin và Garage. Free luôn hoạt động độc lập."
                                        Foreground="{DynamicResource HomeSubtle}" FontSize="10.5" TextWrapping="Wrap"
                                        VerticalAlignment="Center" />
                             <Button x:Name="LogoutProButton" Grid.Column="1"

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Windows;
 using System.Windows.Media;
@@ -7,6 +8,8 @@ namespace TheIsleOverlay.App;
 
 public partial class ProKeyActivationWindow : Window
 {
+    public static Uri FreeKeyPageUri => ProClientOptions.FreeKeyPageUri;
+
     private readonly ProAccessService _service;
     private readonly string _hostVersion;
     private readonly CancellationTokenSource _shutdown = new();
@@ -140,7 +143,25 @@ public partial class ProKeyActivationWindow : Window
         ProgressIndicator.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         ActivateButton.IsEnabled = !busy;
         CloseButton.IsEnabled = !busy;
+        GetFreeKeyButton.IsEnabled = !busy;
         KeyInput.IsEnabled = !busy && !_activationStored;
+    }
+
+    private void GetFreeKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(FreeKeyPageUri.AbsoluteUri)
+            {
+                UseShellExecute = true
+            });
+        }
+        catch (Exception exception)
+        {
+            ShowStatus("!", "Không mở được trang lấy key",
+                $"Hãy thử lại hoặc mở {FreeKeyPageUri.AbsoluteUri} trong trình duyệt. {exception.Message}",
+                "#BC5DF0", "#291733", "#592772");
+        }
     }
 
     private void ShowStatus(string icon, string title, string detail, string accent, string background, string border)

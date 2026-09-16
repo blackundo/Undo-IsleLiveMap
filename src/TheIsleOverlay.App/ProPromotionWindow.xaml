@@ -65,7 +65,7 @@
                     <Grid Width="18" Height="18"><Ellipse Width="16" Height="16" Stroke="#C05BF1" StrokeThickness="1" /><Ellipse Width="5" Height="5" Fill="#7689D7" /></Grid>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="9,0,0,0">
                         <TextBlock Text="FIELD INTELLIGENCE // PRO" Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="11.5" FontWeight="SemiBold" />
-                        <TextBlock Text="   STEAMID64 ACCESS" Foreground="#71788A" FontFamily="Bahnschrift" FontSize="9.5" VerticalAlignment="Center" />
+                        <TextBlock Text="   FREE KEY ACCESS" Foreground="#71788A" FontFamily="Bahnschrift" FontSize="9.5" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button Grid.Column="2" Style="{StaticResource QuietButton}" Content="×" Width="30" Height="26" Padding="0" FontSize="16" AutomationProperties.Name="Đóng thông báo Pro" Click="CloseButton_Click" />
                 </Grid>
@@ -98,30 +98,36 @@
                     <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <StackPanel>
                         <TextBlock Text="ISLE LIVE MAP PRO" Foreground="{StaticResource Mint}" FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" />
-                        <TextBlock Text="CHỈ TỪ 28K" Foreground="{StaticResource Gold}" FontFamily="Bahnschrift SemiCondensed" FontSize="42" FontWeight="Bold" Margin="-2,1,0,0" />
-                        <TextBlock Text="Thấy rõ hệ sinh thái đang chuyển động quanh bạn." Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,3,0,0" />
+                        <TextBlock Text="KEY PRO MIỄN PHÍ" Foreground="{StaticResource Gold}" FontFamily="Bahnschrift SemiCondensed" FontSize="38" FontWeight="Bold" Margin="-2,1,0,0" />
+                        <TextBlock Text="Lấy key free, nhập một lần và mở toàn bộ công cụ Pro." Foreground="{StaticResource Bone}" FontFamily="Bahnschrift SemiCondensed" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,3,0,0" />
                         <TextBlock Text="Không phải hack: map chỉ hỗ trợ dữ liệu mục tiêu game đã gửi trong phạm vi render của bạn." Foreground="{StaticResource Muted}" FontSize="11.5" TextWrapping="Wrap" LineHeight="17" Margin="0,7,0,0" />
                     </StackPanel>
 
                     <Border Grid.Row="1" Margin="0,17,0,12" Background="#22102A" BorderBrush="#612F75" BorderThickness="1" Padding="12,9">
-                        <TextBlock Text="MỘT TÀI KHOẢN STEAM · KHÔNG GIỚI HẠN THIẾT BỊ" Foreground="#E2A0FF" FontFamily="Bahnschrift SemiCondensed" FontSize="10.5" FontWeight="Bold" TextAlignment="Center" />
+                        <TextBlock Text="KHÔNG CẦN MUA · LẤY KEY FREE TẠI TRANG CHÍNH THỨC" Foreground="#E2A0FF" FontFamily="Bahnschrift SemiCondensed" FontSize="10.5" FontWeight="Bold" TextAlignment="Center" />
                     </Border>
 
                     <StackPanel Grid.Row="2">
-                        <Grid Height="53"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#FF4D57" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="PLAYER ĐƯỢC PHÂN LOẠI" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Ăn thịt · cùng loài · ăn cỏ, kèm loài và cân nặng." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
+                        <Grid Height="45"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#FF4D57" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="PLAYER ĐƯỢC PHÂN LOẠI" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Ăn thịt · cùng loài · ăn cỏ, kèm loài và cân nặng." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
                         <Rectangle Height="1" Fill="#262B3F" />
-                        <Grid Height="53"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#B33FF2" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="TÌM AI NHANH HƠN" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="AI đã nhận diện hiển thị riêng để hỗ trợ quá trình nuôi." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
+                        <Grid Height="45"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#B33FF2" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="TÌM AI NHANH HƠN" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="AI đã nhận diện hiển thị riêng để hỗ trợ quá trình nuôi." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
                         <Rectangle Height="1" Fill="#262B3F" />
-                        <Grid Height="53"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#7689D7" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="FULL TẤT CẢ SERVER" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Không phụ thuộc website map hoặc plugin riêng của server." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
+                        <Grid Height="45"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#7689D7" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="FULL TẤT CẢ SERVER" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Không phụ thuộc website map hoặc plugin riêng của server." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
                         <Rectangle Height="1" Fill="#262B3F" />
-                        <Grid Height="53"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#6EA9FF" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="TACTICAL MAP" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Zone, set point theo XYZ và chia sẻ mốc với đồng đội." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
+                        <Grid Height="45"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#6EA9FF" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="TACTICAL MAP" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Zone, set point theo XYZ và chia sẻ mốc với đồng đội." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
+                        <Rectangle Height="1" Fill="#262B3F" />
+                        <Grid Height="45"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#D36DFF" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="LIVE SKIN · ALT + S" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Mở Skin Editor native theo dino IslePilot đang online." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
+                        <Rectangle Height="1" Fill="#262B3F" />
+                        <Grid Height="45"><Grid.ColumnDefinitions><ColumnDefinition Width="4" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><Rectangle Fill="#E5A45A" RadiusX="1" RadiusY="1" Margin="0,7" /><StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"><TextBlock Text="GARAGE · ALT + G" Foreground="#F1E8F3" FontFamily="Bahnschrift SemiCondensed" FontSize="12" FontWeight="SemiBold" /><TextBlock Text="Xem, park và restore dino trực tiếp trong overlay." Foreground="#878E9E" FontSize="10.5" /></StackPanel></Grid>
                     </StackPanel>
 
                     <Grid Grid.Row="3" Margin="0,17,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                         <Button Style="{StaticResource QuietButton}" Content="ĐỂ SAU" Padding="6,10" Click="CloseButton_Click" AutomationProperties.Name="Đóng và xem sau" />
-                        <TextBlock Grid.Column="1" Text="PRO THEO STEAMID64" Foreground="#6F768A" FontFamily="Bahnschrift SemiCondensed" FontSize="9.5" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        <Button x:Name="ActivateProButton" Grid.Column="2" Style="{StaticResource PrimaryButton}" Content="NHẬP KEY KÍCH HOẠT" Height="43" Padding="17,0" IsDefault="True" AutomationProperties.Name="Nhập key kích hoạt Pro" Click="ActivateProButton_Click" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Button x:Name="GetFreeKeyButton" Style="{StaticResource QuietButton}" Content="LẤY KEY FREE  ↗" Height="43" Padding="10,0" Margin="0,0,6,0" AutomationProperties.Name="Mở trang lấy key Pro miễn phí" Click="GetFreeKeyButton_Click" />
+                            <Button x:Name="ActivateProButton" Style="{StaticResource PrimaryButton}" Content="NHẬP KEY" Height="43" Padding="17,0" IsDefault="True" AutomationProperties.Name="Nhập key kích hoạt Pro" Click="ActivateProButton_Click" />
+                        </StackPanel>
                     </Grid>
                 </Grid>
             </Grid>

@@ -8,7 +8,7 @@ namespace TheIsleOverlay.App;
 
 public partial class ProPromotionWindow : Window
 {
-    public static Uri ProLandingPageUri => ProClientOptions.ProductionBaseUri;
+    public static Uri FreeKeyPageUri => ProClientOptions.FreeKeyPageUri;
 
     public ProPromotionWindow()
     {
@@ -40,6 +40,26 @@ public partial class ProPromotionWindow : Window
     private void ActivateProButton_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = true;
+    }
+
+    private void GetFreeKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(FreeKeyPageUri.AbsoluteUri)
+            {
+                UseShellExecute = true
+            });
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(
+                this,
+                $"Không thể mở trang lấy key Pro miễn phí.\n\n{exception.Message}",
+                "Isle Live Map",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();

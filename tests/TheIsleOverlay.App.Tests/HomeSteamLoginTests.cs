@@ -45,7 +45,8 @@ public sealed class HomeSteamLoginTests
             .Where(value => value is not null)
             .ToArray();
         Assert.Contains("KÍCH HOẠT LIVE MAP", text);
-        Assert.Contains("KÍCH HOẠT PRO · CHỈ TỪ 28K", text);
+        Assert.Contains("KÍCH HOẠT PRO · KEY MIỄN PHÍ", text);
+        Assert.DoesNotContain(text, value => value?.Contains("28K", StringComparison.OrdinalIgnoreCase) == true);
         Assert.Contains("GPS trực tiếp · Tự chọn Origin, Gacha hoặc IslePilot theo server", text);
         Assert.DoesNotContain("SERVER DÙNG WEBSITE RIÊNG", text);
     }
@@ -67,9 +68,13 @@ public sealed class HomeSteamLoginTests
                 (string?)element.Attribute("Title")
             }));
 
-        Assert.Contains("Không cần đăng nhập Steam.", allCopy, StringComparison.Ordinal);
+        Assert.Contains("không cần đăng nhập Steam.", allCopy, StringComparison.Ordinal);
         Assert.Contains("KÍCH HOẠT PRO", allCopy, StringComparison.Ordinal);
+        Assert.Contains("LẤY KEY FREE", allCopy, StringComparison.Ordinal);
         Assert.DoesNotContain("SteamID64", allCopy, StringComparison.Ordinal);
+        Assert.Equal(
+            "https://modundo.com/islevip",
+            ProKeyActivationWindow.FreeKeyPageUri.AbsoluteUri);
     }
 
     [Fact]
@@ -121,12 +126,19 @@ public sealed class HomeSteamLoginTests
                 (string?)element.Attribute("Content")
             }));
 
-        Assert.Contains("CHỈ TỪ 28K", allCopy, StringComparison.Ordinal);
+        Assert.Contains("KEY PRO MIỄN PHÍ", allCopy, StringComparison.Ordinal);
+        Assert.Contains("LẤY KEY FREE", allCopy, StringComparison.Ordinal);
         Assert.Contains("FULL TẤT CẢ SERVER", allCopy, StringComparison.Ordinal);
+        Assert.Contains("LIVE SKIN · ALT + S", allCopy, StringComparison.Ordinal);
+        Assert.Contains("GARAGE · ALT + G", allCopy, StringComparison.Ordinal);
         Assert.Contains("Không phải hack", allCopy, StringComparison.Ordinal);
+        Assert.DoesNotContain("28K", allCopy, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(
-            "NHẬP KEY KÍCH HOẠT",
+            "NHẬP KEY",
             (string?)Control("ActivateProButton").Attribute("Content"));
+        Assert.Equal(
+            "GetFreeKeyButton_Click",
+            (string?)Control("GetFreeKeyButton").Attribute("Click"));
         Assert.Contains(
             document.Descendants(),
             element => string.Equals(
@@ -134,8 +146,8 @@ public sealed class HomeSteamLoginTests
                 "Assets/ProMapPreview.png",
                 StringComparison.Ordinal));
         Assert.Equal(
-            "https://isle-system.modundo.com/",
-            ProPromotionWindow.ProLandingPageUri.AbsoluteUri);
+            "https://modundo.com/islevip",
+            ProPromotionWindow.FreeKeyPageUri.AbsoluteUri);
     }
 
     [Fact]

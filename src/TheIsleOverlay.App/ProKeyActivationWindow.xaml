@@ -40,7 +40,7 @@
                                    Foreground="#727CA9" />
                         <TextBlock Text="KÍCH HOẠT PRO" Margin="0,5,0,0" FontSize="26"
                                    FontWeight="Bold" Foreground="#DDA0FF" />
-                        <TextBlock Text="Key một lần · gắn với thiết bị này · Không cần đăng nhập Steam."
+                        <TextBlock Text="Lấy key miễn phí · nhập một lần · không cần đăng nhập Steam."
                                    Margin="0,6,0,0" Foreground="#A3A9B7" />
                     </StackPanel>
                     <Border Grid.Column="1" Padding="13,7" VerticalAlignment="Top"
@@ -100,6 +100,9 @@
                     <TextBlock VerticalAlignment="Center" Foreground="#71788C" FontSize="11"
                                Text="Key hợp lệ chỉ được kích hoạt trên một thiết bị." />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="GetFreeKeyButton" Content="LẤY KEY FREE  ↗" Margin="0,0,10,0"
+                                Background="#11162A" Foreground="#B6C2FF" BorderBrush="#3D4B82"
+                                Click="GetFreeKeyButton_Click" />
                         <Button x:Name="CloseButton" Content="ĐÓNG" Margin="0,0,10,0"
                                 Background="#171B2B" Foreground="#C5CAD6" BorderBrush="#383F55"
                                 Click="CloseButton_Click" />

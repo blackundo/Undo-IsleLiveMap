@@ -258,7 +258,7 @@ public partial class HomeWindow
         };
         ProAccessActionLabel.Text = "NHẬP KEY  →";
         ProAccessStateBar.Fill = new SolidColorBrush(Color.FromRgb(111, 109, 85));
-        ProAccessFootnoteLabel.Text = "Nâng cấp tùy chọn: phân loại player, AI, loài và cân nặng. Free luôn hoạt động độc lập.";
+        ProAccessFootnoteLabel.Text = "Lấy key Pro miễn phí để mở player, AI, Live Skin và Garage. Free luôn hoạt động độc lập.";
         SourceStatusLabel.Text = entitlementExpired
             ? "Quyền Pro đã hết hạn. Free vẫn sẵn sàng trên mọi server."
             : "Free đã sẵn sàng cho mọi server. Pro chỉ được ghép thêm sau khi xác minh quyền.";
@@ -371,7 +371,7 @@ public partial class HomeWindow
             : "  OPEN TELEMETRY CLIENT";
         ProSectionHeading.Text = premium
             ? "PRO ACCESS · ĐÃ KÍCH HOẠT"
-            : "KÍCH HOẠT PRO · NHẬP KEY";
+            : "KÍCH HOẠT PRO · KEY MIỄN PHÍ";
         ApplyMapLaunchAccent();
     }
 }

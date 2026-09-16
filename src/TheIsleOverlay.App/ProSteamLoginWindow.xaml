@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        Title="Kích hoạt Isle Live Map Pro · chỉ từ 28K" Width="1060" Height="760"
+        Title="Kích hoạt Isle Live Map Pro · key miễn phí" Width="1060" Height="760"
         MinWidth="820" MinHeight="620" WindowStartupLocation="CenterOwner"
         Background="#070817" Foreground="#E9EFF4"
         FontFamily="Segoe UI Variable Text"
@@ -26,11 +26,11 @@
                     <TextBlock Text="KÍCH HOẠT STEAM / PRO ACCESS"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="18"
                                FontWeight="Bold" Foreground="#E0A0FF" />
-                    <TextBlock Text="Một lần mua · dùng theo SteamID64 · không giới hạn thiết bị"
+                    <TextBlock Text="Lấy key miễn phí · kích hoạt nhanh · không cần mua"
                                Foreground="#9B9A78" FontSize="10.5" Margin="0,3,0,0" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="CHỈ TỪ 28K" Foreground="#C05BF1"
+                    <TextBlock Text="KEY PRO MIỄN PHÍ" Foreground="#C05BF1"
                                FontFamily="Bahnschrift SemiCondensed" FontSize="17"
                                FontWeight="Bold" HorizontalAlignment="Right" />
                     <TextBlock Text="PRO ACCESS · STEAMID64"
@@ -63,7 +63,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="LoginStatusLabel"
-                           Text="CHỈ TỪ 28K · SteamID64 và token mã hóa DPAPI được lưu; không tạo khóa theo thiết bị."
+                           Text="KEY MIỄN PHÍ · token được mã hóa bằng Windows DPAPI trên thiết bị."
                            Foreground="#8A9E99" FontSize="10.5" VerticalAlignment="Center"
                            TextWrapping="Wrap" />
                 <Button Grid.Column="1" Content="THỬ LẠI" Padding="15,7" Margin="10,0,0,0"
