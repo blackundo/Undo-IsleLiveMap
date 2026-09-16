@@ -1,3 +1,20 @@
+# Isle Live Map 2.1.5
+
+## Sửa timeout kết nối máy chủ cấp phép
+
+- Ưu tiên kết nối IPv4 khi DNS/CDN Hostinger trả cả IPv4 và IPv6 nhưng đường IPv6 của người dùng không hoạt động.
+- Mỗi địa chỉ có timeout riêng và vẫn fallback sang các địa chỉ còn lại, không hard-code IP máy chủ.
+- Giữ toàn bộ bản sửa activation và dialog mới từ 2.1.4.
+
+# Isle Live Map 2.1.4
+
+## Sửa kích hoạt key Pro
+
+- Lease được lưu ngay sau khi backend chấp nhận key, trước bước tải và kiểm tra Pro Agent; lỗi Agent không còn làm mất activation một lần.
+- Dialog kích hoạt phân biệt chính xác key bị từ chối, lỗi mạng, lỗi lưu credential và Agent chưa sẵn sàng.
+- Key đã lưu có thể thử kết nối lại Pro Agent mà không gửi hoặc sử dụng key lần hai.
+- Làm mới giao diện nhập key với trạng thái tiến trình, cảnh báo và xác nhận kích hoạt rõ ràng.
+
 # Isle Live Map 2.1.0
 
 ## Chỉ số realtime trên mọi server

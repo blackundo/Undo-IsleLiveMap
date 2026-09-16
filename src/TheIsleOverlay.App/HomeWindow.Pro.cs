@@ -98,7 +98,8 @@ public partial class HomeWindow
         {
             Owner = this
         };
-        if (loginWindow.ShowDialog() == true && loginWindow.Access is { } access)
+        loginWindow.ShowDialog();
+        if (loginWindow.Access is { } access)
         {
             _proAccess = access;
             ApplyProAccessState(access);

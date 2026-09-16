@@ -111,7 +111,7 @@ public sealed class ReleaseHighlightsTests
                 (string?)ancestor.Attribute(nameAttribute),
                 "PageFive",
                 StringComparison.Ordinal));
-        Assert.Equal("https://isle.klong.dev/", ReleaseHighlightsWindow.ProLandingPageUri.AbsoluteUri);
+        Assert.Equal("https://isle-system.modundo.com/", ReleaseHighlightsWindow.ProLandingPageUri.AbsoluteUri);
 
     }
 }

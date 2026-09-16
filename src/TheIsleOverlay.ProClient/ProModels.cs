@@ -42,6 +42,26 @@ public sealed record ProReleaseManifest(
     string DownloadUrl,
     DateTimeOffset PublishedAt);
 
+public sealed record ProActivationResponse(
+    string TokenType,
+    string LeaseToken,
+    string ActivationId,
+    DateTimeOffset ExpiresAt,
+    int StatusCheckSeconds,
+    int StatusJitterSeconds);
+
+public sealed record ProLeaseStatusResponse(
+    bool Active,
+    DateTimeOffset ExpiresAt,
+    DateTimeOffset ServerTime,
+    int NextCheckSeconds,
+    int JitterSeconds);
+
+internal sealed record StoredKeyLease(
+    string LeaseToken,
+    string ActivationId,
+    DateTimeOffset ExpiresAt);
+
 public sealed class ProApiException(
     string message,
     HttpStatusCode? statusCode = null,
@@ -49,6 +69,9 @@ public sealed class ProApiException(
 {
     public HttpStatusCode? StatusCode { get; } = statusCode;
 }
+
+public sealed class ProActivationPersistenceException(string message, Exception innerException)
+    : Exception(message, innerException);
 
 public sealed record ProAccessSnapshot(
     string? SteamId64,

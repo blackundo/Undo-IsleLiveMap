@@ -46,8 +46,8 @@ public sealed class ProAgentRemotePlayerSource :
         _localActivation = localActivation;
     }
 
-    internal static ProAgentRemotePlayerSource ForLocalKey(string path, string hostVersion, string key) =>
-        new(path, hostVersion, LocalProActivation.Mode, key, localActivation: true);
+    internal static ProAgentRemotePlayerSource ForDeviceLease(string path, string hostVersion, string activationId, string lease) =>
+        new(path, hostVersion, activationId, lease, localActivation: true);
 
     private HostHello CreateHello(bool probeOnly = false) => _localActivation
         ? new(ProAgentProtocol.IpcApiMajor, _hostVersion, string.Empty,
@@ -283,7 +283,7 @@ public sealed class ProAgentRemotePlayerSource :
             !hello.Accepted ||
             hello.IpcApiMajor != ProAgentProtocol.IpcApiMajor ||
             (_localActivation
-                ? hello.ActivationMode != LocalProActivation.Mode || hello.SteamId64 is not null
+                ? hello.ActivationMode != LocalProActivation.Mode || !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)
                 : !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)))
         {
             throw new ProAgentException(

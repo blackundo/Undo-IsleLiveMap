@@ -11,9 +11,10 @@ public sealed class ProAccessService : IDisposable
     private readonly bool _ownsHttpClient;
     private readonly ProApiClient _apiClient;
     private readonly ProCredentialStore _credentialStore;
-    private readonly LocalProKeyStore _localKeyStore;
+    private readonly DeviceIdentityStore _deviceIdentityStore;
+    private readonly KeyLeaseStore _keyLeaseStore;
     private readonly string? _localAgentPath;
-    private string? _localActivationKey;
+    private StoredKeyLease? _keyLease;
     private readonly ProReleaseManager _releaseManager;
     private readonly TimeProvider _timeProvider;
     private StoredProSession? _session;
@@ -28,11 +29,12 @@ public sealed class ProAccessService : IDisposable
         string? updatePublicKeyPem = null)
     {
         options ??= new ProClientOptions();
-        _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
+        _httpClient = httpClient ?? ProHttpTransport.Create();
         _ownsHttpClient = httpClient is null;
         _apiClient = new ProApiClient(_httpClient, options.BaseUri);
         _credentialStore = new ProCredentialStore(options.CredentialPath);
-        _localKeyStore = new LocalProKeyStore(options.CredentialPath + ".local-key-v2");
+        _deviceIdentityStore = new DeviceIdentityStore(options.CredentialPath + ".device-v1");
+        _keyLeaseStore = new KeyLeaseStore(options.CredentialPath + ".key-lease-v1");
         _localAgentPath = string.IsNullOrWhiteSpace(options.LocalAgentPath)
             ? null
             : Path.GetFullPath(options.LocalAgentPath);
@@ -65,12 +67,31 @@ public sealed class ProAccessService : IDisposable
         {
             ThrowIfDisposed();
             ValidateHostVersion(hostVersion);
-            var key = await _localKeyStore.LoadAsync(cancellationToken).ConfigureAwait(false);
-            if (key is null) return SetState(null, null, ProAccessSnapshot.SignedOut);
-            var (snapshot, installation) = await VerifyLocalKeyAsync(
-                    key, hostVersion, cancellationToken)
+            var lease = await _keyLeaseStore.LoadAsync(cancellationToken).ConfigureAwait(false);
+            if (lease is null)
+            {
+                _keyLeaseStore.Clear();
+                return SetState(null, null, ProAccessSnapshot.SignedOut);
+            }
+            try
+            {
+                var status = await _apiClient.GetLeaseStatusAsync(lease.LeaseToken, cancellationToken)
+                    .ConfigureAwait(false);
+                if (!status.Active || status.ExpiresAt <= status.ServerTime || lease.ExpiresAt <= _timeProvider.GetUtcNow())
+                {
+                    _keyLeaseStore.Clear();
+                    return SetState(null, null, ProAccessSnapshot.SignedOut with { StatusCode = "lease_expired" });
+                }
+            }
+            catch (ProApiException exception) when (exception.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            {
+                _keyLeaseStore.Clear();
+                return SetState(null, null, ProAccessSnapshot.SignedOut with { StatusCode = "lease_revoked" });
+            }
+            var (snapshot, installation) = await VerifyKeyLeaseAsync(
+                    lease, hostVersion, cancellationToken)
                 .ConfigureAwait(false);
-            return SetLocalState(key, installation, snapshot, hostVersion);
+            return SetKeyLeaseState(lease, installation, snapshot, hostVersion);
         }
         finally
         {
@@ -121,15 +142,25 @@ public sealed class ProAccessService : IDisposable
             ValidateHostVersion(hostVersion);
             if (!LocalProKeyStore.Accepts(key)) throw new ArgumentException("The activation key is invalid.", nameof(key));
             key = key.Trim();
-            var (snapshot, installation) = await VerifyLocalKeyAsync(
-                    key, hostVersion, cancellationToken)
+            using var identity = await _deviceIdentityStore.LoadOrCreateAsync(cancellationToken).ConfigureAwait(false);
+            var activation = await _apiClient.ActivateKeyAsync(key, identity, cancellationToken).ConfigureAwait(false);
+            var lease = new StoredKeyLease(activation.LeaseToken, activation.ActivationId, activation.ExpiresAt);
+            try
+            {
+                // The backend consumes a one-time code before the Agent is downloaded or probed.
+                // Persist the returned lease first so a later Agent failure never loses the activation.
+                await _keyLeaseStore.SaveAsync(lease, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or
+                System.Security.Cryptography.CryptographicException)
+            {
+                throw new ProActivationPersistenceException(
+                    "The key was accepted, but the activation could not be stored on this device.", exception);
+            }
+            var (snapshot, installation) = await VerifyKeyLeaseAsync(
+                    lease, hostVersion, cancellationToken)
                 .ConfigureAwait(false);
-            if (!snapshot.AgentReady)
-                throw new ProAgentException(snapshot.StatusCode is "local_key_rejected" or "local_agent_rejected"
-                    ? "Key không hợp lệ hoặc Pro Agent đã từ chối key."
-                    : "Không tải hoặc khởi động được Pro Agent. Hãy kiểm tra mạng và thử lại.");
-            await _localKeyStore.ActivateAsync(key, cancellationToken).ConfigureAwait(false);
-            return SetLocalState(key, installation, snapshot, hostVersion);
+            return SetKeyLeaseState(lease, installation, snapshot, hostVersion);
         }
         finally
         {
@@ -137,8 +168,8 @@ public sealed class ProAccessService : IDisposable
         }
     }
 
-    private async Task<(ProAccessSnapshot Snapshot, ProAgentInstallation? Installation)> VerifyLocalKeyAsync(
-        string key, string hostVersion, CancellationToken cancellationToken)
+    private async Task<(ProAccessSnapshot Snapshot, ProAgentInstallation? Installation)> VerifyKeyLeaseAsync(
+        StoredKeyLease lease, string hostVersion, CancellationToken cancellationToken)
     {
         string? version = null;
         var status = "local_agent_unavailable";
@@ -150,7 +181,7 @@ public sealed class ProAccessService : IDisposable
             {
                 installation = await _releaseManager.EnsureAvailableAsync(
                         hostVersion,
-                        key,
+                        lease.LeaseToken,
                         cancellationToken)
                     .ConfigureAwait(false);
                 agentPath = installation.ExecutablePath;
@@ -158,8 +189,8 @@ public sealed class ProAccessService : IDisposable
 
             if (File.Exists(agentPath))
             {
-                await using var source = ProAgentRemotePlayerSource.ForLocalKey(
-                    agentPath, hostVersion, key);
+                await using var source = ProAgentRemotePlayerSource.ForDeviceLease(
+                    agentPath, hostVersion, lease.ActivationId, lease.LeaseToken);
                 version = await source.ProbeAsync(cancellationToken).ConfigureAwait(false);
                 status = "local_key_active";
             }
@@ -177,14 +208,14 @@ public sealed class ProAccessService : IDisposable
             };
         }
 
-        var snapshot = new ProAccessSnapshot(null,
-            version is not null ? new ProEntitlement("pro", "active", null) : ProAccessSnapshot.SignedOut.Entitlement,
-            false, version is not null, version, null, status);
+        var snapshot = new ProAccessSnapshot(lease.ActivationId,
+            version is not null ? new ProEntitlement("pro", "active", lease.ExpiresAt) : ProAccessSnapshot.SignedOut.Entitlement,
+            false, version is not null, version, lease.ExpiresAt, status);
         return (snapshot, installation);
     }
 
-    private ProAccessSnapshot SetLocalState(
-        string key,
+    private ProAccessSnapshot SetKeyLeaseState(
+        StoredKeyLease lease,
         ProAgentInstallation? installation,
         ProAccessSnapshot snapshot,
         string hostVersion)
@@ -192,7 +223,7 @@ public sealed class ProAccessService : IDisposable
         lock (_stateGate)
         {
             var result = SetState(null, installation, snapshot, hostVersion);
-            _localActivationKey = snapshot.AgentReady ? key : null;
+            _keyLease = snapshot.AgentReady ? lease : null;
             return result;
         }
     }
@@ -203,7 +234,7 @@ public sealed class ProAccessService : IDisposable
         {
             ThrowIfDisposed();
             _credentialStore.Clear();
-            _localKeyStore.Clear();
+            _keyLeaseStore.Clear();
             SetState(null, null, ProAccessSnapshot.SignedOut);
         }
         finally
@@ -216,13 +247,13 @@ public sealed class ProAccessService : IDisposable
     {
         lock (_stateGate)
         {
-            if (_current.StatusCode == "local_key_active" && _current.AgentReady && _current.IsPro && _localActivationKey is not null)
+            if (_current.StatusCode == "local_key_active" && _current.AgentReady && _current.IsPro && _keyLease is not null)
             {
                 var agentPath = _installation?.ExecutablePath ?? _localAgentPath;
                 return agentPath is null
                     ? null
-                    : ProAgentRemotePlayerSource.ForLocalKey(
-                        agentPath, _currentHostVersion, _localActivationKey);
+                    : ProAgentRemotePlayerSource.ForDeviceLease(
+                        agentPath, _currentHostVersion, _keyLease.ActivationId, _keyLease.LeaseToken);
             }
             if (_session is null ||
                 _installation is null ||
@@ -379,7 +410,7 @@ public sealed class ProAccessService : IDisposable
     {
         lock (_stateGate)
         {
-            _localActivationKey = null;
+            _keyLease = null;
             _session = session;
             _installation = installation;
             _current = snapshot;

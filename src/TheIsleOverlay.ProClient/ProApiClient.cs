@@ -25,6 +25,31 @@ public sealed class ProApiClient
 
     public ProLoginAttempt CreateLoginAttempt() => ProLoginAttempt.Create(_baseUri);
 
+    public Task<ProActivationResponse> ActivateKeyAsync(
+        string code,
+        DeviceIdentity identity,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(code);
+        ArgumentNullException.ThrowIfNull(identity);
+        var normalized = code.Trim();
+        return PostAsync<ProActivationResponse>(
+            "api/v1/activations",
+            new
+            {
+                code = normalized,
+                deviceId = identity.DeviceId,
+                devicePublicKey = identity.PublicKeyPem,
+                proof = identity.Sign($"activate\n{normalized}\n{identity.DeviceId}")
+            },
+            cancellationToken);
+    }
+
+    public Task<ProLeaseStatusResponse> GetLeaseStatusAsync(
+        string leaseToken,
+        CancellationToken cancellationToken = default) =>
+        GetAsync<ProLeaseStatusResponse>("api/v1/leases/status", leaseToken, cancellationToken);
+
     public async Task<ProTokenResponse> ExchangeAsync(
         ProLoginAttempt attempt,
         string callbackUri,

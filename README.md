@@ -73,7 +73,7 @@ Các phím tắt hoạt động kể cả khi game hoặc ứng dụng khác đa
 
 Live Map Free không yêu cầu đăng nhập website. Npcap chỉ thu UDP gắn với process game và không inject DLL hay đọc memory game.
 
-Bản local-key dùng key để tải Pro Agent riêng vào `%LocalAppData%/Undo-Isle/IsleLiveMap/Pro/versions/<version>`, sau đó Agent tự xác thực key qua named pipe trước khi bắt đầu telemetry. Client Free không nhúng binary Pro. Xem [hướng dẫn build và phạm vi kiểm thử](PRO_LOCAL_KEY.md).
+Bản Pro đổi key dùng một lần lấy device lease từ `isle-system.modundo.com`, rồi tải Agent riêng vào `%LocalAppData%/Undo-Isle/IsleLiveMap/Pro/versions/<version>`. Agent tự xác thực lease trước telemetry và kiểm tra thu hồi định kỳ. Client Free không nhúng binary Pro. Xem [hướng dẫn build và phạm vi kiểm thử](PRO_LOCAL_KEY.md).
 
 ## Yêu cầu chạy
 
@@ -122,7 +122,7 @@ Texture nền Gateway được nhúng vào ứng dụng. Các provider chỉ l�
 - Marker nhóm chỉ được vẽ khi hai người đang ở cùng server; status khác server vẫn hiện trong danh sách.
 - Nhóm là phiên tạm thời, tối đa 10 người và phải tạo lại sau khi đóng app.
 - Mất Internet không ảnh hưởng texture, zone hay vùng thức ăn local; đăng nhập, heatmap live và cập nhật quyền Pro cần backend tương ứng hoạt động.
-- Bản local-key cần mã kích hoạt hợp lệ và kết nối tới dịch vụ release để tải Pro Agent lần đầu.
+- Bản Pro cần key một lần hợp lệ để lấy lease theo máy và kết nối dịch vụ release khi tải Pro Agent lần đầu.
 - Texture Gateway local được cập nhật theo từng bản phát hành của ứng dụng khi map game thay đổi.
 - Bản phát hành chưa được ký bằng chứng thư thương mại, vì vậy Windows SmartScreen có thể cảnh báo ở lần chạy đầu.
 

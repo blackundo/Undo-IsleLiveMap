@@ -138,7 +138,7 @@ public sealed class HomeSteamLoginTests
                 "Assets/ProMapPreview.png",
                 StringComparison.Ordinal));
         Assert.Equal(
-            "https://isle.klong.dev/",
+            "https://isle-system.modundo.com/",
             ProPromotionWindow.ProLandingPageUri.AbsoluteUri);
     }
 

@@ -2,7 +2,7 @@ namespace TheIsleOverlay.ProClient;
 
 public sealed record ProClientOptions
 {
-    public static Uri ProductionBaseUri { get; } = new("https://isle.klong.dev/");
+    public static Uri ProductionBaseUri { get; } = new("https://isle-system.modundo.com/");
 
     public Uri BaseUri { get; init; } = ProductionBaseUri;
 
