@@ -137,19 +137,10 @@ public sealed class NpcapLocalMovementSourceTests
     [InlineData("0", false)]
     [InlineData("false", false)]
     [InlineData(null, false)]
-    public void LocalVitalsFlagParser_RecognizesTruthyValues(
+    public void LocalVitalsCanary_RequiresExplicitOptIn(
         string? value,
         bool expected)
     {
         Assert.Equal(expected, LocalVitalsFeature.IsEnabled(value));
-    }
-
-    [Fact]
-    public void ProductionVitals_DefaultToDirectGameStatusWithEmergencyOptOut()
-    {
-        Assert.True(LocalVitalsFeature.IsProductionEnabled(null));
-        Assert.True(LocalVitalsFeature.IsProductionEnabled("0"));
-        Assert.False(LocalVitalsFeature.IsProductionEnabled("1"));
-        Assert.False(LocalVitalsFeature.IsProductionEnabled("true"));
     }
 }

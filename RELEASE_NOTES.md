@@ -15,6 +15,14 @@
 - Key đã lưu có thể thử kết nối lại Pro Agent mà không gửi hoặc sử dụng key lần hai.
 - Làm mới giao diện nhập key với trạng thái tiến trình, cảnh báo và xác nhận kích hoạt rõ ràng.
 
+# Isle Live Map 2.1.1
+
+## Hotfix khôi phục stats ổn định
+
+- Khôi phục toàn bộ pipeline stats và lựa chọn nguồn server đã ổn định ở bản 2.0.3.
+- Tạm rút decoder stats trực tiếp thử nghiệm của 2.1.0 do có thể thiếu Health/Max, Stamina/Max, sai loài hoặc sai Growth trên một số loài và server.
+- Giữ nguyên bản sửa Npcap của 2.0.3: sau khi cài driver, app có thể kiểm tra và sử dụng lại ngay trong phiên hiện tại.
+- Player/AI Tracking, Live Map Pro và các tính năng trước 2.1.0 tiếp tục hoạt động như bản 2.0.3.
 # Isle Live Map 2.1.0
 
 ## Chỉ số realtime trên mọi server

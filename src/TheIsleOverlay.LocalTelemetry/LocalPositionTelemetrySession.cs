@@ -14,7 +14,6 @@ public sealed class LocalPositionTelemetrySession :
     private readonly IRemotePlayerTelemetrySource? _remotePlayerSource;
     private readonly string _sourceName;
     private readonly bool _enableLocalVitals;
-    private readonly bool _inboundVitalsOnly;
     private readonly CancellationTokenSource _disposeCancellation = new();
     private int _watchStarted;
     private int _disposed;
@@ -26,19 +25,15 @@ public sealed class LocalPositionTelemetrySession :
         ILocalMovementSource? localSource = null,
         string sourceName = "LOCAL",
         IRemotePlayerTelemetrySource? remotePlayerSource = null,
-        bool? enableLocalVitals = null,
-        bool? inboundVitalsOnly = null)
+        bool? enableLocalVitals = null)
     {
         _remoteSession = remoteSession;
         _localSource = localSource ?? new NpcapLocalMovementSource(trackIrisSequenceDiagnostics: false);
         _sourceName = sourceName;
         _remotePlayerSource = remotePlayerSource;
         _enableLocalVitals = enableLocalVitals
-                              ?? ((_localSource as ILocalVitalsFeatureSource)
-                                      ?.LocalVitalsEnabled == true
-                                  || LocalVitalsFeature.IsEnabled()
-                                  || LocalVitalsFeature.IsInboundOnly());
-        _inboundVitalsOnly = inboundVitalsOnly ?? LocalVitalsFeature.IsInboundOnly();
+                              ?? (_localSource as ILocalVitalsFeatureSource)?.LocalVitalsEnabled
+                              ?? LocalVitalsFeature.IsEnabled();
     }
 
     public async IAsyncEnumerable<TelemetrySnapshot> WatchAsync(
@@ -161,8 +156,7 @@ public sealed class LocalPositionTelemetrySession :
                     remotePlayers,
                     verifiedLocalSpeciesId,
                     usableRemotePlayerFrame,
-                    allowLocalVitals: _enableLocalVitals,
-                    inboundVitalsOnly: _inboundVitalsOnly);
+                    allowLocalVitals: _enableLocalVitals);
                 if (remote is null
                     && local is null
                     && !string.IsNullOrWhiteSpace(localError))

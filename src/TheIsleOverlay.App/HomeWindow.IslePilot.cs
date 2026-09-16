@@ -35,6 +35,7 @@ public partial class HomeWindow
     {
         if (!EnsureMapLaunchAvailable()
             || _islePilotConnecting
+            || _gachaConnecting
             || _connecting
             || !_proAccessInitialized
             || _proAccessLoading)
@@ -51,6 +52,19 @@ public partial class HomeWindow
         RefreshMapLaunchControls();
         try
         {
+            // One obvious map action for users: prefer a first-party server
+            // feed only after it proves this account has an active dinosaur;
+            // otherwise continue with the default IslePilot session flow.
+            if (await TryOpenActiveOriginFromUnifiedMapAsync())
+            {
+                return;
+            }
+
+            if (await TryOpenActiveGachaFromUnifiedMapAsync())
+            {
+                return;
+            }
+
             var credentials = _islePilotCredentials
                 ?? await _islePilotCredentialStore.LoadAsync(_shutdown.Token);
             if (credentials is not null)
@@ -216,10 +230,10 @@ public partial class HomeWindow
 
         SteamAccountLabel.Text = authenticated
             ? $"STEAM · ••••{credentials!.SteamId[^4..]}"
-            : "STEAM / CHỈ SỐ TRỰC TIẾP";
+            : "CHƯA ĐĂNG NHẬP STEAM";
         SteamLoginDetailLabel.Text = authenticated
-            ? "GPS trực tiếp · Chỉ số dino realtime trên mọi server"
-            : "Đăng nhập Steam để mở Live Map và đọc chỉ số trực tiếp từ game";
+            ? "GPS trực tiếp · Dino stats qua phiên IslePilot đã mã hóa"
+            : "Đăng nhập Steam để đồng bộ dino stats từ IslePilot";
         LogoutSteamButton.Visibility = authenticated ? Visibility.Visible : Visibility.Collapsed;
         RefreshMapLaunchControls();
     }

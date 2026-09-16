@@ -43,6 +43,8 @@ public partial class HomeWindow : Window
         // soon as possible, preserving one-shot Iris creation packets that
         // would otherwise be gone by the time the user opens the map.
         var proAccessTask = EnsureProAccessInitializedAsync();
+        var gachaCredentialTask = InitializeGachaCredentialsAsync();
+
         if (string.Equals(
                 Environment.GetEnvironmentVariable("ISLELIVEMAP_DEV_AUTO_CONNECT"),
                 "1",
@@ -95,6 +97,7 @@ public partial class HomeWindow : Window
         }
 
         await proAccessTask;
+        await gachaCredentialTask;
         var highlightsStore = new ReleaseHighlightsPreferenceStore();
         if (highlightsStore.ShouldShow(ReleaseHighlightsWindow.ReleaseVersion))
         {
@@ -378,9 +381,15 @@ public partial class HomeWindow : Window
                       && !_connecting;
         SteamLoginButton.IsEnabled = enabled
                                      && !_islePilotConnecting
+                                     && !_originConnecting
                                      && _proAccessInitialized
                                      && !_proAccessLoading;
+        ApplyGachaLoginState();
         LogoutSteamButton.IsEnabled = !_islePilotConnecting && _islePilotCredentials is not null;
+        OriginStatsButton.IsEnabled = enabled
+                                      && !_originConnecting
+                                      && !_gachaConnecting
+                                      && !_islePilotConnecting;
         ProAccessButton.IsEnabled = !_proAccessLoading
                                     && !_connecting
                                     && !_islePilotConnecting
