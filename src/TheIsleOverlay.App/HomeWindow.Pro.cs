@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -8,7 +9,7 @@ namespace TheIsleOverlay.App;
 
 public partial class HomeWindow
 {
-    private readonly ProAccessService _proAccessService = new();
+    private readonly ProAccessService _proAccessService = CreateProAccessService();
     private ProAccessSnapshot _proAccess = ProAccessSnapshot.SignedOut;
     private bool _proAccessLoading;
     private bool _proAccessInitialized;
@@ -16,6 +17,25 @@ public partial class HomeWindow
     private PrewarmedRemotePlayerTelemetrySource? _warmProTelemetry;
     private bool _premiumHomeTheme;
     private DispatcherTimer? _proExpiryTimer;
+
+    private static ProAccessService CreateProAccessService()
+    {
+#if DEBUG
+        var localAgentPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "ProAgent",
+            "IsleLiveMap.Pro.Agent.exe");
+        if (File.Exists(localAgentPath))
+        {
+            return new ProAccessService(new ProClientOptions
+            {
+                LocalAgentPath = localAgentPath,
+                EnableLocalDevelopment = true
+            });
+        }
+#endif
+        return new ProAccessService();
+    }
 
     private void InitializeProPresentation()
     {

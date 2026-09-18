@@ -24,6 +24,7 @@ public sealed class ProAgentRemotePlayerSource :
     private readonly string _steamId64;
     private readonly string _offlineLicenseToken;
     private readonly bool _localActivation;
+    private readonly bool _localDevelopment;
     private readonly CancellationTokenSource _disposeCancellation = new();
     private readonly Channel<HostCommand> _featureCommands =
         Channel.CreateUnbounded<HostCommand>(new UnboundedChannelOptions
@@ -47,7 +48,8 @@ public sealed class ProAgentRemotePlayerSource :
         string hostVersion,
         string steamId64,
         string offlineLicenseToken,
-        bool localActivation = false)
+        bool localActivation = false,
+        bool localDevelopment = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(agentExecutablePath);
         ArgumentException.ThrowIfNullOrWhiteSpace(hostVersion);
@@ -58,10 +60,21 @@ public sealed class ProAgentRemotePlayerSource :
         _steamId64 = steamId64;
         _offlineLicenseToken = offlineLicenseToken;
         _localActivation = localActivation;
+        _localDevelopment = localDevelopment;
     }
 
     internal static ProAgentRemotePlayerSource ForDeviceLease(string path, string hostVersion, string activationId, string lease) =>
         new(path, hostVersion, activationId, lease, localActivation: true);
+
+#if DEBUG
+    internal static ProAgentRemotePlayerSource ForLocalDevelopment(string path, string hostVersion) =>
+        new(
+            path,
+            hostVersion,
+            LocalProActivation.DevelopmentIdentity,
+            LocalProActivation.DevelopmentIdentity,
+            localDevelopment: true);
+#endif
 
     public Task<ProFeatureCommandResult> ToggleSkinEditorAsync(
         ProSkinEditorContext context,
@@ -101,12 +114,16 @@ public sealed class ProAgentRemotePlayerSource :
             null,
             cancellationToken);
 
-    private HostHello CreateHello(bool probeOnly = false) => _localActivation
+    private HostHello CreateHello(bool probeOnly = false) => _localDevelopment
         ? new(ProAgentProtocol.IpcApiMajor, _hostVersion, string.Empty,
-            LocalProActivation.Mode, _offlineLicenseToken, probeOnly,
+            LocalProActivation.DevelopmentMode, null, probeOnly,
             SupportsRealtimeControl: true)
-        : new(ProAgentProtocol.IpcApiMajor, _hostVersion, _offlineLicenseToken,
-            SupportsRealtimeControl: true);
+        : _localActivation
+            ? new(ProAgentProtocol.IpcApiMajor, _hostVersion, string.Empty,
+                LocalProActivation.Mode, _offlineLicenseToken, probeOnly,
+                SupportsRealtimeControl: true)
+            : new(ProAgentProtocol.IpcApiMajor, _hostVersion, _offlineLicenseToken,
+                SupportsRealtimeControl: true);
 
     public void AttachRealtimeConnectionControl(IRealtimeConnectionControl control)
     {
@@ -531,9 +548,13 @@ public sealed class ProAgentRemotePlayerSource :
             hello is null ||
             !hello.Accepted ||
             hello.IpcApiMajor != ProAgentProtocol.IpcApiMajor ||
-            (_localActivation
-                ? hello.ActivationMode != LocalProActivation.Mode || !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)
-                : !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)))
+            (_localDevelopment
+                ? hello.ActivationMode != LocalProActivation.DevelopmentMode
+                    || !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)
+                : _localActivation
+                    ? hello.ActivationMode != LocalProActivation.Mode
+                        || !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)
+                    : !string.Equals(hello.SteamId64, _steamId64, StringComparison.Ordinal)))
         {
             throw new ProAgentException(
                 hello?.ErrorCode is { Length: > 0 } code

@@ -11,6 +11,9 @@ public sealed record ProClientOptions
     // from InstallationRoot/current.json and InstallationRoot/versions/<version>.
     public string? LocalAgentPath { get; init; }
 
+    // Honored only by Debug builds. Release builds always require a real lease.
+    public bool EnableLocalDevelopment { get; init; }
+
     public string InstallationRoot { get; init; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Undo-Isle",

@@ -1,4 +1,5 @@
 using System.Net;
+using IsleLiveMap.Activation;
 using TheIsleOverlay.Core;
 
 namespace TheIsleOverlay.ProClient;
@@ -14,6 +15,10 @@ public sealed class ProAccessService : IDisposable
     private readonly DeviceIdentityStore _deviceIdentityStore;
     private readonly KeyLeaseStore _keyLeaseStore;
     private readonly string? _localAgentPath;
+#if DEBUG
+    private readonly bool _localDevelopmentEnabled;
+    private bool _localDevelopmentActive;
+#endif
     private StoredKeyLease? _keyLease;
     private readonly ProReleaseManager _releaseManager;
     private readonly TimeProvider _timeProvider;
@@ -38,6 +43,9 @@ public sealed class ProAccessService : IDisposable
         _localAgentPath = string.IsNullOrWhiteSpace(options.LocalAgentPath)
             ? null
             : Path.GetFullPath(options.LocalAgentPath);
+#if DEBUG
+        _localDevelopmentEnabled = options.EnableLocalDevelopment && _localAgentPath is not null;
+#endif
         _releaseManager = new ProReleaseManager(
             _apiClient,
             options.InstallationRoot,
@@ -67,6 +75,13 @@ public sealed class ProAccessService : IDisposable
         {
             ThrowIfDisposed();
             ValidateHostVersion(hostVersion);
+#if DEBUG
+            if (_localDevelopmentEnabled)
+            {
+                return await InitializeLocalDevelopmentAsync(hostVersion, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+#endif
             var lease = await _keyLeaseStore.LoadAsync(cancellationToken).ConfigureAwait(false);
             if (lease is null)
             {
@@ -247,6 +262,14 @@ public sealed class ProAccessService : IDisposable
     {
         lock (_stateGate)
         {
+#if DEBUG
+            if (_localDevelopmentActive && _localAgentPath is not null)
+            {
+                return ProAgentRemotePlayerSource.ForLocalDevelopment(
+                    _localAgentPath,
+                    _currentHostVersion);
+            }
+#endif
             if (_current.StatusCode == "local_key_active" && _current.AgentReady && _current.IsPro && _keyLease is not null)
             {
                 var agentPath = _installation?.ExecutablePath ?? _localAgentPath;
@@ -273,6 +296,56 @@ public sealed class ProAccessService : IDisposable
     }
 
     private string _currentHostVersion = "0.0.0";
+
+#if DEBUG
+    private async Task<ProAccessSnapshot> InitializeLocalDevelopmentAsync(
+        string hostVersion,
+        CancellationToken cancellationToken)
+    {
+        if (_localAgentPath is null || !File.Exists(_localAgentPath))
+        {
+            return SetState(null, null, ProAccessSnapshot.SignedOut with
+            {
+                StatusCode = "local_dev_agent_unavailable"
+            }, hostVersion);
+        }
+
+        try
+        {
+            await using var source = ProAgentRemotePlayerSource.ForLocalDevelopment(
+                _localAgentPath,
+                hostVersion);
+            var version = await source.ProbeAsync(cancellationToken).ConfigureAwait(false);
+            var snapshot = new ProAccessSnapshot(
+                LocalProActivation.DevelopmentIdentity,
+                new ProEntitlement("pro", "active", null),
+                true,
+                true,
+                version,
+                null,
+                "local_dev_active");
+            lock (_stateGate)
+            {
+                _keyLease = null;
+                _session = null;
+                _installation = null;
+                _localDevelopmentActive = true;
+                _currentHostVersion = hostVersion;
+                _current = snapshot;
+                return snapshot;
+            }
+        }
+        catch (Exception exception) when (exception is ProAgentException or IOException or
+            InvalidDataException or UnauthorizedAccessException or
+            System.ComponentModel.Win32Exception)
+        {
+            return SetState(null, null, ProAccessSnapshot.SignedOut with
+            {
+                StatusCode = "local_dev_agent_rejected"
+            }, hostVersion);
+        }
+    }
+#endif
 
     public void Dispose()
     {
@@ -410,6 +483,9 @@ public sealed class ProAccessService : IDisposable
     {
         lock (_stateGate)
         {
+#if DEBUG
+            _localDevelopmentActive = false;
+#endif
             _keyLease = null;
             _session = session;
             _installation = installation;
