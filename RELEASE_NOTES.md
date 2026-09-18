@@ -1,3 +1,12 @@
+# Isle Live Map 2.1.6
+
+## Teleport IslePilot Pro
+
+- Thêm nút **TELEPORT** trên HUD và phím tắt toàn cục `Alt + T` để mở hoặc đóng Teleport nhanh.
+- Hỗ trợ tạo mã Teleport hoặc nhập mã của bạn bè qua IslePilot Overlay API; tính năng chỉ bật khi đang dùng nguồn IslePilot và quyền Pro còn hiệu lực.
+- Lệnh Teleport được gửi qua Pro Agent, có thông báo rõ khi Agent chưa sẵn sàng, phiên không tương thích hoặc thao tác thất bại.
+- Bổ sung Teleport vào hướng dẫn phím tắt, màn hình giới thiệu Pro và thông tin kích hoạt trên Home.
+
 # Isle Live Map 2.1.5
 
 ## Sửa timeout kết nối máy chủ cấp phép
@@ -23,6 +32,7 @@
 - Tạm rút decoder stats trực tiếp thử nghiệm của 2.1.0 do có thể thiếu Health/Max, Stamina/Max, sai loài hoặc sai Growth trên một số loài và server.
 - Giữ nguyên bản sửa Npcap của 2.0.3: sau khi cài driver, app có thể kiểm tra và sử dụng lại ngay trong phiên hiện tại.
 - Player/AI Tracking, Live Map Pro và các tính năng trước 2.1.0 tiếp tục hoạt động như bản 2.0.3.
+
 # Isle Live Map 2.1.0
 
 ## Chỉ số realtime trên mọi server
