@@ -73,6 +73,12 @@ public sealed class PrewarmedRemotePlayerTelemetrySource :
             ? controller.ToggleGarageAsync(context, cancellationToken)
             : Task.FromResult(new ProFeatureCommandResult(false, "Pro Agent không hỗ trợ Garage."));
 
+    public Task<ProFeatureCommandResult> ToggleTeleportAsync(
+        CancellationToken cancellationToken = default) =>
+        _inner is IProFeatureController controller
+            ? controller.ToggleTeleportAsync(cancellationToken)
+            : Task.FromResult(new ProFeatureCommandResult(false, "Pro Agent không hỗ trợ Teleport."));
+
     public void AttachRealtimeConnectionControl(IRealtimeConnectionControl control)
     {
         ArgumentNullException.ThrowIfNull(control);

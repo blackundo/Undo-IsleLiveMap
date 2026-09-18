@@ -31,11 +31,13 @@ public partial class MainWindow : Window
     // (0x714-0x718) so Mutation Guide and the Undo Pro plugins can coexist.
     private const int SkinEditorHotkeyId = 0x719;
     private const int GarageHotkeyId = 0x71A;
+    private const int TeleportHotkeyId = 0x71B;
     private const int WmHotkey = 0x0312;
     private const int WmInput = 0x00FF;
     private const uint ModAlt = 0x0001;
     private const uint KeyS = 0x53;
     private const uint KeyG = 0x47;
+    private const uint KeyT = 0x54;
     private const int GwlExStyle = -20;
     private const int WsExTransparent = 0x00000020;
     private const int WsExNoActivate = 0x08000000;
@@ -97,6 +99,7 @@ public partial class MainWindow : Window
     private bool _hasMovementHeading;
     private bool _skinEditorHotkeyRegistered;
     private bool _garageHotkeyRegistered;
+    private bool _teleportHotkeyRegistered;
     private readonly ShortcutSettingsStore _shortcutSettingsStore = new();
     private OverlayShortcutSettings _shortcutSettings = OverlayShortcutSettings.Defaults;
     private ShortcutRegistrationManager? _shortcutRegistrationManager;
@@ -355,6 +358,7 @@ public partial class MainWindow : Window
         _shortcutSettings = shortcutRegistration.ActiveSettings;
         _skinEditorHotkeyRegistered = RegisterHotKey(handle, SkinEditorHotkeyId, ModAlt, KeyS);
         _garageHotkeyRegistered = RegisterHotKey(handle, GarageHotkeyId, ModAlt, KeyG);
+        _teleportHotkeyRegistered = RegisterHotKey(handle, TeleportHotkeyId, ModAlt, KeyT);
         StartProFeatureExpiryWatch();
         ConfigureWorkspaceBounds();
         RestoreWidgetLayout();
@@ -2071,6 +2075,11 @@ public partial class MainWindow : Window
             ToggleGarage();
             handled = true;
         }
+        else if (message == WmHotkey && wParam.ToInt32() == TeleportHotkeyId)
+        {
+            ToggleTeleport();
+            handled = true;
+        }
         else if (message == WmHotkey && wParam.ToInt32() == ShortcutSettingsManager.MutationGuideHotkeyId)
         {
             ToggleMutationGuide();
@@ -2122,6 +2131,7 @@ public partial class MainWindow : Window
         var handle = new WindowInteropHelper(this).Handle;
         if (_skinEditorHotkeyRegistered) UnregisterHotKey(handle, SkinEditorHotkeyId);
         if (_garageHotkeyRegistered) UnregisterHotKey(handle, GarageHotkeyId);
+        if (_teleportHotkeyRegistered) UnregisterHotKey(handle, TeleportHotkeyId);
 
         _shortcutRegistrationManager?.Dispose();
         _shortcutRegistrationManager = null;
@@ -2253,6 +2263,55 @@ public partial class MainWindow : Window
                 this,
                 result.ErrorMessage ?? "Không mở được Garage trong Pro Agent.",
                 "Lỗi Garage Pro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    private void TeleportButton_Click(object sender, RoutedEventArgs e) => ToggleTeleport();
+
+    private async void ToggleTeleport()
+    {
+        if (!IsIslePilotSource)
+        {
+            MessageBox.Show(
+                this,
+                "Teleport chỉ dùng cho nguồn IslePilot. Hãy mở map bằng phiên IslePilot trước.",
+                "Teleport",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (!HasCurrentProFeatures)
+        {
+            MessageBox.Show(
+                this,
+                "Teleport chỉ có trong phiên bản Undo-IsleLiveMap Pro. Hãy dùng bản Pro để tạo mã và teleport tới bạn bè.",
+                "Cần phiên bản Pro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        if (_remotePlayerSource is not IProFeatureController controller)
+        {
+            MessageBox.Show(
+                this,
+                "Pro Agent chưa sẵn sàng nhận lệnh Teleport. Hãy chờ Agent kết nối lại rồi thử lại.",
+                "Pro Agent chưa sẵn sàng",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        var result = await controller.ToggleTeleportAsync(_shutdown.Token);
+        if (!result.Success)
+        {
+            MessageBox.Show(
+                this,
+                result.ErrorMessage ?? "Không mở được Teleport trong Pro Agent.",
+                "Lỗi Teleport Pro",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }

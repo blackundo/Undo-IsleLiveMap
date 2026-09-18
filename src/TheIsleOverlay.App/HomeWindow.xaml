@@ -513,7 +513,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="ProAccessFootnoteLabel"
-                                        Text="Key Pro miễn phí: player, AI, Live Skin và Garage. Free luôn hoạt động độc lập."
+                                        Text="Key Pro miễn phí: player, AI, Live Skin, Garage và Teleport. Free luôn hoạt động độc lập."
                                        Foreground="{DynamicResource HomeSubtle}" FontSize="10.5" TextWrapping="Wrap"
                                        VerticalAlignment="Center" />
                             <Button x:Name="LogoutProButton" Grid.Column="1"

@@ -23,6 +23,9 @@ public interface IProFeatureController
     Task<ProFeatureCommandResult> ToggleGarageAsync(
         ProGarageContext context,
         CancellationToken cancellationToken = default);
+
+    Task<ProFeatureCommandResult> ToggleTeleportAsync(
+        CancellationToken cancellationToken = default);
 }
 
 public interface IProRealtimeConnectionBridge

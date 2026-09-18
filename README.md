@@ -60,6 +60,7 @@ Nhóm không phải tài khoản cố định: mã, thành viên và telemetry c
 | `Alt + P`                       | Ẩn / hiện toàn bộ HUD                                                            |
 | `Alt + S`                       | Mở / đóng Skin Editor native trên server IslePilot đang bật Live Skin            |
 | `Alt + G`                       | Mở / đóng Garage IslePilot Pro để xem dino đã park và park/restore trực tiếp     |
+| `Alt + T`                       | Mở / đóng Teleport IslePilot Pro để tạo mã hoặc nhập mã của bạn bè              |
 | `Ctrl + Shift + O`              | Mở / khóa Edit Mode để kéo và resize riêng từng block, chọn map Tròn / Vuông     |
 | `Alt + M`                       | Mở / đóng toàn bản đồ để tạo, đổi loại hoặc xóa mốc                              |
 

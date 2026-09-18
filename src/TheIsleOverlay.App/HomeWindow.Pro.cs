@@ -258,7 +258,7 @@ public partial class HomeWindow
         };
         ProAccessActionLabel.Text = "NHẬP KEY  →";
         ProAccessStateBar.Fill = new SolidColorBrush(Color.FromRgb(111, 109, 85));
-        ProAccessFootnoteLabel.Text = "Lấy key Pro miễn phí để mở player, AI, Live Skin và Garage. Free luôn hoạt động độc lập.";
+        ProAccessFootnoteLabel.Text = "Lấy key Pro miễn phí để mở player, AI, Live Skin, Garage và Teleport. Free luôn hoạt động độc lập.";
         SourceStatusLabel.Text = entitlementExpired
             ? "Quyền Pro đã hết hạn. Free vẫn sẵn sàng trên mọi server."
             : "Free đã sẵn sàng cho mọi server. Pro chỉ được ghép thêm sau khi xác minh quyền.";

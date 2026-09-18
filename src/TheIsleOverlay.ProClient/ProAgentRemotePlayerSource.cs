@@ -91,6 +91,16 @@ public sealed class ProAgentRemotePlayerSource :
             cancellationToken);
     }
 
+    public Task<ProFeatureCommandResult> ToggleTeleportAsync(
+        CancellationToken cancellationToken = default) =>
+        SendFeatureCommandAsync(
+            "teleport",
+            null,
+            null,
+            null,
+            null,
+            cancellationToken);
+
     private HostHello CreateHello(bool probeOnly = false) => _localActivation
         ? new(ProAgentProtocol.IpcApiMajor, _hostVersion, string.Empty,
             LocalProActivation.Mode, _offlineLicenseToken, probeOnly,

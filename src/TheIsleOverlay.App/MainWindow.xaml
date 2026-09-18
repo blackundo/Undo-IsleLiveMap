@@ -579,6 +579,10 @@
                     Margin="4,0,0,0" Padding="7,3"
                     Click="ShortcutSettingsButton_Click"
                     ToolTip="Đổi các tổ hợp phím của overlay" />
+            <Button Style="{StaticResource ChromeButton}" Content="TELEPORT"
+                    Margin="4,0,0,0" Padding="7,3"
+                    Click="TeleportButton_Click"
+                    ToolTip="Mở Teleport IslePilot Pro · Alt+T" />
             <Button x:Name="LockButton" Style="{StaticResource ChromeButton}" Content="LOCK"
                     Margin="4,0,0,0" Click="LockButton_Click"
                     ToolTip="Thoát Edit Mode và bật xuyên chuột" />
