@@ -8,6 +8,59 @@
         FontFamily="Segoe UI Variable Text" TextOptions.TextFormattingMode="Display"
         Loaded="Window_Loaded" Closed="Window_Closed" StateChanged="Window_StateChanged">
     <Window.Resources>
+        <Style x:Key="EditCommandButton" TargetType="Button">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="MinWidth" Value="92" />
+            <Setter Property="Foreground" Value="#E9F4EE" />
+            <Setter Property="Background" Value="#E31A3430" />
+            <Setter Property="BorderBrush" Value="#6C5E8C82" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontFamily" Value="Bahnschrift SemiCondensed" />
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="EditCommandChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="EditCommandChrome" Property="BorderBrush" Value="#D7E8F5EF" />
+                                <Setter TargetName="EditCommandChrome" Property="Effect">
+                                    <Setter.Value><DropShadowEffect Color="#6EE2C9" BlurRadius="10" ShadowDepth="0" Opacity="0.34" /></Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="EditCommandChrome" Property="Opacity" Value="0.72" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="EditCommandChrome" Property="BorderBrush" Value="#FFFFFF" />
+                                <Setter TargetName="EditCommandChrome" Property="BorderThickness" Value="2" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="EditCommandChrome" Property="Opacity" Value="0.42" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="EditUtilityButton" TargetType="Button" BasedOn="{StaticResource EditCommandButton}">
+            <Setter Property="MinWidth" Value="42" />
+            <Setter Property="Padding" Value="9,0" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Background" Value="#E50D2220" />
+            <Setter Property="BorderBrush" Value="#5A617A73" />
+        </Style>
         <Style x:Key="WidgetResizeThumb" TargetType="{x:Type primitives:Thumb}">
             <Setter Property="Width" Value="27" />
             <Setter Property="Height" Value="27" />
@@ -78,7 +131,7 @@
                 </Canvas>
 
                 <Border x:Name="MapInfoPanel" HorizontalAlignment="Left" VerticalAlignment="Top"
-                        Margin="7" MaxWidth="290" Background="#C0090717" BorderBrush="#503E4562"
+                        Margin="7" MinWidth="160" MaxWidth="290" Background="#C0071517" BorderBrush="#503E625B"
                         BorderThickness="1" CornerRadius="3" Padding="7,4">
                     <StackPanel>
                         <Grid>
@@ -88,14 +141,11 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="GATEWAY" Foreground="#DCE4E8"
+                                <TextBlock Text="PLAYER / AI" Foreground="#DCE8E0"
                                            FontFamily="Bahnschrift SemiCondensed" FontSize="9.5"
                                            FontWeight="SemiBold" />
                                 <Ellipse Width="4" Height="4" Fill="#3745D4"
                                          Margin="6,0,4,0" VerticalAlignment="Center" />
-                                <TextBlock Text="LIVE" Foreground="#7580B9"
-                                           FontFamily="Bahnschrift SemiCondensed" FontSize="7.5"
-                                           FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
                             <TextBlock x:Name="RemotePlayerCountLabel" Grid.Column="2"
                                        Text="P 0 · AI 0" Visibility="Collapsed"
@@ -103,16 +153,17 @@
                                        FontSize="8" FontWeight="SemiBold" Margin="10,0,0,0"
                                        VerticalAlignment="Center" />
                         </Grid>
-                        <TextBlock x:Name="CoordinateLabel" Text="X —  Y —  Z —"
-                                   Foreground="#828BA4" FontFamily="Bahnschrift" FontSize="8.2"
+                        <TextBlock x:Name="CoordinateLabel" Text="X —  Y —  Z —" Visibility="Collapsed"
+                                   Foreground="#82A49B" FontFamily="Bahnschrift" FontSize="8.2"
                                    Margin="0,1,0,0" />
                         <Grid Margin="0,1,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock x:Name="MapLayerSummaryLabel" Text="MMZ — · PZ — · FOOD —"
-                                       Foreground="#767F96" FontFamily="Bahnschrift SemiCondensed"
+                            <TextBlock x:Name="MapLayerSummaryLabel" Text=""
+                                       Visibility="Collapsed"
+                                       Foreground="#76968D" FontFamily="Bahnschrift SemiCondensed"
                                        FontSize="6.8" VerticalAlignment="Center" />
                             <StackPanel x:Name="RemoteEntityLegend" Grid.Column="1"
                                         Orientation="Horizontal" HorizontalAlignment="Right"
@@ -145,18 +196,10 @@
                 <TextBlock x:Name="MapStateLabel" Text="ĐANG TẢI BẢN ĐỒ" Foreground="#A5ADBD" Background="#C00A0918" Padding="10,6" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Bahnschrift SemiCondensed" FontSize="10" />
                 </Grid>
 
-                <StackPanel x:Name="MapLayerControls" Orientation="Horizontal"
-                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,8,74,8">
-                    <ToggleButton x:Name="ZoneLayerToggle" Style="{StaticResource MapLayerToggle}"
-                                  Content="ZONE" IsChecked="True" Click="MapLayerToggle_Click"
-                                  ToolTip="Ẩn/hiện Migration và Patrol Zones" />
-                    <ToggleButton x:Name="FoodLayerToggle" Style="{StaticResource MapLayerToggle}"
-                                  Content="FOOD" IsChecked="True" Margin="3,0,0,0"
-                                  Click="MapLayerToggle_Click" ToolTip="Ẩn/hiện các vùng nguồn thức ăn" />
-                    <ToggleButton x:Name="HeatLayerToggle" Style="{StaticResource MapLayerToggle}"
-                                  Content="HEAT" IsChecked="True" IsEnabled="False" Margin="3,0,0,0"
-                                  Click="MapLayerToggle_Click" />
-                </StackPanel>
+                <!-- Layer switches live in the Edit Mode inspector. Keeping this
+                     small surface free of toggles prevents accidental clicks on
+                     the map and keeps Free/Pro rendering identical. -->
+                <StackPanel x:Name="MapLayerControls" Visibility="Collapsed" />
 
                 <StackPanel x:Name="MapZoomControls" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,8,40,8">
                     <Button Style="{StaticResource ChromeButton}" Content="+" Width="27" Height="25" Padding="0" Click="ZoomInButton_Click" />
@@ -564,35 +607,152 @@
         </Canvas>
 
         <!-- Kept outside MapPanel so hiding Map never removes the recovery controls. -->
-        <StackPanel x:Name="EditToolbar" Panel.ZIndex="90"
-                    Orientation="Horizontal" HorizontalAlignment="Right"
-                    VerticalAlignment="Top" Margin="0,12,12,0" Visibility="Collapsed">
-            <Border Background="#E7101024" BorderBrush="#5D7B7267"
-                    BorderThickness="1" CornerRadius="2" Padding="8,4">
-                <TextBlock Text="EDIT MODE" Foreground="#8FA2E3"
-                           FontFamily="Bahnschrift SemiCondensed" FontSize="9" FontWeight="SemiBold" />
-            </Border>
-            <Button Style="{StaticResource ChromeButton}" Content="HOME"
-                    Margin="4,0,0,0" Padding="7,3"
-                    Click="HomeButton_Click" ToolTip="Đổi nguồn telemetry" />
-            <Button Style="{StaticResource ChromeButton}" Content="PHÍM"
-                    Margin="4,0,0,0" Padding="7,3"
-                    Click="ShortcutSettingsButton_Click"
-                    ToolTip="Đổi các tổ hợp phím của overlay" />
-            <Button Style="{StaticResource ChromeButton}" Content="TELEPORT"
-                    Margin="4,0,0,0" Padding="7,3"
-                    Click="TeleportButton_Click"
-                    ToolTip="Mở Teleport IslePilot Pro · Alt+T" />
-            <Button x:Name="LockButton" Style="{StaticResource ChromeButton}" Content="LOCK"
-                    Margin="4,0,0,0" Click="LockButton_Click"
-                    ToolTip="Thoát Edit Mode và bật xuyên chuột" />
-            <Button Style="{StaticResource ChromeButton}" Content="—"
-                    Margin="4,0,0,0" Width="25" Padding="0"
-                    Click="MinimizeButton_Click" />
-            <Button Style="{StaticResource ChromeButton}" Content="×"
-                    Margin="4,0,0,0" Width="25" Padding="0"
-                    Click="CloseButton_Click" />
-        </StackPanel>
+        <Border x:Name="EditToolbar" Panel.ZIndex="90"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,12,12,0" Padding="6"
+                Background="#F00A1816" BorderBrush="#78627770"
+                BorderThickness="1" CornerRadius="6" Visibility="Collapsed">
+            <StackPanel Orientation="Horizontal">
+                <Border Background="#E7132D29" BorderBrush="#607E756E"
+                        BorderThickness="1" CornerRadius="4" Padding="10,0"
+                        Height="42" VerticalAlignment="Center">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="EDIT MODE" Foreground="#A8EEE0"
+                                   FontFamily="Bahnschrift SemiCondensed" FontSize="11"
+                                   FontWeight="Bold" HorizontalAlignment="Center" />
+                        <TextBlock Text="ACTIVE" Foreground="#5EA99B"
+                                   FontFamily="Bahnschrift" FontSize="7.5"
+                                   HorizontalAlignment="Center" Margin="0,1,0,0" />
+                    </StackPanel>
+                </Border>
+                <Button x:Name="EditHomeButton" Style="{StaticResource EditCommandButton}"
+                        MinWidth="94" Margin="6,0,0,0"
+                        Background="#E31B3442" BorderBrush="#7281A6B7"
+                        Foreground="#E8F7FF" Click="HomeButton_Click"
+                        ToolTip="Về Home và đổi nguồn telemetry"
+                        AutomationProperties.Name="Mở Home">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE80F;" FontFamily="Segoe Fluent Icons"
+                                   FontSize="17" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Text="HOME" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="EditShortcutsButton" Style="{StaticResource EditCommandButton}"
+                        MinWidth="92" Margin="5,0,0,0"
+                        Background="#E3163A38" BorderBrush="#6B5EAAA1"
+                        Foreground="#E4FFF8" Click="ShortcutSettingsButton_Click"
+                        ToolTip="Cài đặt phím tắt và xử lý phím bị trùng"
+                        AutomationProperties.Name="Mở cài đặt phím tắt">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE765;" FontFamily="Segoe Fluent Icons"
+                                   FontSize="17" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Text="PHÍM" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="EditTeleportButton" Style="{StaticResource EditCommandButton}"
+                        MinWidth="112" Margin="5,0,0,0"
+                        Background="#E3291738" BorderBrush="#8A774D9B"
+                        Foreground="#F4DEFF" Click="TeleportButton_Click"
+                        ToolTip="Mở Teleport IslePilot Pro · Alt+T"
+                        AutomationProperties.Name="Mở Teleport IslePilot Pro">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8A7;" FontFamily="Segoe Fluent Icons"
+                                   FontSize="17" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Text="TELEPORT" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>                <Button x:Name="OpenMapNotesFallbackButton" Style="{StaticResource EditCommandButton}"
+                        MinWidth="92" Margin="5,0,0,0"
+                        Background="#E33B3013" BorderBrush="#A18D7132"
+                        Foreground="#FFF0A8" Click="OpenMapNotesFallbackButton_Click"
+                        ToolTip="Mở bản đồ mốc Pro khi Alt+M bị ứng dụng khác chiếm"
+                        AutomationProperties.Name="Mở bản đồ mốc">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE707;" FontFamily="Segoe Fluent Icons"
+                                   FontSize="17" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Text="MỐC" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="MapLayersButton" Style="{StaticResource EditCommandButton}"
+                        MinWidth="142" Margin="5,0,0,0"
+                        Background="#E31A3827" BorderBrush="#6D4F9268"
+                        Foreground="#DDF8E5" Click="MapLayersButton_Click"
+                        ToolTip="Bật/tắt zone, đường, nước và tài nguyên offline"
+                        AutomationProperties.Name="Mở lớp bản đồ">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE81E;" FontFamily="Segoe Fluent Icons"
+                                   FontSize="17" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Text="LỚP BẢN ĐỒ" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Border Width="1" Height="30" Background="#526E665F" Margin="7,6,2,6" />
+                <Button x:Name="LockButton" Style="{StaticResource EditUtilityButton}"
+                        MinWidth="78" Margin="5,0,0,0" Click="LockButton_Click"
+                        ToolTip="Thoát Edit Mode và bật xuyên chuột"
+                        AutomationProperties.Name="Khóa overlay">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE72E;" FontFamily="Segoe Fluent Icons"
+                                   FontSize="15" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBlock x:Name="LockButtonLabel" Text="KHÓA"
+                                   FontSize="10.5" FontWeight="Bold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource EditUtilityButton}" Margin="5,0,0,0"
+                        Width="42" Padding="0" Click="MinimizeButton_Click"
+                        ToolTip="Thu nhỏ" AutomationProperties.Name="Thu nhỏ overlay">
+                    <TextBlock Text="&#xE921;" FontFamily="Segoe Fluent Icons" FontSize="15" />
+                </Button>
+                <Button Style="{StaticResource EditUtilityButton}" Margin="5,0,0,0"
+                        Width="42" Padding="0" Background="#E3381C1C" BorderBrush="#7E9B4E4E"
+                        Foreground="#FFD7D7" Click="CloseButton_Click"
+                        ToolTip="Đóng" AutomationProperties.Name="Đóng overlay">
+                    <TextBlock Text="&#xE8BB;" FontFamily="Segoe Fluent Icons" FontSize="15" />
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="MapLayerInspector" Panel.ZIndex="95" Visibility="Collapsed"
+                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,70,12,0"
+                Width="235" MaxHeight="620" Background="#F20B1B1A"
+                BorderBrush="#6E7F766E" BorderThickness="1" CornerRadius="4" Padding="10,8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <Grid Margin="0,0,0,6">
+                        <TextBlock Text="LỚP BẢN ĐỒ OFFLINE" Foreground="#F3DE8D"
+                                   FontFamily="Bahnschrift SemiCondensed" FontSize="11" FontWeight="SemiBold" />
+                        <Button HorizontalAlignment="Right" Content="×" Width="22" Height="20"
+                                Style="{StaticResource ChromeButton}" Click="CloseMapLayerInspectorButton_Click" />
+                    </Grid>
+                    <TextBlock Text="Nguồn snapshot: myislemap.com · không cần mạng khi chạy"
+                               Foreground="#789A92" FontFamily="Bahnschrift" FontSize="7.5"
+                               TextWrapping="Wrap" Margin="0,0,0,7" />
+                    <TextBlock Text="ZONES &amp; NAVIGATION" Foreground="#8FE3D0"
+                               FontFamily="Bahnschrift SemiCondensed" FontSize="8" Margin="0,2,0,3" />
+                    <ToggleButton x:Name="MigrationLayerToggle" Tag="Migration" Content="Migration Zone"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <ToggleButton x:Name="PatrolLayerToggle" Tag="Patrol" Content="Patrol Zone"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <ToggleButton x:Name="SanctuaryLayerToggle" Tag="Sanctuary" Content="Sanctuary"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <ToggleButton x:Name="AiSpawnLayerToggle" Tag="AiSpawnZones" Content="AI Spawn Zones"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <ToggleButton x:Name="RoadLayerToggle" Tag="Roads" Content="Roads &amp; Trails"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <ToggleButton x:Name="WaterLayerToggle" Tag="Water" Content="Drinkable Water"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <TextBlock Text="FOOD &amp; RESOURCES" Foreground="#8FE3D0"
+                               FontFamily="Bahnschrift SemiCondensed" FontSize="8" Margin="0,9,0,3" />
+                    <ToggleButton x:Name="AnimalsLayerToggle" Tag="Animals" Content="Animals"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <ToggleButton x:Name="PlantsLayerToggle" Tag="Plants" Content="Plants &amp; Fungi"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <ToggleButton x:Name="EarthLayerToggle" Tag="Earth" Content="Earth: Gastrolith · Salt · Mud"
+                                  Style="{StaticResource MapLayerToggle}" Click="MapLayerToggle_Click" />
+                    <TextBlock Text="LỌC TỪNG LOẠI" Foreground="#789A92"
+                               FontFamily="Bahnschrift SemiCondensed" FontSize="7.5" Margin="0,8,0,2" />
+                    <StackPanel x:Name="ResourceLayerChildrenPanel" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
 
         <Border x:Name="MissionToast" Panel.ZIndex="100" Visibility="Collapsed" Opacity="0"
                 HorizontalAlignment="Center" VerticalAlignment="Top" Margin="12,18,12,0"

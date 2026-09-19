@@ -9,7 +9,13 @@ public sealed class IslePilotVoiceCredentialStore
     private const int MaximumCredentialBytes = 1024 * 1024;
     private static readonly byte[] FileHeader = "ILV1"u8.ToArray();
     private static readonly byte[] OptionalEntropy = Encoding.UTF8.GetBytes(
-        "KLongDev.IsleLiveMap.IslePilotVoice.v1");
+        "Undo-Isle.IsleLiveMap.IslePilotVoice.v1");
+    private static readonly byte[] LegacyOptionalEntropy =
+    [
+        75, 76, 111, 110, 103, 68, 101, 118, 46, 73, 115, 108, 101, 76, 105, 118, 101,
+        77, 97, 112, 46, 73, 115, 108, 101, 80, 105, 108, 111, 116, 86, 111, 105, 99,
+        101, 46, 118, 49
+    ];
 
     private readonly string _credentialPath;
 
@@ -109,9 +115,7 @@ public sealed class IslePilotVoiceCredentialStore
                 return null;
             }
 
-            cleartext = WindowsDataProtection.Unprotect(
-                fileData.AsSpan(FileHeader.Length),
-                OptionalEntropy);
+            cleartext = UnprotectCredential(fileData.AsSpan(FileHeader.Length));
             var stored = JsonSerializer.Deserialize<StoredCredential>(cleartext);
             return stored is not null
                    && IslePilotVoiceAuthService.IsValidCredentials(
@@ -139,6 +143,18 @@ public sealed class IslePilotVoiceCredentialStore
         if (File.Exists(_credentialPath))
         {
             File.Delete(_credentialPath);
+        }
+    }
+
+    private static byte[] UnprotectCredential(ReadOnlySpan<byte> protectedData)
+    {
+        try
+        {
+            return WindowsDataProtection.Unprotect(protectedData, OptionalEntropy);
+        }
+        catch (CryptographicException)
+        {
+            return WindowsDataProtection.Unprotect(protectedData, LegacyOptionalEntropy);
         }
     }
 

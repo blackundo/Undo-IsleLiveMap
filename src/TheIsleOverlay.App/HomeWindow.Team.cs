@@ -25,6 +25,7 @@ public partial class HomeWindow
 
         _teamPanelInitialized = true;
         ApplyTeamRelaySelection();
+        App.CurrentTeam.ForceRepublish();
         App.CurrentTeam.StateChanged += TeamCoordinator_StateChanged;
         _pendingHomeTeamState = App.CurrentTeam.CurrentState;
         ApplyTeamState(_pendingHomeTeamState);

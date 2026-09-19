@@ -17,7 +17,12 @@ public sealed class GachaOverlayCredentialStore
     private const int MaximumCredentialBytes = 1024 * 1024;
     private static readonly byte[] FileHeader = "ILG1"u8.ToArray();
     private static readonly byte[] OptionalEntropy = Encoding.UTF8.GetBytes(
-        "KLongDev.IsleLiveMap.GachaOverlay.v1");
+        "Undo-Isle.IsleLiveMap.GachaOverlay.v1");
+    private static readonly byte[] LegacyOptionalEntropy =
+    [
+        75, 76, 111, 110, 103, 68, 101, 118, 46, 73, 115, 108, 101, 76, 105, 118, 101,
+        77, 97, 112, 46, 71, 97, 99, 104, 97, 79, 118, 101, 114, 108, 97, 121, 46, 118, 49
+    ];
 
     private readonly string _credentialPath;
 
@@ -125,9 +130,7 @@ public sealed class GachaOverlayCredentialStore
                 return null;
             }
 
-            cleartext = WindowsGachaDataProtection.Unprotect(
-                fileData.AsSpan(FileHeader.Length),
-                OptionalEntropy);
+            cleartext = UnprotectCredential(fileData.AsSpan(FileHeader.Length));
             var stored = JsonSerializer.Deserialize<StoredCredential>(cleartext);
             if (stored is null
                 || !GachaOverlayAuthService.IsSteamId(stored.SteamId)
@@ -180,6 +183,18 @@ public sealed class GachaOverlayCredentialStore
         }
         catch (DirectoryNotFoundException)
         {
+        }
+    }
+
+    private static byte[] UnprotectCredential(ReadOnlySpan<byte> protectedData)
+    {
+        try
+        {
+            return WindowsGachaDataProtection.Unprotect(protectedData, OptionalEntropy);
+        }
+        catch (CryptographicException)
+        {
+            return WindowsGachaDataProtection.Unprotect(protectedData, LegacyOptionalEntropy);
         }
     }
 

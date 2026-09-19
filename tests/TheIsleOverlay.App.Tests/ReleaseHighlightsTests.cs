@@ -50,7 +50,7 @@ public sealed class ReleaseHighlightsTests
     }
 
     [Fact]
-    public void Modal_IsASevenStep211BriefingWithProToolsAndFinalOptOut()
+    public void Modal_AppendsFiveNewBriefingsAfterTheSevenUndoPages()
     {
         var document = XDocument.Load(Path.Combine(
             AppContext.BaseDirectory,
@@ -73,8 +73,8 @@ public sealed class ReleaseHighlightsTests
                 (string?)element.Attribute("Content")
             }));
 
-        Assert.Equal("2.1.1", ReleaseHighlightsWindow.ReleaseVersion);
-        Assert.Equal(7, ReleaseHighlightsWindow.PageCount);
+        Assert.Equal("2.2.2", ReleaseHighlightsWindow.ReleaseVersion);
+        Assert.Equal(12, ReleaseHighlightsWindow.PageCount);
         Assert.Contains("THÊM NGUỒN SERVER ORIGIN VÀ GACHA", allCopy, StringComparison.Ordinal);
         Assert.Contains("Chọn nguồn phía dưới nút Mở Map", allCopy, StringComparison.Ordinal);
         Assert.Contains("DINO STATS ĐÚNG NGUỒN HƠN", allCopy, StringComparison.Ordinal);
@@ -93,12 +93,31 @@ public sealed class ReleaseHighlightsTests
         Assert.Contains("ALT + G", allCopy, StringComparison.Ordinal);
         Assert.Contains("gói Pro", allCopy, StringComparison.Ordinal);
         Assert.Contains("FREE / PRO RÕ RÀNG", allCopy, StringComparison.Ordinal);
-        Assert.Contains("Không hiển thị lại thông báo này cho phiên bản 2.1.1", allCopy, StringComparison.Ordinal);
+        Assert.Contains("BẬT ĐÚNG THỨ BẠN CẦN TRÊN MAP", allCopy, StringComparison.Ordinal);
+        Assert.Contains("430 Animal", allCopy, StringComparison.Ordinal);
+        Assert.Contains("245 Plant/Fungi", allCopy, StringComparison.Ordinal);
+        Assert.Contains("278 Earth", allCopy, StringComparison.Ordinal);
+        Assert.Contains("MỐC ỔN ĐỊNH, XÓA ĐƯỢC NGAY", allCopy, StringComparison.Ordinal);
+        Assert.Contains("ĐỒNG ĐỘI KHÔNG CÒN BIẾN MẤT", allCopy, StringComparison.Ordinal);
+        Assert.Contains("10 GIÂY", allCopy, StringComparison.Ordinal);
+        Assert.Contains("15 GIÂY", allCopy, StringComparison.Ordinal);
+        Assert.Contains("35 GIÂY", allCopy, StringComparison.Ordinal);
+        Assert.Contains("MINIMAP NHẸ MẮT", allCopy, StringComparison.Ordinal);
+        Assert.Contains("Không hiển thị lại thông báo này cho phiên bản 2.2.2", allCopy, StringComparison.Ordinal);
         Assert.Equal(
             "HOÀN TẤT",
             (string?)Control("FinishButton").Attribute("Content"));
-        var pages = new[] { "PageIntro", "PageOne", "PageTwo", "PageThree", "PageFour", "PageFive", "PageSix" };
-        var markers = new[] { "StepIntroMarker", "StepOneMarker", "StepTwoMarker", "StepThreeMarker", "StepFourMarker", "StepFiveMarker", "StepSixMarker" };
+        var pages = new[]
+        {
+            "PageIntro", "PageOne", "PageTwo", "PageThree", "PageFour", "PageFive", "PageSix",
+            "PageLayers", "PageNotes", "PageTeam", "PageHud", "PageSummary"
+        };
+        var markers = new[]
+        {
+            "StepIntroMarker", "StepOneMarker", "StepTwoMarker", "StepThreeMarker", "StepFourMarker",
+            "StepFiveMarker", "StepSixMarker", "StepLayersMarker", "StepNotesMarker", "StepTeamMarker",
+            "StepHudMarker", "StepSummaryMarker"
+        };
         for (var step = 0; step < ReleaseHighlightsWindow.PageCount; step++)
         {
             Assert.NotNull(Control(pages[step]));
@@ -110,8 +129,18 @@ public sealed class ReleaseHighlightsTests
             optOut.Ancestors(),
             ancestor => string.Equals(
                 (string?)ancestor.Attribute(nameAttribute),
-                "PageSix",
+                "PageSummary",
                 StringComparison.Ordinal));
+        var sources = document.Descendants()
+            .Where(element => element.Name.LocalName == "Image")
+            .Select(element => (string?)element.Attribute("Source"))
+            .Where(source => source?.StartsWith("Assets/ReleaseHighlights/", StringComparison.Ordinal) == true)
+            .ToArray();
+        Assert.Equal(4, sources.Length);
+        Assert.Contains("Assets/ReleaseHighlights/MapLayerInspector.png", sources);
+        Assert.Contains("Assets/ReleaseHighlights/MapNotesAltM.png", sources);
+        Assert.Contains("Assets/ReleaseHighlights/SurvivalTeamPanel.png", sources);
+        Assert.Contains("Assets/ReleaseHighlights/CompactTrackingMap.png", sources);
         Assert.Equal("https://modundo.com/islevip", ReleaseHighlightsWindow.ProLandingPageUri.AbsoluteUri);
 
     }

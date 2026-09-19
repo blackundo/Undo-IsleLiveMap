@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using TheIsleOverlay.IslePilot;
 
 namespace TheIsleOverlay.Tests;
@@ -36,6 +38,39 @@ public sealed class IslePilotVoiceCredentialStoreTests : IDisposable
         await File.WriteAllBytesAsync(path, "ILM1not-a-voice-credential"u8.ToArray());
 
         Assert.Null(await new IslePilotVoiceCredentialStore(path).LoadAsync());
+    }
+
+    [Fact]
+    public async Task Load_AcceptsLegacyEntropy()
+    {
+        var path = Path.Combine(_directory, "voice.credential");
+        Directory.CreateDirectory(_directory);
+        var expected = new IslePilotVoiceAuthResult(
+            "76561198000000000",
+            "voice-token-must-remain-private");
+        byte[] legacyEntropy =
+        [
+            75, 76, 111, 110, 103, 68, 101, 118, 46, 73, 115, 108, 101, 76, 105, 118, 101,
+            77, 97, 112, 46, 73, 115, 108, 101, 80, 105, 108, 111, 116, 86, 111, 105, 99,
+            101, 46, 118, 49
+        ];
+        var cleartext = JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            expected.SteamId64,
+            expected.AccessToken
+        });
+        var protectedData = WindowsDataProtection.Protect(cleartext, legacyEntropy);
+        try
+        {
+            await File.WriteAllBytesAsync(path, [.. "ILV1"u8, .. protectedData]);
+
+            Assert.Equal(expected, await new IslePilotVoiceCredentialStore(path).LoadAsync());
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(cleartext);
+            CryptographicOperations.ZeroMemory(protectedData);
+        }
     }
 
     public void Dispose()

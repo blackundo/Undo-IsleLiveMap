@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using TheIsleOverlay.IslePilot;
 
 namespace TheIsleOverlay.Tests;
@@ -68,6 +70,41 @@ public sealed class IslePilotCredentialStoreTests : IDisposable
         var store = new IslePilotCredentialStore(path);
 
         Assert.Null(await store.LoadAsync());
+    }
+
+    [Fact]
+    public async Task Load_AcceptsLegacyEntropy()
+    {
+        var path = Path.Combine(_directory, "islepilot.credential");
+        Directory.CreateDirectory(_directory);
+        var expected = new IslePilotOverlayAuthResult(
+            "76561198000000000",
+            "header.payload.signature",
+            "signed-player-cookie");
+        byte[] legacyEntropy =
+        [
+            75, 76, 111, 110, 103, 68, 101, 118, 46, 73, 115, 108, 101, 76, 105, 118, 101,
+            77, 97, 112, 46, 73, 115, 108, 101, 80, 105, 108, 111, 116, 79, 118, 101, 114,
+            108, 97, 121, 46, 118, 49
+        ];
+        var cleartext = JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            SteamId = expected.SteamId,
+            OverlayToken = expected.OverlayToken,
+            PlayerCookie = expected.PlayerCookie
+        });
+        var protectedData = WindowsDataProtection.Protect(cleartext, legacyEntropy);
+        try
+        {
+            await File.WriteAllBytesAsync(path, [.. "ILM1"u8, .. protectedData]);
+
+            Assert.Equal(expected, await new IslePilotCredentialStore(path).LoadAsync());
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(cleartext);
+            CryptographicOperations.ZeroMemory(protectedData);
+        }
     }
 
     public void Dispose()

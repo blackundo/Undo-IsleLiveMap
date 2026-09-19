@@ -26,7 +26,12 @@ public sealed class ProCredentialStore
 
     private static readonly byte[] FileHeader = "ILMP1"u8.ToArray();
     private static readonly byte[] OptionalEntropy = Encoding.UTF8.GetBytes(
-        "KLongDev.IsleLiveMap.ProAccess.v1");
+        "Undo-Isle.IsleLiveMap.ProAccess.v1");
+    private static readonly byte[] LegacyOptionalEntropy =
+    [
+        75, 76, 111, 110, 103, 68, 101, 118, 46, 73, 115, 108, 101, 76, 105, 118, 101,
+        77, 97, 112, 46, 80, 114, 111, 65, 99, 99, 101, 115, 115, 46, 118, 49
+    ];
 
     private readonly string _credentialPath;
 
@@ -121,9 +126,7 @@ public sealed class ProCredentialStore
                 return null;
             }
 
-            cleartext = WindowsDataProtection.Unprotect(
-                fileData.AsSpan(FileHeader.Length),
-                OptionalEntropy);
+            cleartext = UnprotectCredential(fileData.AsSpan(FileHeader.Length));
             var session = JsonSerializer.Deserialize<StoredProSession>(
                 cleartext,
                 new JsonSerializerOptions(JsonSerializerDefaults.Web));
@@ -148,6 +151,18 @@ public sealed class ProCredentialStore
         if (File.Exists(_credentialPath))
         {
             File.Delete(_credentialPath);
+        }
+    }
+
+    private static byte[] UnprotectCredential(ReadOnlySpan<byte> protectedData)
+    {
+        try
+        {
+            return WindowsDataProtection.Unprotect(protectedData, OptionalEntropy);
+        }
+        catch (CryptographicException)
+        {
+            return WindowsDataProtection.Unprotect(protectedData, LegacyOptionalEntropy);
         }
     }
 
