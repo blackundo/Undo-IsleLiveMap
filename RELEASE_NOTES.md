@@ -1,3 +1,15 @@
+# Isle Live Map 2.2.3
+
+## Bản đồ nước tùy biến và HUD dễ đọc hơn
+
+- Tích hợp nền nước ngọt do người dùng vẽ lại tại `GatewayMapWater.jpg`; lớp Water bật mặc định và có thể bật/tắt để đổi qua lại với bản đồ thường trên minimap và bản đồ `Alt + M`.
+- Khi bật Water, bản đồ chỉ dùng phần nước đã tô sáng trong ảnh nền; bỏ toàn bộ vòng tròn/glow marker nước chồng lên minimap và bản đồ lớn.
+- Làm lớn inspector `LỚP BẢN ĐỒ`, typography, icon và vùng bấm để thao tác layer rõ ràng hơn khi đổi trạng thái.
+- Thu gọn minimap: bỏ khối `PLAYER / AI`, nền của `FOLLOW · GPS/FREE`, và block Heading; thêm chỉ báo hướng `Đ T N B` màu đỏ đậm, in đậm.
+- Compass minimap hiển thị bốn ký tự theo đúng vị trí địa lý: Bắc ở trên, Đông bên phải, Nam ở dưới và Tây bên trái.
+- Không hiển thị player/loài cũ từ IslePilot khi game chưa chạy; telemetry local yêu cầu chuyển động mới từ phiên game hiện tại.
+- Đồng bộ cách hiển thị layer giữa minimap và `Alt + M`, gồm water glow, zone/AI label và kích thước icon tài nguyên.
+
 # Isle Live Map 2.2.2
 
 ## Edit Mode dễ nhìn hơn
