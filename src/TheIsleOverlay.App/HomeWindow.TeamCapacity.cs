@@ -17,7 +17,7 @@ public partial class HomeWindow
             _shutdown.Token.ThrowIfCancellationRequested();
             var endpoint = App.CurrentTeam.CurrentEndpoint;
             var tier = _pro.Entitlement.IsProAt(DateTimeOffset.UtcNow) ? TeamAccessTier.Pro : TeamAccessTier.Free;
-            var capacity = new TeamCapacityWindow(endpoint) { Owner = this };
+            var capacity = new TeamCapacityWindow(endpoint, tier) { Owner = this };
             if (capacity.ShowDialog() != true || capacity.SelectedCapacity is not { } size) return;
             var name = PromptTeamName($"TẠO PHÒNG {size} NGƯỜI");
             if (name is null) return;

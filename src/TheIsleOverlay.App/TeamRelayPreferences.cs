@@ -29,7 +29,7 @@ public static class TeamRelayEndpoints
         TeamRelayProvider.KLongDev,
         "KLongDev (cũ)",
         new Uri("https://isle-relay.klong.dev/"),
-        10,
+        21,
         false);
 
     public static TeamRelayEndpoint Default => UndoIsle;

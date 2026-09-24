@@ -4,7 +4,7 @@
 
 - Thêm hộp thoại chọn quy mô phòng 3, 7, 10, 21 hoặc 25 người (tính cả chủ phòng); relay Undo-Isle cho cả Free và Pro tạo phòng tối đa 25 người.
 - Khôi phục lựa chọn tách biệt giữa relay Undo-Isle và KLongDev; mã phòng và giới hạn của mỗi bên được giữ riêng.
-- Gửi quy mô đã chọn tới relay và kiểm tra quy mô được cấp; không tạo nhầm phòng sai giới hạn. KLongDev giữ giới hạn cũ 10 người.
+- Gửi quy mô đã chọn tới relay và kiểm tra quy mô được cấp; không tạo nhầm phòng sai giới hạn. KLongDev dùng option mới 3/7 cho Free và 10/21 cho Pro.
 - Sửa bố cục hộp thoại để các lựa chọn luôn nằm trong khung, không bị che hoặc cắt.
 
 ## SDVN và kết nối server riêng

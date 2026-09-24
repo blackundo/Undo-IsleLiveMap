@@ -164,7 +164,7 @@ public partial class HomeWindow
             ApplyTeamRelayPresentation(endpoint);
             TeamErrorLabel.Text = endpoint.IsRecommended
                 ? "Đã chuyển sang relay Undo-Isle · tối đa 25 người cho Free và Pro."
-                : "Đang dùng relay KLongDev cũ · tối đa 10 người. Khuyên chuyển sang Undo-Isle.";
+                : "Đã chuyển sang relay KLongDev · option mới 3/7 Free và 10/21 Pro.";
         }
         catch (OperationCanceledException) when (_shutdown.IsCancellationRequested)
         {
@@ -344,7 +344,7 @@ public partial class HomeWindow
         TeamRelayHeaderLabel.Text = $"TEAM LINK · {endpoint.DisplayName.ToUpperInvariant()}";
         TeamRelayRecommendationLabel.Text = endpoint.IsRecommended
             ? "Khuyên dùng relay Undo-Isle: nhóm 25 người cho Free và Pro."
-            : "Relay KLongDev cũ chỉ hỗ trợ tối đa 10 người. Khuyên chuyển sang Undo-Isle.";
+            : "Relay KLongDev dùng option mới: 3/7 Free và 10/21 Pro.";
         TeamRelayRecommendationLabel.Foreground = HomeBrush(
             endpoint.IsRecommended ? "#43D883" : "#F3B63F");
     }

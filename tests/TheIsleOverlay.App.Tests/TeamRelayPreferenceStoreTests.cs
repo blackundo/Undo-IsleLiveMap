@@ -28,7 +28,7 @@ public sealed class TeamRelayPreferenceStoreTests
 
             Assert.Equal(TeamRelayProvider.KLongDev, store.Load().Provider);
             Assert.Equal("https://isle-relay.klong.dev/", TeamRelayEndpoints.KLongDev.BaseUri.AbsoluteUri);
-            Assert.Equal(10, TeamRelayEndpoints.KLongDev.AdvertisedMaxMembers);
+            Assert.Equal(21, TeamRelayEndpoints.KLongDev.AdvertisedMaxMembers);
         }
         finally
         {

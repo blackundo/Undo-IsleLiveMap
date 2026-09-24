@@ -269,7 +269,7 @@ public partial class HomeWindow : Window
         var limit = endpoint.AdvertisedMaxMembers;
         var intro = Section("GIỚI HẠN PHÒNG", endpoint.Provider == TeamRelayProvider.UndoIsle
             ? "Undo-Isle hỗ trợ tối đa 25 người cho cả tài khoản miễn phí và Pro."
-            : "Relay KLongDev cũ hỗ trợ tối đa 10 người và áp dụng chính sách riêng của KLongDev.");
+            : "Relay KLongDev dùng option mới: Free chọn 3/7 người, Pro chọn thêm 10/21 người.");
         ((StackPanel)intro.Child).Children.Add(T($"RELAY HIỆN TẠI · {endpoint.DisplayName.ToUpperInvariant()}  ·  TỐI ĐA {limit} NGƯỜI", 13, R("Accent"), FontWeights.Bold));
         p.Children.Add(intro);
 

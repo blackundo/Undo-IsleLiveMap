@@ -17,7 +17,7 @@ public sealed class TeamCapacityWindowTests
     {
         await Sta(() =>
         {
-            var window = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle);
+            var window = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle, TeamAccessTier.Free);
             Assert.True(window.TrySelect(size));
             Assert.Equal(size, window.SelectedCapacity);
             window.Close();
@@ -25,23 +25,28 @@ public sealed class TeamCapacityWindowTests
     }
 
     [Fact]
-    public async Task KLongRelayKeepsItsLegacyTenMemberChoice()
+    public async Task KLongRelayUsesNewTieredCapacityChoices()
     {
         await Sta(() =>
         {
-            var window = new TeamCapacityWindow(TeamRelayEndpoints.KLongDev);
+            var window = new TeamCapacityWindow(TeamRelayEndpoints.KLongDev, TeamAccessTier.Free);
             var panel = (UniformGrid)window.FindName("ChoicesPanel");
-            Assert.Single(panel.Children);
-            Assert.Equal("RoomCapacity10", AutomationProperties.GetAutomationId((Button)panel.Children[0]));
+            Assert.Equal(4, panel.Children.Count);
+            Assert.True(window.TrySelect(7));
+            window.Close();
+            window = new TeamCapacityWindow(TeamRelayEndpoints.KLongDev, TeamAccessTier.Free);
             Assert.False(window.TrySelect(21));
             Assert.Null(window.SelectedCapacity);
-            Assert.Contains("tối đa 10 người", ((TextBlock)window.FindName("MessageLabel")).Text);
+            Assert.Contains("yêu cầu Pro", ((TextBlock)window.FindName("MessageLabel")).Text);
+            var pro = new TeamCapacityWindow(TeamRelayEndpoints.KLongDev, TeamAccessTier.Pro);
+            Assert.True(pro.TrySelect(21));
+            pro.Close();
             var output = Environment.GetEnvironmentVariable("ISLE_TEAM_UI_CAPTURE");
             if (!string.IsNullOrWhiteSpace(output))
             {
                 Directory.CreateDirectory(output);
                 Render(window, Path.Combine(output, "team-capacity-klong.png"));
-                var undo = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle);
+                var undo = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle, TeamAccessTier.Free);
                 Render(undo, Path.Combine(output, "team-capacity-undo.png"));
                 undo.Close();
             }
@@ -54,7 +59,7 @@ public sealed class TeamCapacityWindowTests
     {
         await Sta(() =>
         {
-            var window = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle);
+            var window = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle, TeamAccessTier.Free);
             window.Loaded += (_, _) =>
             {
                 var choices = (UniformGrid)window.FindName("ChoicesPanel");
