@@ -28,7 +28,7 @@ internal static class HomeProPresentationPolicy
         var hasCurrentProAccess = access.Entitlement.IsProAt(now);
         var isVerified = hasCurrentProAccess && access.AgentReady;
         var expired = access.Entitlement.ExpiresAt is { } expiry && expiry <= now;
-        var tier = hasCurrentProAccess ? "PRO ĐANG HOẠT ĐỘNG" : access.IsAuthenticated ? "STEAM ĐÃ XÁC MINH" : "MIỄN PHÍ";
+        var tier = hasCurrentProAccess ? "PRO ĐANG HOẠT ĐỘNG" : access.IsAuthenticated ? "KEY ĐÃ XÁC MINH" : "MIỄN PHÍ";
         var status = hasCurrentProAccess
             ? access.AgentReady ? "PRO ĐANG HOẠT ĐỘNG · TRỢ LÝ SẴN SÀNG" : "PRO ĐANG HOẠT ĐỘNG · TRỢ LÝ ĐANG CHỜ"
             : expired ? "GIẤY PHÉP HẾT HẠN" : access.StatusCode == "license_service_unavailable" ? "CHƯA TẢI LẠI GIẤY PHÉP" : "MIỄN PHÍ";

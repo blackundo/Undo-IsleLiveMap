@@ -11,6 +11,28 @@ namespace TheIsleOverlay.App.Tests;
 
 public sealed class TeamCapacityWindowTests
 {
+    [Fact]
+    public async Task TeamNameDialogUsesOpaqueThemeAndValidatesBeforeConfirming()
+    {
+        await Sta(() =>
+        {
+            var window = new TeamNameWindow("TẠO PHÒNG 7 NGƯỜI");
+            var surface = (Border)window.FindName("DialogSurface");
+            var input = (TextBox)window.FindName("NameInput");
+            var confirm = (Button)window.FindName("ConfirmButton");
+
+            Assert.Equal(430d, window.Width);
+            Assert.Equal(270d, window.Height);
+            Assert.Equal(byte.MaxValue, Assert.IsType<SolidColorBrush>(surface.Background).Color.A);
+            Assert.False(confirm.IsEnabled);
+
+            input.Text = "  Undo  ";
+            Assert.True(confirm.IsEnabled);
+            Assert.Equal("TẠO PHÒNG 7 NGƯỜI", ((TextBlock)window.FindName("ActionTitle")).Text);
+            window.Close();
+        });
+    }
+
     [Theory]
     [InlineData(3)] [InlineData(7)] [InlineData(10)] [InlineData(21)] [InlineData(25)]
     public async Task UndoRelayAllowsEveryCapacityWithoutTierRestriction(int size)

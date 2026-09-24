@@ -36,6 +36,23 @@ public sealed class HomeSteamLoginTests
             AppContext.BaseDirectory,
             "TestAssets",
             "HomeWindow.xaml")), StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("640", (string?)document.Root?.Attribute("Height"));
+    }
+
+    [Fact]
+    public void ProWorkspace_UsesKeyActivationCopyInsteadOfSteamLoginCopy()
+    {
+        var source = File.ReadAllText(Path.Combine(
+            AppContext.BaseDirectory,
+            "TestAssets",
+            "HomeWindow.xaml.cs"));
+
+        Assert.Contains("NHẬP KEY / KÍCH HOẠT", source, StringComparison.Ordinal);
+        Assert.Contains("XÓA KÍCH HOẠT", source, StringComparison.Ordinal);
+        Assert.Contains("Key Pro đã được xác minh trên thiết bị này", source, StringComparison.Ordinal);
+        Assert.Contains("Chưa nhập key Pro", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("ĐĂNG NHẬP / XÁC MINH", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("Chưa đăng nhập Steam", source, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -256,7 +256,7 @@ public partial class HomeWindow
             ProTierLabel.Text = "PRO / AGENT CHƯA SẴN SÀNG";
             ProAccessDetailLabel.Text = access.IsOffline
                 ? "Không có mạng và chưa có Pro Agent tương thích trên máy"
-                : "Chưa tải được Pro Agent tương thích; đăng xuất rồi đăng nhập lại để thử lại";
+                : "Chưa tải được Pro Agent tương thích; xóa kích hoạt rồi nhập lại key để thử lại";
             ProAccessActionLabel.Text = "AGENT CHƯA SẴN SÀNG";
             ProAccessStateBar.Fill = (Brush)FindResource("HomeAccent");
             ProAccessFootnoteLabel.Text = "Quyền Pro còn hiệu lực; Agent cần hoàn tất trước khi ghép player và AI vào map.";
@@ -271,7 +271,7 @@ public partial class HomeWindow
             ? "Quyền Pro đã hết hạn; Home đã trở về chế độ Free"
             : access.StatusCode switch
         {
-            "session_expired" => "Phiên Steam đã hết hạn; đăng nhập lại để kiểm tra quyền",
+            "session_expired" => "Phiên kích hoạt đã hết hạn; nhập lại key để kiểm tra quyền",
             "license_service_unavailable" => "Chưa kết nối được dịch vụ cấp phép; Free vẫn hoạt động",
             _ when access.IsAuthenticated => "Tài khoản này chưa được cấp Isle Live Map Pro",
             _ => "Nhập key để kích hoạt Pro trên máy này"

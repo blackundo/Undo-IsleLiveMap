@@ -71,6 +71,7 @@ public sealed class HomeProPresentationPolicyTests
         var presentation = HomeProPresentationPolicy.Evaluate(access, Now);
 
         Assert.True(presentation.ShowPromotion);
+        Assert.Equal("KEY ĐÃ XÁC MINH", presentation.TierLabel);
     }
 
     private static ProAccessSnapshot Snapshot(

@@ -338,38 +338,8 @@ public partial class HomeWindow : Window
 
     private string? PromptTeamName(string action)
     {
-        var dialog = new Window
-        {
-            Owner = this,
-            Title = action,
-            Width = 360,
-            Height = 220,
-            MinWidth = 360,
-            MinHeight = 190,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            ResizeMode = ResizeMode.NoResize,
-            WindowStyle = WindowStyle.None,
-            AllowsTransparency = true,
-            Background = Brushes.Transparent,
-            ShowInTaskbar = false
-        };
-        var shell = new Border { Background = B("#F20D1B1A"), BorderBrush = B("#49665F"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(22) };
-        var layout = new Grid();
-        layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        layout.Children.Add(T(action, 17, R("Ink"), FontWeights.Bold));
-        var label = T("Tên của bạn:", 12, R("Muted"), FontWeights.SemiBold);
-        label.Margin = new Thickness(0, 14, 0, 5); Grid.SetRow(label, 1); layout.Children.Add(label);
-        var input = new TextBox { Style = (Style)FindResource("Field"), MinHeight = 38, MaxLength = 32, Text = "" };
-        input.Margin = new Thickness(0, 0, 0, 14); Grid.SetRow(input, 2); layout.Children.Add(input);
-        var actions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-        var cancel = Action("HỦY", (_, _) => dialog.DialogResult = false, false); cancel.MinWidth = 82;
-        var confirm = Action("XÁC NHẬN", (_, _) => { if (!string.IsNullOrWhiteSpace(input.Text)) dialog.DialogResult = true; }, true); confirm.MinWidth = 100;
-        actions.Children.Add(cancel); actions.Children.Add(confirm); Grid.SetRow(actions, 3); layout.Children.Add(actions);
-        shell.Child = layout; dialog.Content = shell; dialog.Loaded += (_, _) => input.Focus();
-        return dialog.ShowDialog() == true ? input.Text.Trim() : null;
+        var dialog = new TeamNameWindow(action) { Owner = this };
+        return dialog.ShowDialog() == true ? dialog.DisplayName : null;
     }
     private static string TeamStateText(TeamRelayConnectionState state) => state switch
     {
@@ -866,7 +836,7 @@ public partial class HomeWindow : Window
             return action;
         }
         if (!_pro.IsAuthenticated || !_proPresentation.HasCurrentProAccess)
-            actions.Children.Add(CompactAction("ĐĂNG NHẬP / XÁC MINH", async (_, _) =>
+            actions.Children.Add(CompactAction("NHẬP KEY / KÍCH HOẠT", async (_, _) =>
             {
                 var activation = new ProKeyActivationWindow(_proService, CurrentVersion()) { Owner = this };
                 if (activation.ShowDialog() == true && activation.Access is { } access)
@@ -876,7 +846,7 @@ public partial class HomeWindow : Window
                 }
             }));
         if (_proPresentation.HasCurrentProAccess && !_pro.AgentReady) actions.Children.Add(CompactAction("KIỂM TRA LẠI", async (_, _) => await RefreshProAsync()));
-        if (_pro.IsAuthenticated) actions.Children.Add(CompactAction("ĐĂNG XUẤT", async (_, _) =>
+        if (_pro.IsAuthenticated) actions.Children.Add(CompactAction("XÓA KÍCH HOẠT", async (_, _) =>
         {
             await _proTelemetryWarmup.StopAsync();
             await _proService.LogoutAsync(_shutdown.Token);
@@ -885,7 +855,9 @@ public partial class HomeWindow : Window
         p.Children.Add(actions);
         var expiry = entitlement.ExpiresAt is { } at ? at.ToLocalTime().ToString("dd/MM/yyyy HH:mm") : "Vĩnh viễn";
         var agentStatus = _pro.AgentReady ? "SẴN SÀNG" : _pro.StatusCode is "agent_unavailable" or "offline_agent_unavailable" ? "KHÔNG KHẢ DỤNG" : _pro.StatusCode == "agent_update_unavailable" ? "CHƯA CÓ BẢN CẬP NHẬT" : "ĐANG CHỜ";
-        var identity = Section(_proPresentation.TierLabel, _pro.IsAuthenticated ? $"STEAM ••••{_pro.SteamId64![^4..]}" : "Chưa đăng nhập Steam");
+        var identity = Section(
+            _proPresentation.TierLabel,
+            _pro.IsAuthenticated ? "Key Pro đã được xác minh trên thiết bị này" : "Chưa nhập key Pro");
         var identityStack = (StackPanel)identity.Child;
         identityStack.Children.Add(T(_proPresentation.StatusLabel, 17, R("Accent"), FontWeights.Black));
         p.Children.Add(identity);
@@ -986,7 +958,7 @@ public partial class HomeWindow : Window
         Resources["HoverSurface"] = B(premium ? "#1E082B" : "#181D36");
         Resources["PressedSurface"] = B(premium ? "#300A47" : "#262E50");
         ProShellStatusLabel.Text = _proPresentation.StatusLabel;
-        ProShellStatusLabel.Foreground = B(premium ? "#E0A0FF" : _proPresentation.StatusLabel == "STEAM VERIFIED" ? "#E8EDFF" : "#787F93");
+        ProShellStatusLabel.Foreground = B(premium ? "#E0A0FF" : access.IsAuthenticated ? "#E8EDFF" : "#787F93");
         ProAccessNavButton.Content = premium ? "PRO ĐANG BẬT" : "QUYỀN PRO";
         ProAccessNavButton.FontSize = 11;
         ProAccessNavButton.Padding = new Thickness(8, 0, 8, 0);
@@ -1007,7 +979,7 @@ public partial class HomeWindow : Window
     {
         if (ProShellStatusLabel is null) return;
         var active = _proPresentation.IsPremiumMode;
-        ProShellStatusLabel.Text = active ? "  PRO ĐANG BẬT" : _pro.IsAuthenticated ? "  STEAM ĐÃ XÁC MINH" : "  MIỄN PHÍ";
+        ProShellStatusLabel.Text = active ? "  PRO ĐANG BẬT" : _pro.IsAuthenticated ? "  KEY ĐÃ XÁC MINH" : "  MIỄN PHÍ";
         ProShellStatusLabel.Foreground = active ? B("#E0A0FF") : _pro.IsAuthenticated ? B("#E8EDFF") : B("#787F93");
     }
     private async Task LoadReleasesAsync()
