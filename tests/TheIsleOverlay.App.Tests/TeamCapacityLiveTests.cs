@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using TheIsleOverlay.ProClient;
 using TheIsleOverlay.TeamRelay;
 
 namespace TheIsleOverlay.App.Tests;
@@ -19,23 +18,17 @@ public sealed class TeamCapacityLiveTests
     {
         if (Environment.GetEnvironmentVariable("ISLE_TEAM_CAPACITY_LIVE") != "1") return;
         var uri = new Uri(Environment.GetEnvironmentVariable("ISLE_TEAM_CAPACITY_URL") ?? TeamRelayClient.DefaultBaseUri.AbsoluteUri);
-        Assert.Contains(uri.Host, new[] { "isle-relay.klong.dev", "localhost", "127.0.0.1" });
-        var store = new ProCredentialStore(new ProClientOptions().CredentialPath);
-        var credential = await store.LoadAsync();
-        Assert.NotNull(credential);
-        Assert.True(credential.HasUsableOfflineLicense(DateTimeOffset.UtcNow), "A valid existing Pro session is needed for live capacity QA.");
+        Assert.Contains(uri.Host, new[] { "isle-relay.modundo.com", "localhost", "127.0.0.1" });
         using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(4));
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(12) };
 
-        foreach (var size in new[] { 3, 7, 10, 21 })
+        foreach (var size in new[] { 3, 7, 10, 21, 25 })
         {
             var clients = new List<TeamRelayClient>();
             try
             {
-                var tier = size > 7 ? TeamAccessTier.Pro : TeamAccessTier.Free;
                 var owner = new TeamRelayClient(uri); clients.Add(owner);
-                owner.ConfigureAccess(tier, credential.OfflineLicenseToken);
-                var session = await owner.CreateAsync($"Capacity QA {size}", tier, size, timeout.Token);
+                var session = await owner.CreateAsync($"Capacity QA {size}", TeamAccessTier.Free, size, timeout.Token);
                 Assert.Equal(size, session.MaxMembers);
                 for (var index = 1; index < size; index++)
                 {
@@ -54,7 +47,7 @@ public sealed class TeamCapacityLiveTests
                     }
                 }
                 using var overflow = await PostWithRateLimitAsync(http, new Uri(uri, "api/v1/teams/join"),
-                    new { session.InviteCode, displayName = "QA overflow", tier = 1, entitlementProof = credential.OfflineLicenseToken }, timeout.Token);
+                    new { session.InviteCode, displayName = "QA overflow" }, timeout.Token);
                 Assert.Equal(HttpStatusCode.Conflict, overflow.StatusCode);
                 Assert.Contains("team_full", await overflow.Content.ReadAsStringAsync(timeout.Token));
                 foreach (var client in clients)
@@ -89,11 +82,6 @@ public sealed class TeamCapacityLiveTests
                 Console.WriteLine($"LIVE PASS: capacity={size}; full-room rejection, bidirectional telemetry, ping ownership, leave/rejoin.");
             }
             finally { foreach (var client in clients.AsEnumerable().Reverse()) await client.DisposeAsync(); }
-        }
-        foreach (var proof in new[] { (string?)null, "forged.invalid.token" })
-        {
-            using var response = await PostWithRateLimitAsync(http, new Uri(uri, "api/v1/teams"), new { displayName = "QA denied", tier = 1, requestedMaxMembers = 21, entitlementProof = proof }, timeout.Token);
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
     }
 

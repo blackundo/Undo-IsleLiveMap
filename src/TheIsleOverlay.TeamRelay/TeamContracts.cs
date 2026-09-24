@@ -10,13 +10,12 @@ public enum TeamAccessTier
 
 public static class TeamRoomLimits
 {
-    public const int FreeMaxMembers = 7;
-    public const int ProMaxMembers = 21;
-    public static IReadOnlyList<int> Choices { get; } = Array.AsReadOnly(new[] { 3, 7, 10, 21 });
-    public static bool CanCreate(TeamAccessTier tier, int size) => Choices.Contains(size) && size <= For(tier);
+    public const int FreeMaxMembers = 25;
+    public const int ProMaxMembers = 25;
+    public static IReadOnlyList<int> Choices { get; } = Array.AsReadOnly(new[] { 3, 7, 10, 21, 25 });
+    public static bool CanCreate(TeamAccessTier tier, int size) => Choices.Contains(size) && size <= 25;
 
-    public static int For(TeamAccessTier tier) =>
-        tier == TeamAccessTier.Pro ? ProMaxMembers : FreeMaxMembers;
+    public static int For(TeamAccessTier tier) => 25;
 }
 
 // The relay must validate Tier against the authenticated entitlement. The

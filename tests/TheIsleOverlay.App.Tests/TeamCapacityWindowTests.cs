@@ -12,43 +12,38 @@ namespace TheIsleOverlay.App.Tests;
 public sealed class TeamCapacityWindowTests
 {
     [Theory]
-    [InlineData(TeamAccessTier.Free, 3, true)] [InlineData(TeamAccessTier.Free, 7, true)]
-    [InlineData(TeamAccessTier.Free, 10, false)] [InlineData(TeamAccessTier.Free, 21, false)]
-    [InlineData(TeamAccessTier.Pro, 3, true)] [InlineData(TeamAccessTier.Pro, 7, true)]
-    [InlineData(TeamAccessTier.Pro, 10, true)] [InlineData(TeamAccessTier.Pro, 21, true)]
-    public async Task ChoiceHonorsCreatorTier(TeamAccessTier tier, int size, bool allowed)
+    [InlineData(3)] [InlineData(7)] [InlineData(10)] [InlineData(21)] [InlineData(25)]
+    public async Task UndoRelayAllowsEveryCapacityWithoutTierRestriction(int size)
     {
         await Sta(() =>
         {
-            var window = new TeamCapacityWindow(tier);
-            Assert.Equal(allowed, window.TrySelect(size));
-            Assert.Equal(allowed ? size : (int?)null, window.SelectedCapacity);
-            if (!allowed) Assert.Equal(TeamCapacityWindow.ProRequiredMessage(size), ((TextBlock)window.FindName("MessageLabel")).Text);
+            var window = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle);
+            Assert.True(window.TrySelect(size));
+            Assert.Equal(size, window.SelectedCapacity);
             window.Close();
         });
     }
 
     [Fact]
-    public async Task LockedChoiceExplainsProAndDoesNotAdvance()
+    public async Task KLongRelayKeepsItsLegacyTenMemberChoice()
     {
         await Sta(() =>
         {
-            var window = new TeamCapacityWindow(TeamAccessTier.Free);
+            var window = new TeamCapacityWindow(TeamRelayEndpoints.KLongDev);
             var panel = (UniformGrid)window.FindName("ChoicesPanel");
-            Assert.Equal(4, panel.Children.Count);
-            var locked = panel.Children.OfType<Button>().Single(b => AutomationProperties.GetAutomationId(b) == "RoomCapacity21");
-            Assert.True(locked.Opacity < 1);
-            locked.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            Assert.Single(panel.Children);
+            Assert.Equal("RoomCapacity10", AutomationProperties.GetAutomationId((Button)panel.Children[0]));
+            Assert.False(window.TrySelect(21));
             Assert.Null(window.SelectedCapacity);
-            Assert.Contains("21 người", ((TextBlock)window.FindName("MessageLabel")).Text);
+            Assert.Contains("tối đa 10 người", ((TextBlock)window.FindName("MessageLabel")).Text);
             var output = Environment.GetEnvironmentVariable("ISLE_TEAM_UI_CAPTURE");
             if (!string.IsNullOrWhiteSpace(output))
             {
                 Directory.CreateDirectory(output);
-                Render(window, Path.Combine(output, "team-capacity-free.png"));
-                var pro = new TeamCapacityWindow(TeamAccessTier.Pro);
-                Render(pro, Path.Combine(output, "team-capacity-pro.png"));
-                pro.Close();
+                Render(window, Path.Combine(output, "team-capacity-klong.png"));
+                var undo = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle);
+                Render(undo, Path.Combine(output, "team-capacity-undo.png"));
+                undo.Close();
             }
             window.Close();
         });
@@ -59,15 +54,15 @@ public sealed class TeamCapacityWindowTests
     {
         await Sta(() =>
         {
-            var window = new TeamCapacityWindow(TeamAccessTier.Pro);
+            var window = new TeamCapacityWindow(TeamRelayEndpoints.UndoIsle);
             window.Loaded += (_, _) =>
             {
                 var choices = (UniformGrid)window.FindName("ChoicesPanel");
-                choices.Children.OfType<Button>().Single(b => AutomationProperties.GetAutomationId(b) == "RoomCapacity10")
+                choices.Children.OfType<Button>().Single(b => AutomationProperties.GetAutomationId(b) == "RoomCapacity25")
                     .RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
             };
             Assert.True(window.ShowDialog());
-            Assert.Equal(10, window.SelectedCapacity);
+            Assert.Equal(25, window.SelectedCapacity);
         });
     }
 

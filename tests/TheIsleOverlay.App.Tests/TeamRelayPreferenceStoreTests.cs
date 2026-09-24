@@ -13,7 +13,7 @@ public sealed class TeamRelayPreferenceStoreTests
 
         Assert.Equal(TeamRelayProvider.UndoIsle, preferences.Provider);
         Assert.Equal("https://isle-relay.modundo.com/", TeamRelayEndpoints.Default.BaseUri.AbsoluteUri);
-        Assert.Equal(15, TeamRelayEndpoints.UndoIsle.AdvertisedMaxMembers);
+        Assert.Equal(25, TeamRelayEndpoints.UndoIsle.AdvertisedMaxMembers);
     }
 
     [Fact]

@@ -245,10 +245,32 @@ public partial class HomeWindow : Window
         _status.Margin = new Thickness(0, 0, 0, 12);
         p.Children.Add(_status);
         var state = App.CurrentTeam.CurrentState;
+        var endpoint = App.CurrentTeam.CurrentEndpoint;
         var tier = _pro.Entitlement.IsProAt(DateTimeOffset.UtcNow) ? TeamAccessTier.Pro : TeamAccessTier.Free;
-        var limit = TeamRoomLimits.For(tier);
-        var intro = Section("GIỚI HẠN PHÒNG", tier == TeamAccessTier.Pro ? "Quyền Pro đang mở phòng tối đa 21 người, tính cả chủ phòng." : "Tài khoản miễn phí tạo phòng tối đa 7 người, tính cả chủ phòng.");
-        ((StackPanel)intro.Child).Children.Add(T($"CHẾ ĐỘ HIỆN TẠI · {(tier == TeamAccessTier.Pro ? "PRO" : "MIỄN PHÍ")}  ·  TỐI ĐA {limit} NGƯỜI", 13, R("Accent"), FontWeights.Bold));
+
+        var relaySection = Section("CHỌN RELAY", state.HasActiveSession
+            ? "Rời phòng hiện tại trước khi chuyển relay."
+            : "Undo-Isle và KLongDev dùng hệ thống phòng riêng; mã mời không dùng chéo giữa hai bên.");
+        var relayButtons = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
+        foreach (var candidate in new[] { TeamRelayEndpoints.UndoIsle, TeamRelayEndpoints.KLongDev })
+        {
+            var selected = candidate.Provider == endpoint.Provider;
+            var relayButton = Action(
+                $"{(selected ? "✓ " : string.Empty)}{candidate.DisplayName.ToUpperInvariant()} · {candidate.AdvertisedMaxMembers} NGƯỜI",
+                async (_, _) => await SwitchTeamRelayAsync(candidate),
+                selected);
+            relayButton.MinWidth = 210;
+            relayButton.IsEnabled = !state.HasActiveSession && !_teamOperationRunning && !selected;
+            relayButtons.Children.Add(relayButton);
+        }
+        ((StackPanel)relaySection.Child).Children.Add(relayButtons);
+        p.Children.Add(relaySection);
+
+        var limit = endpoint.AdvertisedMaxMembers;
+        var intro = Section("GIỚI HẠN PHÒNG", endpoint.Provider == TeamRelayProvider.UndoIsle
+            ? "Undo-Isle hỗ trợ tối đa 25 người cho cả tài khoản miễn phí và Pro."
+            : "Relay KLongDev cũ hỗ trợ tối đa 10 người và áp dụng chính sách riêng của KLongDev.");
+        ((StackPanel)intro.Child).Children.Add(T($"RELAY HIỆN TẠI · {endpoint.DisplayName.ToUpperInvariant()}  ·  TỐI ĐA {limit} NGƯỜI", 13, R("Accent"), FontWeights.Bold));
         p.Children.Add(intro);
 
         if (state.HasActiveSession && state.Session is { } session)
@@ -340,8 +362,8 @@ public partial class HomeWindow : Window
     private static string FriendlyTeamErrorText(Exception exception) => exception switch
     {
         TeamRelayApiException { Code: "team_full" } => "Phòng đã đủ thành viên.",
-        TeamRelayApiException { Code: "pro_required" } => "Relay chưa xác minh được Pro còn hạn. Hãy đăng nhập/xác minh Pro rồi tạo lại phòng 10 hoặc 21 người.",
-        TeamRelayApiException { Code: "invalid_room_size" } => "Chọn một trong các quy mô 3, 7, 10 hoặc 21 người.",
+        TeamRelayApiException { Code: "pro_required" } => "Relay KLongDev yêu cầu quyền Pro cho quy mô phòng này.",
+        TeamRelayApiException { Code: "invalid_room_size" } => "Chọn quy mô phòng được relay hiện tại hỗ trợ.",
         TeamRelayApiException { Code: "invite_not_found" } => "Không tìm thấy mã mời hoặc phòng đã hết hạn.",
         TimeoutException => "Relay không phản hồi. Hãy thử lại.",
         _ => $"Không thể thao tác nhóm: {exception.Message}"

@@ -5,10 +5,11 @@ namespace TheIsleOverlay.Tests;
 public sealed class TeamRelayClientPolicyTests
 {
     [Fact]
-    public void RoomLimits_FreeIsSevenAndProIsTwentyOne()
+    public void RoomLimits_AreTwentyFiveForFreeAndPro()
     {
-        Assert.Equal(7, TeamRoomLimits.For(TeamAccessTier.Free));
-        Assert.Equal(21, TeamRoomLimits.For(TeamAccessTier.Pro));
+        Assert.Equal(25, TeamRoomLimits.For(TeamAccessTier.Pro));
+        Assert.Equal(25, TeamRoomLimits.For(TeamAccessTier.Free));
+        Assert.Contains(25, TeamRoomLimits.Choices);
         Assert.Equal(TeamRoomLimits.FreeMaxMembers, new CreateTeamRequest("x").RequestedMaxMembers);
         Assert.Equal(TeamRoomLimits.ProMaxMembers, new CreateTeamRequest("x", TeamAccessTier.Pro, TeamRoomLimits.ProMaxMembers).RequestedMaxMembers);
     }

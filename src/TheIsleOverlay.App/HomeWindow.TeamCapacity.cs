@@ -14,22 +14,15 @@ public partial class HomeWindow
         _teamOperationRunning = true;
         try
         {
-            if (_proLoadTask is not null) await _proLoadTask;
             _shutdown.Token.ThrowIfCancellationRequested();
+            var endpoint = App.CurrentTeam.CurrentEndpoint;
             var tier = _pro.Entitlement.IsProAt(DateTimeOffset.UtcNow) ? TeamAccessTier.Pro : TeamAccessTier.Free;
-            var capacity = new TeamCapacityWindow(tier) { Owner = this };
+            var capacity = new TeamCapacityWindow(endpoint) { Owner = this };
             if (capacity.ShowDialog() != true || capacity.SelectedCapacity is not { } size) return;
             var name = PromptTeamName($"TẠO PHÒNG {size} NGƯỜI");
             if (name is null) return;
-            // Refresh signed proof only for a paid room; do not make free
-            // creation dependent on the licensing service. Recheck after dialogs.
-            if (size > TeamRoomLimits.FreeMaxMembers) await LoadProAsync();
-            _shutdown.Token.ThrowIfCancellationRequested();
-            tier = _pro.Entitlement.IsProAt(DateTimeOffset.UtcNow) ? TeamAccessTier.Pro : TeamAccessTier.Free;
-            if (!TeamRoomLimits.CanCreate(tier, size))
-            { _teamStatus = TeamCapacityWindow.ProRequiredMessage(size); return; }
             App.CurrentTeam.ConfigureAccess(tier, _pro.EntitlementProof);
-            _teamStatus = $"ĐANG TẠO PHÒNG {size} NGƯỜI…";
+            _teamStatus = $"ĐANG TẠO PHÒNG {size} NGƯỜI TRÊN {endpoint.DisplayName.ToUpperInvariant()}…";
             if (_page == "team") ReplacePage(BuildTeam);
             var session = await App.CurrentTeam.CreateAsync(name, tier, size, _shutdown.Token);
             if (session.MaxMembers != size)
@@ -37,7 +30,33 @@ public partial class HomeWindow
                 await App.CurrentTeam.LeaveAsync(_shutdown.Token);
                 _teamStatus = "Relay chưa hỗ trợ đúng quy mô đã chọn. Không tạo phòng sai giới hạn; hãy thử lại sau.";
             }
-            else _teamStatus = $"Đã tạo phòng {session.MaxMembers} người, bao gồm bạn.";
+            else _teamStatus = $"Đã tạo phòng {session.MaxMembers} người trên {endpoint.DisplayName}, bao gồm bạn.";
+        }
+        catch (OperationCanceledException) when (_shutdown.IsCancellationRequested) { }
+        catch (Exception error) { _teamStatus = FriendlyTeamErrorText(error); }
+        finally
+        {
+            _teamOperationRunning = false;
+            if (!_shutdown.IsCancellationRequested && _page == "team") ReplacePage(BuildTeam);
+        }
+    }
+
+    private async Task SwitchTeamRelayAsync(TeamRelayEndpoint endpoint)
+    {
+        if (_teamOperationRunning || endpoint.Provider == App.CurrentTeam.CurrentEndpoint.Provider)
+        {
+            return;
+        }
+
+        _teamOperationRunning = true;
+        try
+        {
+            await App.CurrentTeam.SwitchRelayAsync(endpoint, _shutdown.Token);
+            App.CurrentApp.TeamRelayPreferences.Save(new TeamRelayPreferences
+            {
+                Provider = endpoint.Provider
+            });
+            _teamStatus = $"Đã chuyển sang {endpoint.DisplayName}.";
         }
         catch (OperationCanceledException) when (_shutdown.IsCancellationRequested) { }
         catch (Exception error) { _teamStatus = FriendlyTeamErrorText(error); }

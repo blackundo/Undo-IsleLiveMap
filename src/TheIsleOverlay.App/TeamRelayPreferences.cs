@@ -22,7 +22,7 @@ public static class TeamRelayEndpoints
         TeamRelayProvider.UndoIsle,
         "Undo-Isle",
         new Uri("https://isle-relay.modundo.com/"),
-        15,
+        25,
         true);
 
     public static TeamRelayEndpoint KLongDev { get; } = new(

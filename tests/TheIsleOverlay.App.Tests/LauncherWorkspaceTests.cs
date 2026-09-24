@@ -27,7 +27,9 @@ public sealed class LauncherWorkspaceTests
         var code = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TestAssets", "HomeWindow.xaml.cs"));
         Assert.Contains("Tag=\"team\"", source, StringComparison.Ordinal);
         Assert.Contains("BuildTeam", code, StringComparison.Ordinal);
-        Assert.Contains("TeamRoomLimits.For", code, StringComparison.Ordinal);
+        Assert.Contains("TeamRelayEndpoints.UndoIsle", code, StringComparison.Ordinal);
+        Assert.Contains("TeamRelayEndpoints.KLongDev", code, StringComparison.Ordinal);
+        Assert.Contains("tối đa 25 người", code, StringComparison.Ordinal);
         Assert.Contains("ProKeyActivationWindow", code, StringComparison.Ordinal);
         Assert.DoesNotContain("Tag=\"contact\"", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BuildContact", code, StringComparison.Ordinal);
