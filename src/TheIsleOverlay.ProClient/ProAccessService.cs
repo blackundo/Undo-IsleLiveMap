@@ -290,7 +290,9 @@ public sealed class ProAccessService : IDisposable
                 _installation.ExecutablePath,
                 _currentHostVersion,
                 _session.SteamId64,
-                _session.OfflineLicenseToken!);
+                _session.OfflineLicenseToken!,
+                liveComparePath: Environment.GetEnvironmentVariable(
+                    ProAgentRemotePlayerSource.HostComparisonOutputPathEnvironmentVariable));
         }
     }
 

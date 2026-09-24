@@ -711,7 +711,7 @@ public sealed class LocalPositionSnapshotMergerTests
     }
 
     [Fact]
-	public void Merge_RendersPresenceRefreshAsStaleWhenLocationIsOld()
+    public void Merge_RetainsIdentifiedPresenceWhenLocationIsStale()
     {
         var entity = new VerifiedRemoteEntityTelemetry(
             100,
@@ -737,16 +737,48 @@ public sealed class LocalPositionSnapshotMergerTests
             Now,
             remotePlayers: [entity]);
 
-		var marker = Assert.Single(merged.Map!.Markers);
-		Assert.True(marker.ProEntityIsStale);
-		Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
-		Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
+        Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
+        Assert.Single(merged.Map!.Markers);
+        Assert.True(Assert.Single(merged.Map.Markers).ProEntityIsStale);
+        Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
         Assert.Equal(1, merged.ProTrackingDiagnostics?.StaleCount);
-		Assert.Empty(merged.ProTrackingDiagnostics?.Rejections!);
+        Assert.False(merged.ProTrackingDiagnostics?.Rejections.ContainsKey(RemoteEntityRejectionReason.StaleLocation));
+    }
+
+    [Theory]
+    [InlineData(true, false, 0, 30, true)]
+    [InlineData(false, false, 0, 30, false)]
+    [InlineData(true, true, 0, 30, false)]
+    [InlineData(true, false, 90, 120, true)]
+    [InlineData(true, false, 91, 120, false)]
+    [InlineData(true, false, 0, 360, true)]
+    [InlineData(true, false, 0, 361, false)]
+    public void Merge_RequiresPositionProofAndBoundedPresenceForStationaryRetention(
+        bool verifiedPosition, bool provisional, int presenceAge, int positionAge, bool retained)
+    {
+        var entity = new VerifiedRemoteEntityTelemetry(
+            101, RemoteEntityKind.Player, null, "triceratops", "Trice",
+            CreatureDiet.Herbivore, null, new WorldLocation { X = 100, Y = 200 },
+            0, 3, Now.AddSeconds(-presenceAge),
+            IsProvisional: provisional,
+            LocationObservedAt: Now.AddSeconds(-positionAge),
+            ActorNetRefHandle: 101, PlayerStateNetRefHandle: 102, PawnNetRefHandle: 103,
+            HasVerifiedPosition: verifiedPosition);
+        var merged = LocalPositionSnapshotMerger.Merge(null, null, Now, remotePlayers: [entity]);
+        Assert.Equal(retained ? 1 : 0, merged.ProTrackingDiagnostics!.RenderedCount);
+        if (retained)
+        {
+            var marker = Assert.Single(merged.Map!.Markers);
+            Assert.True(marker.ProEntityIsStale);
+            Assert.Equal(entity.Location, marker.Location);
+        }
+        if (presenceAge > 90)
+            Assert.Contains(RemoteEntityRejectionReason.PresenceTimeout,
+                merged.ProTrackingDiagnostics.Rejections.Keys);
     }
 
     [Fact]
-	public void Merge_KeepsPreviouslyRenderedVerifiedActorDimWhenLocationIsStale()
+    public void Merge_RetainsPreviouslyRenderedVerifiedActorWhenLocationIsStale()
     {
         var marker = new MapMarkerTelemetry
         {
@@ -769,7 +801,6 @@ public sealed class LocalPositionSnapshotMergerTests
             3,
             Now,
             IsProvisional: false,
-			ActorNetRefHandle: 100,
             LocationObservedAt: Now - VerifiedRemoteEntityTelemetry.LocationFreshness - TimeSpan.FromMilliseconds(1));
 
         var merged = LocalPositionSnapshotMerger.Merge(
@@ -778,16 +809,16 @@ public sealed class LocalPositionSnapshotMergerTests
             Now,
             remotePlayers: [entity]);
 
-		var retained = Assert.Single(merged.Map!.Markers);
-		Assert.True(retained.ProEntityIsStale);
-		Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
-		Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
+        Assert.Single(merged.Map!.Markers);
+        Assert.True(Assert.Single(merged.Map.Markers).ProEntityIsStale);
+        Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
+        Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
         Assert.Equal(1, merged.ProTrackingDiagnostics?.StaleCount);
-		Assert.Empty(merged.ProTrackingDiagnostics?.Rejections!);
+        Assert.False(merged.ProTrackingDiagnostics?.Rejections.ContainsKey(RemoteEntityRejectionReason.StaleLocation));
     }
 
     [Fact]
-	public void Merge_ProjectsFirstVerifiedActorDimWhenItsOnlyLocationIsOld()
+    public void Merge_RetainsFirstVerifiedActorAsStaleWhenItsOnlyLocationIsOld()
     {
         var entity = new VerifiedRemoteEntityTelemetry(
             101,
@@ -813,44 +844,13 @@ public sealed class LocalPositionSnapshotMergerTests
             Now,
             remotePlayers: [entity]);
 
-		var marker = Assert.Single(merged.Map!.Markers);
-		Assert.True(marker.ProEntityIsStale);
-		Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
-		Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
+        Assert.Single(merged.Map!.Markers);
+        Assert.True(Assert.Single(merged.Map.Markers).ProEntityIsStale);
+        Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
+        Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
         Assert.Equal(1, merged.ProTrackingDiagnostics?.StaleCount);
-		Assert.Empty(merged.ProTrackingDiagnostics?.Rejections!);
+        Assert.False(merged.ProTrackingDiagnostics?.Rejections.ContainsKey(RemoteEntityRejectionReason.StaleLocation));
     }
-
-	[Fact]
-	public void Merge_RendersFreshMovementPositionAsLiveEvenWhenNotCreationVerified()
-	{
-		var entity = new VerifiedRemoteEntityTelemetry(
-			103,
-			RemoteEntityKind.Player,
-			null,
-			"triceratops",
-			"Trice",
-			CreatureDiet.Herbivore,
-			null,
-			new WorldLocation { X = 100, Y = 200 },
-			0,
-			3,
-			Now,
-			IsProvisional: false,
-			LocationObservedAt: Now,
-			ActorNetRefHandle: 103,
-			HasVerifiedPosition: false);
-
-		var merged = LocalPositionSnapshotMerger.Merge(
-			new TelemetrySnapshot { Map = new MapTelemetry() },
-			null,
-			Now,
-			remotePlayers: [entity]);
-
-		var marker = Assert.Single(merged.Map!.Markers);
-		Assert.False(marker.ProEntityIsStale);
-		Assert.Equal(0, merged.ProTrackingDiagnostics?.StaleCount);
-	}
 
     [Fact]
     public void Merge_RefreshesStaleVerifiedActorInPlaceWhenMovementBecomesFresh()
@@ -1214,6 +1214,85 @@ public sealed class LocalPositionSnapshotMergerTests
         Assert.Contains(markers, marker => marker.SteamId == "pro-entity:player:51");
         Assert.Contains(markers, marker => marker.SteamId == "pro-entity:ai:53");
         Assert.Contains(markers, marker => marker.SteamId == "pro-entity:player:52");
+    }
+
+    [Theory]
+    [InlineData(30, 0, true)]
+    [InlineData(120, 0, true)]
+    [InlineData(120, 91, false)]
+    [InlineData(361, 0, false)]
+    public void Merge_PreviouslyAdmittedPlayerWithOwnerPresenceSurvivesSparseMovement(
+        int positionAge, int presenceAge, bool expected)
+    {
+        var location = new WorldLocation { X = 100, Y = 200, Z = 300 };
+        var entity = new VerifiedRemoteEntityTelemetry(
+            327004, RemoteEntityKind.Player, null, "ceratosaurus", "Cera",
+            CreatureDiet.Carnivore, null, location, 0, 40, Now,
+            ActorNetRefHandle: 327004, PlayerStateNetRefHandle: 100, PawnNetRefHandle: 102,
+            LocationObservedAt: Now, HasVerifiedPosition: false);
+        var first = LocalPositionSnapshotMerger.Merge(null, null, Now, remotePlayers: [entity]);
+        Assert.Single(first.Map!.Markers);
+        var later = Now.AddSeconds(positionAge);
+        var heartbeat = entity with { ObservedAt = later.AddSeconds(-presenceAge) };
+        var retained = LocalPositionSnapshotMerger.Merge(first, null, later, remotePlayers: [heartbeat]);
+        Assert.Equal(expected ? 1 : 0, retained.ProTrackingDiagnostics!.RenderedCount);
+        if (expected)
+        {
+            var marker = Assert.Single(retained.Map!.Markers);
+            Assert.Equal("pro-entity:player:327004", marker.SteamId);
+            Assert.Equal(location, marker.Location);
+            Assert.True(marker.ProEntityIsStale);
+            Assert.Equal(Now, heartbeat.LocationObservedAt);
+        }
+        var empty = LocalPositionSnapshotMerger.Merge(retained, null, later, remotePlayers: []);
+        Assert.Empty(empty.Map?.Markers ?? []);
+    }
+
+    [Theory]
+    [InlineData(7, 0, true)]
+    [InlineData(15, 0, true)]
+    [InlineData(16, 0, false)]
+    [InlineData(10, 6, true)]
+    [InlineData(10, 7, false)]
+    [InlineData(10, -1, false)]
+    public void Merge_AdmitsRecentIdentifiedPositionWithFreshPresenceAsStale(
+        int positionAge, int presenceAge, bool expected)
+    {
+        var entity = new VerifiedRemoteEntityTelemetry(
+            500, RemoteEntityKind.Player, null, "tyrannosaurus", "T-Rex",
+            CreatureDiet.Carnivore, null, new WorldLocation { X = 100, Y = 200 },
+            100000, 3, Now.AddSeconds(-presenceAge),
+            LocationObservedAt: Now.AddSeconds(-positionAge), ActorNetRefHandle: 500);
+        var result = LocalPositionSnapshotMerger.Merge(null, null, Now, remotePlayers: [entity]);
+        Assert.Equal(expected ? 1 : 0, result.ProTrackingDiagnostics!.RenderedCount);
+        if (expected)
+        {
+            var marker = Assert.Single(result.Map!.Markers);
+            Assert.True(marker.ProEntityIsStale);
+            Assert.Equal(entity.Location, marker.Location);
+            Assert.Equal(Now.AddSeconds(-positionAge), entity.LocationObservedAt);
+        }
+        var unproven = entity with { ActorNetRefHandle = 0 };
+        var rejected = LocalPositionSnapshotMerger.Merge(null, null, Now, remotePlayers: [unproven]);
+        Assert.Equal(0, rejected.ProTrackingDiagnostics!.RenderedCount);
+    }
+
+    [Fact]
+    public void Merge_RetainedHistoryDoesNotDuplicateOrSubstituteCoordinates()
+    {
+        var entity = new VerifiedRemoteEntityTelemetry(
+            501, RemoteEntityKind.Player, null, "rex", "Rex", CreatureDiet.Carnivore,
+            null, new WorldLocation { X = 100, Y = 200 }, 0, 3, Now,
+            LocationObservedAt: Now, ActorNetRefHandle: 501);
+        var first = LocalPositionSnapshotMerger.Merge(null, null, Now, remotePlayers: [entity]);
+        var now = Now.AddSeconds(30);
+        var heartbeat = entity with { ObservedAt = now };
+        var retained = LocalPositionSnapshotMerger.Merge(first, null, now,
+            remotePlayers: [heartbeat, heartbeat]);
+        Assert.Single(retained.Map!.Markers);
+        var changed = heartbeat with { Location = new WorldLocation { X = 500, Y = 600 } };
+        var rejected = LocalPositionSnapshotMerger.Merge(first, null, now, remotePlayers: [changed]);
+        Assert.Empty(rejected.Map!.Markers);
     }
 
     private static LocalMovementObservation Observation(

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Collections.Concurrent;
+using System.Text.Json;
 using System.Threading.Channels;
 using IsleLiveMap.Activation;
 using TheIsleOverlay.Core;
@@ -15,6 +16,8 @@ public sealed class ProAgentRemotePlayerSource :
     IProFeatureController,
     IProRealtimeConnectionBridge
 {
+    public const string HostComparisonOutputPathEnvironmentVariable =
+        "ISLELIVEMAP_PRO_HOST_COMPARE_PATH";
     private static readonly TimeSpan ConnectionTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan HandshakeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MaximumRestartDelay = TimeSpan.FromSeconds(30);
@@ -25,7 +28,10 @@ public sealed class ProAgentRemotePlayerSource :
     private readonly string _offlineLicenseToken;
     private readonly bool _localActivation;
     private readonly bool _localDevelopment;
+    private readonly string? _liveComparePath;
     private readonly CancellationTokenSource _disposeCancellation = new();
+    private readonly object _compareGate = new();
+    private StreamWriter? _compareWriter;
     private readonly Channel<HostCommand> _featureCommands =
         Channel.CreateUnbounded<HostCommand>(new UnboundedChannelOptions
         {
@@ -49,7 +55,8 @@ public sealed class ProAgentRemotePlayerSource :
         string steamId64,
         string offlineLicenseToken,
         bool localActivation = false,
-        bool localDevelopment = false)
+        bool localDevelopment = false,
+        string? liveComparePath = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(agentExecutablePath);
         ArgumentException.ThrowIfNullOrWhiteSpace(hostVersion);
@@ -61,6 +68,20 @@ public sealed class ProAgentRemotePlayerSource :
         _offlineLicenseToken = offlineLicenseToken;
         _localActivation = localActivation;
         _localDevelopment = localDevelopment;
+        _liveComparePath = string.IsNullOrWhiteSpace(liveComparePath)
+            ? null
+            : Path.GetFullPath(liveComparePath.Trim());
+    }
+
+    public ProAgentRemotePlayerSource(
+        string agentExecutablePath,
+        string hostVersion,
+        string steamId64,
+        string offlineLicenseToken,
+        string? liveComparePath)
+        : this(agentExecutablePath, hostVersion, steamId64, offlineLicenseToken,
+            localActivation: false, localDevelopment: false, liveComparePath)
+    {
     }
 
     internal static ProAgentRemotePlayerSource ForDeviceLease(string path, string hostVersion, string activationId, string lease) =>
@@ -346,7 +367,8 @@ public sealed class ProAgentRemotePlayerSource :
                             Message = null
                         });
                     }
-                    yield return MapFrame(telemetry);
+                    WriteLiveCompare(telemetry, pipeName);
+                    yield return MapFrame(telemetry, pipeName);
                 }
             }
             finally
@@ -379,10 +401,95 @@ public sealed class ProAgentRemotePlayerSource :
             }
             _pendingFeatureCommands.Clear();
             ReleaseRealtimeControl();
+            lock (_compareGate)
+            {
+                _compareWriter?.Dispose();
+                _compareWriter = null;
+            }
             _disposeCancellation.Dispose();
         }
 
         return ValueTask.CompletedTask;
+    }
+
+    internal void WriteLiveCompare(ProTelemetryFrame frame, string sessionId)
+    {
+        var configuredPath = ResolveHostComparisonPath(
+            _liveComparePath ?? Environment.GetEnvironmentVariable(HostComparisonOutputPathEnvironmentVariable),
+            Environment.GetEnvironmentVariable("ISLELIVEMAP_PRO_LIVE_COMPARE_PATH"));
+        if (string.IsNullOrWhiteSpace(configuredPath))
+        {
+            return;
+        }
+
+        try
+        {
+            lock (_compareGate)
+            {
+                if (_compareWriter is null)
+                {
+                    var path = Path.GetFullPath(configuredPath);
+                    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                    _compareWriter = new StreamWriter(
+                        new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read),
+                        new System.Text.UTF8Encoding(false))
+                    {
+                        AutoFlush = true
+                    };
+                }
+
+                var record = new
+                {
+                    Stage = "host-ipc-received",
+                    SessionId = sessionId,
+                    ProcessId = Environment.ProcessId,
+                    ReceivedAt = DateTimeOffset.UtcNow,
+                    frame.Sequence,
+                    frame.ObservedAt,
+                    FrameReceivedAt = DateTimeOffset.UtcNow,
+                    frame.ServerEndpoint,
+                    frame.LocalLocation,
+                    frame.PlayerSync,
+                    RemoteEntities = (frame.RemoteEntities ?? []).Select(entity => new
+                    {
+                        entity.TrackId,
+                        Kind = entity.Kind.ToString(),
+                        entity.PlayerProofName,
+                        entity.SpeciesId,
+                        entity.SpeciesShortName,
+                        entity.Diet,
+                        entity.Location,
+                        entity.ObservedAt,
+                        entity.LocationObservedAt,
+                        entity.HasVerifiedPosition,
+                        entity.ActorNetRefHandle,
+                        entity.PlayerStateNetRefHandle,
+                        entity.PawnNetRefHandle,
+                        entity.IsProvisional
+                    }).ToArray()
+                };
+                _compareWriter.WriteLine(JsonSerializer.Serialize(record));
+            }
+        }
+        catch (Exception exception) when (
+            exception is IOException or UnauthorizedAccessException or JsonException)
+        {
+            lock (_compareGate)
+            {
+                _compareWriter?.Dispose();
+                _compareWriter = null;
+            }
+
+            try
+            {
+                File.AppendAllText(
+                    configuredPath + ".error.log",
+                    $"{DateTimeOffset.UtcNow:O} {exception}{Environment.NewLine}");
+            }
+            catch
+            {
+            }
+        }
     }
 
     internal async Task<HostRealtimeControlResult> HandleRealtimeControlAsync(
@@ -537,6 +644,7 @@ public sealed class ProAgentRemotePlayerSource :
         startInfo.ArgumentList.Add(pipeName);
         startInfo.ArgumentList.Add("--parent-pid");
         startInfo.ArgumentList.Add(Environment.ProcessId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        startInfo.Environment["ISLELIVEMAP_TRACKING_SESSION_ID"] = pipeName;
         return Process.Start(startInfo)
                ?? throw new ProAgentException("Windows could not start the Pro Agent.");
     }
@@ -563,7 +671,17 @@ public sealed class ProAgentRemotePlayerSource :
         }
     }
 
-    private static RemotePlayerTelemetryFrame MapFrame(ProTelemetryFrame frame)
+    internal static string? ResolveHostComparisonPath(string? hostPath, string? agentPath)
+    {
+        if (string.IsNullOrWhiteSpace(hostPath)) return null;
+        var path = Path.GetFullPath(hostPath.Trim());
+        return !string.IsNullOrWhiteSpace(agentPath)
+               && string.Equals(path, Path.GetFullPath(agentPath.Trim()), StringComparison.OrdinalIgnoreCase)
+            ? null
+            : path;
+    }
+
+    internal static RemotePlayerTelemetryFrame MapFrame(ProTelemetryFrame frame, string? sessionId = null)
     {
         if (!IsFinite(frame.LocalLocation))
         {
@@ -629,7 +747,8 @@ public sealed class ProAgentRemotePlayerSource :
                     frame.PlayerSync.SpeciesEvidenceActors,
                     frame.PlayerSync.LocatedActors,
                     frame.PlayerSync.QueueDroppedPackets,
-                    frame.PlayerSync.QueueDepth));
+                    frame.PlayerSync.QueueDepth),
+            SessionId: sessionId);
     }
 
     private static string UserFacingAgentFailure(Exception exception) => exception switch
