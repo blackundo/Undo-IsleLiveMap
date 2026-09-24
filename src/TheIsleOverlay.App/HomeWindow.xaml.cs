@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Net.Http;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -29,7 +30,7 @@ public partial class HomeWindow : Window
     private readonly LatestTelemetrySnapshotStore _snapshots = LatestTelemetrySnapshotStore.Shared;
     private readonly GitHubReleaseNotesService _releaseService = new();
     private readonly GitHubUpdateService _updateService = new();
-    private readonly ProAccessService _proService = new();
+	private readonly ProAccessService _proService = CreateProAccessService();
     private readonly ProTelemetryWarmup _proTelemetryWarmup;
     private readonly Dictionary<OverlayShortcutAction, TextBox> _shortcutFields = new();
     private string _page = "home";
@@ -50,6 +51,24 @@ public partial class HomeWindow : Window
     private static Brush B(string color) => new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
     private Brush R(string key) => (Brush)FindResource(key);
     private TextBlock T(string text, double size = 14, Brush? foreground = null, FontWeight? weight = null) => new() { Text = text, FontSize = size, Foreground = foreground ?? R("Ink"), FontWeight = weight ?? FontWeights.Normal, TextWrapping = TextWrapping.Wrap };
+	private static ProAccessService CreateProAccessService()
+	{
+#if DEBUG
+		var localAgentPath = Path.Combine(
+			AppContext.BaseDirectory,
+			"ProAgent",
+			"IsleLiveMap.Pro.Agent.exe");
+		if (File.Exists(localAgentPath))
+		{
+			return new ProAccessService(new ProClientOptions
+			{
+				LocalAgentPath = localAgentPath,
+				EnableLocalDevelopment = true
+			});
+		}
+#endif
+		return new ProAccessService();
+	}
     public HomeWindow()
     {
         InitializeComponent();

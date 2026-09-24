@@ -600,7 +600,8 @@ public sealed class ProAgentRemotePlayerSource :
                 entity.LocationObservedAt,
                 entity.ActorNetRefHandle,
                 entity.PlayerStateNetRefHandle,
-                entity.PawnNetRefHandle))
+				entity.PawnNetRefHandle,
+				entity.HasVerifiedPosition))
             .ToArray();
 
         return new RemotePlayerTelemetryFrame(
@@ -688,23 +689,22 @@ public sealed class ProAgentRemotePlayerSource :
         && (entity.MassKg is null
             || entity.MassKg is > 0d and < 100_000d
             && double.IsFinite(entity.MassKg.Value))
-        && (entity.Kind == MapEntityKind.Ai
-            && HasValidSpecies(entity)
-            || entity.Kind == MapEntityKind.Player
-            && (entity.IsProvisional
-                && !HasValidPlayerProof(entity)
-                && HasValidSpecies(entity)
-                || !entity.IsProvisional
-                && HasValidPlayerProof(entity)
-                && HasValidOptionalSpecies(entity)))
+		&& (entity.Kind == MapEntityKind.Ai
+			&& HasValidSpecies(entity)
+			|| entity.Kind == MapEntityKind.Player
+			&& HasStablePlayerIdentity(entity)
+			&& (entity.IsProvisional
+				? HasValidSpecies(entity)
+				: HasValidOptionalSpecies(entity)))
         && entity.ConfirmationHits > 0
         && double.IsFinite(entity.DistanceFromLocal)
         && entity.DistanceFromLocal >= 0
         && IsFinite(entity.Location);
 
-    private static bool HasValidPlayerProof(VerifiedMapEntity entity) =>
-        entity.PlayerProofName is { Length: > 0 and <= 64 }
-        && !string.IsNullOrWhiteSpace(entity.PlayerProofName);
+	private static bool HasStablePlayerIdentity(VerifiedMapEntity entity) =>
+		entity.ActorNetRefHandle > 0
+		|| entity.PlayerStateNetRefHandle > 0
+		|| entity.PawnNetRefHandle > 0;
 
     private static bool HasValidSpecies(VerifiedMapEntity entity) =>
         HasValidSpeciesIdentity(entity.SpeciesId, entity.SpeciesShortName);

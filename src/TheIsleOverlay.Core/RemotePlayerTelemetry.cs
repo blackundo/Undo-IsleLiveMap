@@ -141,7 +141,8 @@ public sealed record VerifiedRemoteEntityTelemetry(
     DateTimeOffset? LocationObservedAt = null,
     ulong ActorNetRefHandle = 0,
     ulong PlayerStateNetRefHandle = 0,
-    ulong PawnNetRefHandle = 0)
+	ulong PawnNetRefHandle = 0,
+	bool HasVerifiedPosition = true)
 {
     // Presence/identity can be refreshed without a new movement sample. Do
     // not keep projecting that old coordinate as a dim marker: after this

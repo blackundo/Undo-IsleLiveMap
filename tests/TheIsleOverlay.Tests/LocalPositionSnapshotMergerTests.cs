@@ -711,7 +711,7 @@ public sealed class LocalPositionSnapshotMergerTests
     }
 
     [Fact]
-    public void Merge_RejectsPresenceRefreshWhenLocationIsStale()
+	public void Merge_RendersPresenceRefreshAsStaleWhenLocationIsOld()
     {
         var entity = new VerifiedRemoteEntityTelemetry(
             100,
@@ -737,15 +737,16 @@ public sealed class LocalPositionSnapshotMergerTests
             Now,
             remotePlayers: [entity]);
 
-        Assert.Equal(0, merged.ProTrackingDiagnostics?.RenderedCount);
-        Assert.Empty(merged.Map!.Markers);
-        Assert.Equal(1, merged.ProTrackingDiagnostics?.RejectedCount);
+		var marker = Assert.Single(merged.Map!.Markers);
+		Assert.True(marker.ProEntityIsStale);
+		Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
+		Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
         Assert.Equal(1, merged.ProTrackingDiagnostics?.StaleCount);
-        Assert.Equal(1, merged.ProTrackingDiagnostics?.Rejections[RemoteEntityRejectionReason.StaleLocation]);
+		Assert.Empty(merged.ProTrackingDiagnostics?.Rejections!);
     }
 
     [Fact]
-    public void Merge_DropsPreviouslyRenderedVerifiedActorWhenLocationIsStale()
+	public void Merge_KeepsPreviouslyRenderedVerifiedActorDimWhenLocationIsStale()
     {
         var marker = new MapMarkerTelemetry
         {
@@ -768,6 +769,7 @@ public sealed class LocalPositionSnapshotMergerTests
             3,
             Now,
             IsProvisional: false,
+			ActorNetRefHandle: 100,
             LocationObservedAt: Now - VerifiedRemoteEntityTelemetry.LocationFreshness - TimeSpan.FromMilliseconds(1));
 
         var merged = LocalPositionSnapshotMerger.Merge(
@@ -776,15 +778,16 @@ public sealed class LocalPositionSnapshotMergerTests
             Now,
             remotePlayers: [entity]);
 
-        Assert.Empty(merged.Map!.Markers);
-        Assert.Equal(0, merged.ProTrackingDiagnostics?.RenderedCount);
-        Assert.Equal(1, merged.ProTrackingDiagnostics?.RejectedCount);
+		var retained = Assert.Single(merged.Map!.Markers);
+		Assert.True(retained.ProEntityIsStale);
+		Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
+		Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
         Assert.Equal(1, merged.ProTrackingDiagnostics?.StaleCount);
-        Assert.Equal(1, merged.ProTrackingDiagnostics?.Rejections[RemoteEntityRejectionReason.StaleLocation]);
+		Assert.Empty(merged.ProTrackingDiagnostics?.Rejections!);
     }
 
     [Fact]
-    public void Merge_DoesNotProjectFirstVerifiedActorWhenItsOnlyLocationIsOld()
+	public void Merge_ProjectsFirstVerifiedActorDimWhenItsOnlyLocationIsOld()
     {
         var entity = new VerifiedRemoteEntityTelemetry(
             101,
@@ -810,12 +813,44 @@ public sealed class LocalPositionSnapshotMergerTests
             Now,
             remotePlayers: [entity]);
 
-        Assert.Empty(merged.Map!.Markers);
-        Assert.Equal(0, merged.ProTrackingDiagnostics?.RenderedCount);
-        Assert.Equal(1, merged.ProTrackingDiagnostics?.RejectedCount);
+		var marker = Assert.Single(merged.Map!.Markers);
+		Assert.True(marker.ProEntityIsStale);
+		Assert.Equal(1, merged.ProTrackingDiagnostics?.RenderedCount);
+		Assert.Equal(0, merged.ProTrackingDiagnostics?.RejectedCount);
         Assert.Equal(1, merged.ProTrackingDiagnostics?.StaleCount);
-        Assert.Equal(1, merged.ProTrackingDiagnostics?.Rejections[RemoteEntityRejectionReason.StaleLocation]);
+		Assert.Empty(merged.ProTrackingDiagnostics?.Rejections!);
     }
+
+	[Fact]
+	public void Merge_RendersFreshMovementPositionAsLiveEvenWhenNotCreationVerified()
+	{
+		var entity = new VerifiedRemoteEntityTelemetry(
+			103,
+			RemoteEntityKind.Player,
+			null,
+			"triceratops",
+			"Trice",
+			CreatureDiet.Herbivore,
+			null,
+			new WorldLocation { X = 100, Y = 200 },
+			0,
+			3,
+			Now,
+			IsProvisional: false,
+			LocationObservedAt: Now,
+			ActorNetRefHandle: 103,
+			HasVerifiedPosition: false);
+
+		var merged = LocalPositionSnapshotMerger.Merge(
+			new TelemetrySnapshot { Map = new MapTelemetry() },
+			null,
+			Now,
+			remotePlayers: [entity]);
+
+		var marker = Assert.Single(merged.Map!.Markers);
+		Assert.False(marker.ProEntityIsStale);
+		Assert.Equal(0, merged.ProTrackingDiagnostics?.StaleCount);
+	}
 
     [Fact]
     public void Merge_RefreshesStaleVerifiedActorInPlaceWhenMovementBecomesFresh()

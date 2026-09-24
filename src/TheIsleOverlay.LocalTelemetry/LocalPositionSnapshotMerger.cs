@@ -292,9 +292,16 @@ public static class LocalPositionSnapshotMerger
         var staleCount = 0;
         foreach (var entity in remotePlayers)
         {
+			var locationObservedAt = entity.LocationObservedAt ?? entity.ObservedAt;
+			var isStale = now >= locationObservedAt
+				&& now - locationObservedAt > VerifiedRemoteEntityTelemetry.LocationFreshness;
             if (!TryGetRejectionReason(entity, seen, now, out var reason))
             {
                 eligible++;
+				if (isStale)
+				{
+					staleCount++;
+				}
                 var speciesLabel = string.IsNullOrWhiteSpace(entity.SpeciesShortName)
                     ? "Player ?"
                     : entity.SpeciesShortName;
@@ -311,21 +318,13 @@ public static class LocalPositionSnapshotMerger
                     CreatureSpeciesShortName = entity.SpeciesShortName,
                     ProCreatureDiet = entity.Diet,
                     CreatureMassKg = entity.MassKg,
-                    ProEntityIsProvisional = entity.IsProvisional
+					ProEntityIsProvisional = entity.IsProvisional,
+					ProEntityIsStale = isStale
                 });
                 continue;
             }
 
             rejectionCounts[reason] = rejectionCounts.GetValueOrDefault(reason) + 1;
-
-            // Presence and movement are separate signals. An actor with an
-            // old coordinate is retained in diagnostics only; projecting its
-            // old coordinate, even as a dim marker, makes users walk to a
-            // location where the dino is no longer present.
-            if (reason == RemoteEntityRejectionReason.StaleLocation)
-            {
-                staleCount++;
-            }
         }
         var diagnostics = new RemoteTrackingDiagnostics
         {
@@ -389,8 +388,7 @@ public static class LocalPositionSnapshotMerger
         // provide LocationObservedAt, which prevents presence refreshes from
         // making an old coordinate look live.
         var locationObservedAt = entity.LocationObservedAt ?? entity.ObservedAt;
-        if (locationObservedAt > now
-            || now - locationObservedAt > VerifiedRemoteEntityTelemetry.LocationFreshness)
+		if (locationObservedAt > now)
         {
             reason = RemoteEntityRejectionReason.StaleLocation;
             return true;

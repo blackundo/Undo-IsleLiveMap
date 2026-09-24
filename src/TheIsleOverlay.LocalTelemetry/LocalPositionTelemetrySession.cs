@@ -197,8 +197,7 @@ public sealed class LocalPositionTelemetrySession :
                         Map = ApplyRemoteLifecycleToMap(
                             merged.Map,
                             lifecycle,
-                            previousMap,
-                            preserveMissingFromNonEmptyFrame: false),
+							previousMap),
                         ProPlayerTrackingActive = _remotePlayerSource is not null,
                         ProTrackingDiagnostics = trackingDiagnostics with
                         {
@@ -213,8 +212,7 @@ public sealed class LocalPositionTelemetrySession :
                         Map = ApplyRemoteLifecycleToMap(
                             merged.Map,
                             lifecycle,
-                            previousMap,
-                            preserveMissingFromNonEmptyFrame: false),
+							previousMap),
                         ProPlayerTrackingActive = true,
                         ProTrackingDiagnostics = new RemoteTrackingDiagnostics
                         {
@@ -428,10 +426,10 @@ public sealed class LocalPositionTelemetrySession :
     private static MapTelemetry? ApplyRemoteLifecycleToMap(
         MapTelemetry? map,
         IReadOnlyList<RemoteEntityLifecycleSnapshot> lifecycle,
-        MapTelemetry? previousMap,
-        bool preserveMissingFromNonEmptyFrame)
+		MapTelemetry? previousMap)
     {
-        if (map is null || lifecycle.Count == 0)
+		var baseMap = map ?? previousMap;
+		if (baseMap is null || lifecycle.Count == 0)
         {
             return map;
         }
@@ -439,42 +437,55 @@ public sealed class LocalPositionTelemetrySession :
         var byTrack = lifecycle
             .GroupBy(item => (item.Kind, item.TrackId))
             .ToDictionary(group => group.Key, group => group.Last());
-        var markers = map.Markers
-            .Where(marker =>
-            {
-                if (marker.ProEntityKind is not { } kind
-                    || !TryGetTrackId(marker.SteamId, out var trackId))
-                {
-                    return true;
-                }
+		var markers = new List<MapMarkerTelemetry>();
+		var includedTracks = new HashSet<(RemoteEntityKind Kind, long TrackId)>();
+		foreach (var marker in map?.Markers ?? previousMap?.Markers ?? [])
+		{
+			if (marker.ProEntityKind is not { } kind
+				|| !TryGetTrackId(marker.SteamId, out var trackId))
+			{
+				markers.Add(marker);
+				continue;
+			}
 
-                return !byTrack.TryGetValue((kind, trackId), out var state)
-                       || state.State is not (RemoteEntityLifecycleState.Removed
-                           or RemoteEntityLifecycleState.TemporarilyMissing
-                           or RemoteEntityLifecycleState.Stale);
-            })
-            .Select(marker =>
-            {
-                if (marker.ProEntityKind is not { } kind
-                    || !TryGetTrackId(marker.SteamId, out var trackId)
-                    || !byTrack.TryGetValue((kind, trackId), out var state))
-                {
-                    return marker;
-                }
+			var key = (kind, trackId);
+			if (byTrack.TryGetValue(key, out var state)
+				&& state.State == RemoteEntityLifecycleState.Removed)
+			{
+				continue;
+			}
 
-                return marker with
-                {
-                    // Preserve freshness loss reported by the merger even if
-                    // the Agent presence frame itself is still arriving.
-                    // Presence and location freshness are separate signals.
-                    ProEntityIsStale = marker.ProEntityIsStale
-                        || state.State is RemoteEntityLifecycleState.Stale
-                            or RemoteEntityLifecycleState.TemporarilyMissing
-                };
-            })
-            .ToArray();
+			includedTracks.Add(key);
+			markers.Add(marker with
+			{
+				ProEntityIsStale = marker.ProEntityIsStale
+					|| state?.State is RemoteEntityLifecycleState.Stale
+						or RemoteEntityLifecycleState.TemporarilyMissing
+			});
+		}
 
-        return map with { Markers = markers };
+		foreach (var marker in previousMap?.Markers ?? [])
+		{
+			if (marker.ProEntityKind is not { } kind
+				|| !TryGetTrackId(marker.SteamId, out var trackId))
+			{
+				continue;
+			}
+
+			var key = (kind, trackId);
+			if (includedTracks.Contains(key)
+				|| !byTrack.TryGetValue(key, out var state)
+				|| state.State is not (RemoteEntityLifecycleState.Stale
+					or RemoteEntityLifecycleState.TemporarilyMissing))
+			{
+				continue;
+			}
+
+			includedTracks.Add(key);
+			markers.Add(marker with { ProEntityIsStale = true });
+		}
+
+		return baseMap with { Markers = markers };
     }
 
     private static bool TryGetTrackId(string? steamId, out long trackId)
