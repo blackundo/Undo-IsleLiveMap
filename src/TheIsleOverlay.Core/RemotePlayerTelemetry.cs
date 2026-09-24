@@ -55,6 +55,51 @@ public sealed record RemotePlayerTelemetryFrame(
     DateTimeOffset? ReceivedAt = null,
     RemotePlayerSyncState? PlayerSync = null);
 
+public enum RemoteEntityRejectionReason
+{
+    InvalidTrackId = 1,
+    // Kept for IPC/backward compatibility. In the name-free protocol this
+    // means missing structural player proof, not merely a missing name.
+    MissingPlayerProof = 2,
+    MissingSpecies = 3,
+    InvalidCoordinate = 4,
+    StaleLocation = 13,
+    LocationUnavailable = 14,
+    WrongServer = 5,
+    SessionMismatch = 6,
+    [Obsolete("Distance is diagnostic-only; remote entities are no longer rejected by range.")]
+    TooFarFromLocal = 7,
+    Duplicate = 8,
+    LocalCollision = 9,
+    UnsupportedKind = 10,
+    Stale = 11,
+    [Obsolete("Distance is diagnostic-only; remote entities are no longer rejected by range.")]
+    DistanceCheckUnavailable = 12,
+}
+
+public sealed record RemoteTrackingDiagnostics
+{
+    public int ReceivedCount { get; init; }
+    public int EligibleCount { get; init; }
+    public int RenderedCount { get; init; }
+    /// <summary>
+    /// Verified entities whose last known coordinate is retained for display
+    /// but is outside the live freshness window. These are rendered as stale,
+    /// not rejected entities.
+    /// </summary>
+    public int StaleCount { get; init; }
+    public int RejectedCount { get; init; }
+    public IReadOnlyDictionary<RemoteEntityRejectionReason, int> Rejections { get; init; } =
+        new Dictionary<RemoteEntityRejectionReason, int>();
+    public string? FrameState { get; init; }
+    public IReadOnlyList<RemoteEntityLifecycleSnapshot> Lifecycle { get; init; } = [];
+
+    public static RemoteTrackingDiagnostics NoFrame { get; } = new()
+    {
+        FrameState = "no-frame"
+    };
+}
+
 public sealed record RemotePlayerSyncState(
     bool IsSynchronizing,
     int VerifiedPlayers,
@@ -67,6 +112,7 @@ public sealed record RemotePlayerSyncState(
 
 public enum RemoteEntityKind
 {
+    Unknown = 0,
     Player = 1,
     Ai = 2
 }
@@ -91,4 +137,21 @@ public sealed record VerifiedRemoteEntityTelemetry(
     double DistanceFromLocal,
     int ConfirmationHits,
     DateTimeOffset ObservedAt,
-    bool IsProvisional = false);
+    bool IsProvisional = false,
+    DateTimeOffset? LocationObservedAt = null,
+    ulong ActorNetRefHandle = 0,
+    ulong PlayerStateNetRefHandle = 0,
+    ulong PawnNetRefHandle = 0)
+{
+    // Presence/identity can be refreshed without a new movement sample. Do
+    // not keep projecting that old coordinate as a dim marker: after this
+    // window the actor is diagnostic-only until a fresh movement packet
+    // arrives. This prevents a user from walking to a stale marker and
+    // finding no dino there.
+    public static readonly TimeSpan LocationFreshness = TimeSpan.FromSeconds(2);
+
+    public TimeSpan? LocationAgeAt(DateTimeOffset now) =>
+        LocationObservedAt is { } observed && now >= observed
+            ? now - observed
+            : null;
+}

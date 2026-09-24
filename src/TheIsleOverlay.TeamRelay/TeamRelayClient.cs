@@ -37,6 +37,7 @@ public sealed class TeamRelayClient : IAsyncDisposable
     private Task? _heartbeatTask;
     private bool _intentionalStop;
     private bool _disposed;
+    private string? _entitlementProof;
 
     public TeamRelayClient(
         Uri? baseUri = null,
@@ -58,6 +59,13 @@ public sealed class TeamRelayClient : IAsyncDisposable
 
     public event EventHandler<TeamRelayState>? StateChanged;
 
+    public void ConfigureAccess(TeamAccessTier tier, string? entitlementProof)
+    {
+        _entitlementProof = tier == TeamAccessTier.Pro && !string.IsNullOrWhiteSpace(entitlementProof)
+            ? entitlementProof
+            : null;
+    }
+
     public TeamRelayState CurrentState
     {
         get
@@ -71,20 +79,42 @@ public sealed class TeamRelayClient : IAsyncDisposable
 
     public Task<TeamSession> CreateAsync(
         string displayName,
+        TeamAccessTier tier = TeamAccessTier.Free,
+        CancellationToken cancellationToken = default) =>
+        CreateAsync(displayName, tier, TeamRoomLimits.For(tier), cancellationToken);
+
+    public Task<TeamSession> CreateAsync(
+        string displayName,
+        TeamAccessTier tier,
+        int requestedMaxMembers,
+        CancellationToken cancellationToken = default) =>
+        !TeamRoomLimits.CanCreate(tier, requestedMaxMembers)
+            ? Task.FromException<TeamSession>(new ArgumentException("Quy mô phòng không hợp lệ cho quyền hiện tại.", nameof(requestedMaxMembers)))
+            : StartNewSessionAsync(
+            "api/v1/teams",
+            new CreateTeamRequest(displayName, tier, requestedMaxMembers, _entitlementProof),
+            cancellationToken);
+
+    public Task<TeamSession> CreateAsync(
+        string displayName,
+        CancellationToken cancellationToken) =>
+        CreateAsync(displayName, TeamAccessTier.Free, cancellationToken);
+
+    public Task<TeamSession> JoinAsync(
+        string inviteCode,
+        string displayName,
+        TeamAccessTier tier = TeamAccessTier.Free,
         CancellationToken cancellationToken = default) =>
         StartNewSessionAsync(
-            "api/v1/teams",
-            new CreateTeamRequest(displayName),
+            "api/v1/teams/join",
+            new JoinTeamRequest(inviteCode.Trim().ToUpperInvariant(), displayName, tier, _entitlementProof),
             cancellationToken);
 
     public Task<TeamSession> JoinAsync(
         string inviteCode,
         string displayName,
-        CancellationToken cancellationToken = default) =>
-        StartNewSessionAsync(
-            "api/v1/teams/join",
-            new JoinTeamRequest(inviteCode.Trim().ToUpperInvariant(), displayName),
-            cancellationToken);
+        CancellationToken cancellationToken) =>
+        JoinAsync(inviteCode, displayName, TeamAccessTier.Free, cancellationToken);
 
     public async Task<bool> PublishTelemetryAsync(
         TeamTelemetryUpdate telemetry,

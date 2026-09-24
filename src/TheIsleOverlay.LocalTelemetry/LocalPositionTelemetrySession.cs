@@ -15,6 +15,10 @@ public sealed class LocalPositionTelemetrySession :
     private readonly string _sourceName;
     private readonly bool _enableLocalVitals;
     private readonly CancellationTokenSource _disposeCancellation = new();
+    private readonly object _latestRemoteFrameGate = new();
+    private readonly RemoteEntityLifecycleTracker _remoteLifecycle = new();
+    private RemotePlayerTelemetryFrame? _latestRemoteFrame;
+    private long? _lastLifecycleSequence;
     private int _watchStarted;
     private int _disposed;
 
@@ -78,6 +82,7 @@ public sealed class LocalPositionTelemetrySession :
         }
 
         TelemetrySnapshot? remote = null;
+        TelemetrySnapshot? lastMergedSnapshot = null;
         LocalMovementObservation? local = null;
         RemotePlayerTelemetryFrame? remotePlayerFrame = null;
         RemotePlayerCaptureHealth? remotePlayerHealth =
@@ -106,6 +111,23 @@ public sealed class LocalPositionTelemetrySession :
                         break;
                     case RemotePlayersEvent remotePlayersEvent:
                         remotePlayerFrame = remotePlayersEvent.Frame;
+                        break;
+                    case RemotePlayersAvailableEvent:
+                        lock (_latestRemoteFrameGate)
+                        {
+                            remotePlayerFrame = _latestRemoteFrame;
+                        }
+                        break;
+                    case TickEvent:
+                        // A dropped best-effort wake-up must not strand the
+                        // latest remote frame behind the bounded event lane.
+                        lock (_latestRemoteFrameGate)
+                        {
+                            if (_latestRemoteFrame is not null)
+                            {
+                                remotePlayerFrame = _latestRemoteFrame;
+                            }
+                        }
                         break;
                     case RemotePlayersFailureEvent failureEvent:
                         remotePlayerFrame = null;
@@ -144,12 +166,13 @@ public sealed class LocalPositionTelemetrySession :
                         ? null
                         : usableRemotePlayerFrame is { } frame
                             ? frame.RemoteEntities
-                            : [];
+                            : null;
                 var verifiedLocalSpeciesId = usableRemotePlayerFrame is { } localSpeciesFrame
                     ? localSpeciesFrame.LocalSpeciesId
                     : null;
+                var previousMap = lastMergedSnapshot?.Map;
                 var merged = LocalPositionSnapshotMerger.Merge(
-                    remote,
+                    remote ?? lastMergedSnapshot,
                     local,
                     now,
                     _sourceName,
@@ -158,8 +181,52 @@ public sealed class LocalPositionTelemetrySession :
                     usableRemotePlayerFrame,
                     allowLocalVitals: _enableLocalVitals,
                     requireFreshLocalMovement: true);
+
+                var lifecycle = usableRemotePlayerFrame is { } lifecycleFrame
+                                && lifecycleFrame.Sequence != _lastLifecycleSequence
+                    ? _remoteLifecycle.ApplyFrame(lifecycleFrame, now)
+                    : _remoteLifecycle.AdvanceWithoutFrame(now);
+                if (usableRemotePlayerFrame is { } appliedFrame)
+                {
+                    _lastLifecycleSequence = appliedFrame.Sequence;
+                }
+                if (merged.ProTrackingDiagnostics is { } trackingDiagnostics)
+                {
+                    merged = merged with
+                    {
+                        Map = ApplyRemoteLifecycleToMap(
+                            merged.Map,
+                            lifecycle,
+                            previousMap,
+                            preserveMissingFromNonEmptyFrame: false),
+                        ProPlayerTrackingActive = _remotePlayerSource is not null,
+                        ProTrackingDiagnostics = trackingDiagnostics with
+                        {
+                            Lifecycle = lifecycle
+                        }
+                    };
+                }
+                else if (_remotePlayerSource is not null)
+                {
+                    merged = merged with
+                    {
+                        Map = ApplyRemoteLifecycleToMap(
+                            merged.Map,
+                            lifecycle,
+                            previousMap,
+                            preserveMissingFromNonEmptyFrame: false),
+                        ProPlayerTrackingActive = true,
+                        ProTrackingDiagnostics = new RemoteTrackingDiagnostics
+                        {
+                            FrameState = "no-frame",
+                            Lifecycle = lifecycle
+                        }
+                    };
+                }
                 if (remote is null
                     && local is null
+                    && lastMergedSnapshot is null
+                    && _remotePlayerSource is null
                     && !string.IsNullOrWhiteSpace(localError))
                 {
                     merged = LocalPositionSnapshotMerger.Waiting(_sourceName, localError);
@@ -173,6 +240,7 @@ public sealed class LocalPositionTelemetrySession :
                     };
                 }
 
+                lastMergedSnapshot = merged;
                 yield return merged;
             }
         }
@@ -316,15 +384,20 @@ public sealed class LocalPositionTelemetrySession :
     {
         try
         {
-            await foreach (var frame in _remotePlayerSource!
+                await foreach (var frame in _remotePlayerSource!
                                .WatchAsync(cancellationToken)
                                .ConfigureAwait(false))
-            {
-                await writer.WriteAsync(
-                        new RemotePlayersEvent(frame),
-                        cancellationToken)
-                    .ConfigureAwait(false);
-            }
+                {
+                    // Remote position frames are latest-value data. A new
+                    // frame must never wait behind stale local/server events
+                    // in the shared FIFO. The periodic tick remains a
+                    // fallback wake-up if this best-effort signal is dropped.
+                    lock (_latestRemoteFrameGate)
+                    {
+                        _latestRemoteFrame = frame;
+                    }
+                    writer.TryWrite(RemotePlayersAvailableEvent.Instance);
+                }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -347,6 +420,75 @@ public sealed class LocalPositionTelemetrySession :
     private sealed record LocalMovementEvent(LocalMovementObservation Observation) : SessionEvent;
     private sealed record LocalFailureEvent(string Message) : SessionEvent;
     private sealed record RemotePlayersEvent(RemotePlayerTelemetryFrame Frame) : SessionEvent;
+    private sealed record RemotePlayersAvailableEvent : SessionEvent
+    {
+        public static RemotePlayersAvailableEvent Instance { get; } = new();
+    }
+
+    private static MapTelemetry? ApplyRemoteLifecycleToMap(
+        MapTelemetry? map,
+        IReadOnlyList<RemoteEntityLifecycleSnapshot> lifecycle,
+        MapTelemetry? previousMap,
+        bool preserveMissingFromNonEmptyFrame)
+    {
+        if (map is null || lifecycle.Count == 0)
+        {
+            return map;
+        }
+
+        var byTrack = lifecycle
+            .GroupBy(item => (item.Kind, item.TrackId))
+            .ToDictionary(group => group.Key, group => group.Last());
+        var markers = map.Markers
+            .Where(marker =>
+            {
+                if (marker.ProEntityKind is not { } kind
+                    || !TryGetTrackId(marker.SteamId, out var trackId))
+                {
+                    return true;
+                }
+
+                return !byTrack.TryGetValue((kind, trackId), out var state)
+                       || state.State is not (RemoteEntityLifecycleState.Removed
+                           or RemoteEntityLifecycleState.TemporarilyMissing
+                           or RemoteEntityLifecycleState.Stale);
+            })
+            .Select(marker =>
+            {
+                if (marker.ProEntityKind is not { } kind
+                    || !TryGetTrackId(marker.SteamId, out var trackId)
+                    || !byTrack.TryGetValue((kind, trackId), out var state))
+                {
+                    return marker;
+                }
+
+                return marker with
+                {
+                    // Preserve freshness loss reported by the merger even if
+                    // the Agent presence frame itself is still arriving.
+                    // Presence and location freshness are separate signals.
+                    ProEntityIsStale = marker.ProEntityIsStale
+                        || state.State is RemoteEntityLifecycleState.Stale
+                            or RemoteEntityLifecycleState.TemporarilyMissing
+                };
+            })
+            .ToArray();
+
+        return map with { Markers = markers };
+    }
+
+    private static bool TryGetTrackId(string? steamId, out long trackId)
+    {
+        trackId = 0;
+        if (string.IsNullOrWhiteSpace(steamId))
+        {
+            return false;
+        }
+
+        var separator = steamId.LastIndexOf(':');
+        return separator >= 0
+               && long.TryParse(steamId[(separator + 1)..], out trackId);
+    }
     private sealed record RemotePlayersFailureEvent(string Message) : SessionEvent;
     private sealed record TickEvent : SessionEvent
     {

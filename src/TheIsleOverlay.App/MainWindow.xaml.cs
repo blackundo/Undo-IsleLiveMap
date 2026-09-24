@@ -299,8 +299,11 @@ public partial class MainWindow : Window
             snapshot?.UpdatedAt,
             snapshot?.ProPlayerTrackingActive,
             snapshot?.ProPlayerSequence,
+            snapshot?.ProPlayerFrameObservedAt,
+            snapshot?.ProPlayerFrameReceivedAt,
             snapshot?.ProPlayerSync,
             snapshot?.ProPlayerCaptureHealth,
+            snapshot?.ProTrackingDiagnostics,
             PlayerIdentity = snapshot?.Player is { } diagnosticPlayer
                 ? new
                 {
@@ -641,6 +644,7 @@ public partial class MainWindow : Window
     private void RenderSnapshot(TelemetrySnapshot snapshot)
     {
         _renderStartedAt = Stopwatch.GetTimestamp();
+        LatestTelemetrySnapshotStore.Shared.Update(snapshot);
         try
         {
             if (IsIslePilotSource)

@@ -80,7 +80,8 @@ public sealed record ProAccessSnapshot(
     bool AgentReady,
     string? AgentVersion,
     DateTimeOffset? OfflineLicenseExpiresAt,
-    string? StatusCode)
+    string? StatusCode,
+    string? EntitlementProof = null)
 {
     public static ProAccessSnapshot SignedOut { get; } = new(
         null,
@@ -89,7 +90,8 @@ public sealed record ProAccessSnapshot(
         false,
         null,
         null,
-        "signed_out");
+        "signed_out",
+        null);
 
     public bool IsAuthenticated => !string.IsNullOrWhiteSpace(SteamId64);
 

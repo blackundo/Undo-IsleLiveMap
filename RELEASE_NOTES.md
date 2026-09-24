@@ -1,3 +1,82 @@
+# Isle Live Map 2.4.0
+
+## Nhóm sinh tồn
+
+- Thêm hộp thoại chọn quy mô phòng 3, 7, 10 hoặc 21 người (tính cả chủ phòng); phòng 10/21 người yêu cầu Pro.
+- Gửi quy mô đã chọn tới relay và kiểm tra quy mô được cấp; không tạo nhầm phòng sai giới hạn.
+- Sửa bố cục hộp thoại để các lựa chọn luôn nằm trong khung, không bị che hoặc cắt.
+
+## SDVN và kết nối server riêng
+
+- Thêm một nút SDVN trên Home với logo riêng; chọn SDVN #1, #2 hoặc #3 trong cùng một cửa sổ và nhớ server gần nhất.
+- Phiên SDVN được mã hóa bằng DPAPI, tách riêng từng tenant; không dùng chung cookie với DinoVietnam hoặc HoHo. SDVN #4 tạm ẩn do lỗi TLS phía website.
+- Khôi phục thao tác thật cho nút GACHA và ORIGIN: đăng nhập, kiểm tra phiên và mở overlay; hiển thị trạng thái/lỗi ngay trên Home.
+- Stats Origin được cập nhật theo nhịp mục tiêu 2,5 giây khi API đáp ứng; Prime chạy độc lập, không giữ HP/Hunger/Thirst/Stamina chờ theo.
+- Command Origin chậm được tiếp tục theo cùng mã lệnh, có backoff/rate-limit; dữ liệu cũ được đánh dấu và chỉ giữ tối đa 10 giây, không tự gia hạn vô hạn.
+- Các nút server cùng tuân theo bước kiểm tra cập nhật, Npcap và chống mở nhiều overlay; giữ nguyên GPS local, quyền Pro và relay nhóm.
+
+# Isle Live Map 2.3.6
+
+## Auto update và server riêng trong Pro
+
+- Khi đang kiểm tra phiên bản, nút `MỞ MAP PRO` chuyển thành `ĐANG KIỂM TRA CẬP NHẬT` và bị khóa để không mở map trước khi có kết quả.
+- Trong lúc tải bản mới, nút hiển thị `ĐANG CẬP NHẬT v<version>`; sau khi tải xong, text trở lại `MỞ MAP PRO` nhưng map vẫn chờ khởi động lại nếu bản cập nhật yêu cầu áp dụng.
+- Làm lại cụm nút GACHA và ORIGIN 5x trong Pro: cùng lưới, logo lớn hơn, tên trắng căn giữa, nền pastel đặc theo nhận diện server và vùng bấm cân đối hơn.
+
+# Isle Live Map 2.3.5
+
+## Auto update và GPS local
+
+- Launcher kiểm tra bản cập nhật trước khi cho mở Live Map. Nếu kiểm tra mạng thất bại, app báo rõ nhưng vẫn cho người dùng tiếp tục sử dụng; nếu tải được bản mới, map chỉ mở sau khi khởi động lại hoàn tất cập nhật.
+- Khôi phục prewarm Npcap ngay khi launcher khởi động và probe Npcap đã sẵn sàng, giúp bắt process, adapter, UDP handshake và movement packet trước khi người dùng bấm mở map.
+- Giữ yêu cầu movement local phải mới để không hiển thị vị trí cũ như vị trí hiện tại; khi đang chờ packet, launcher/telemetry hiển thị trạng thái chờ thay vì giả dữ liệu live.
+
+# Isle Live Map 2.3.3
+
+## Pro Agent và Live Map
+
+- Sửa luồng mở map để chờ hoàn tất việc đọc quyền Pro trước khi tạo overlay, tránh phiên map nhận nhầm trạng thái Free khi launcher vẫn đang khởi tạo.
+- Truyền nguồn Pro Agent thực tế vào phiên telemetry cùng với quyền Pro, khôi phục Player/AI tracking và phân loại marker trên overlay cho tài khoản Pro.
+- Giữ nguyên cơ chế báo trạng thái Agent khi Agent chưa sẵn sàng; không thay đổi logic tracking trong đợt phát hành này.
+
+# Isle Live Map 2.3.2
+
+## Launcher và Npcap
+
+- Khôi phục bước kiểm tra Npcap trước khi mở Live Map; nếu thiếu hoặc chưa sẵn sàng, launcher mở lại cửa sổ hỗ trợ cài đặt thay vì đi thẳng vào đăng nhập.
+- Kiểm tra lại Npcap sau khi cài trong cùng phiên, chỉ tiếp tục mở map khi thư viện và adapter đã sẵn sàng.
+- Cập nhật launcher workspace: nút server riêng có nền pastel rõ ràng, nhập tên nhóm qua hộp thoại riêng và nút lưu phím tắt chỉ bật khi có thay đổi.
+- Sửa hiển thị phiên bản trên title bar để khớp với bản phát hành.
+
+# Isle Live Map 2.3.1
+
+## Nhóm sinh tồn
+
+- Phát hành workspace nhóm sinh tồn với phòng Free tối đa 7 người và phòng Pro tối đa 21 người.
+- Relay xác thực entitlement Pro bằng JWT đã ký trước khi cấp dung lượng 21 người; request tự khai Pro không thể nâng giới hạn.
+- Tích hợp trạng thái nhóm và quyền Pro trực tiếp trong launcher workspace.
+
+# Isle Live Map 2.3.0
+
+## Nhóm sinh tồn
+
+- Thêm tab `NHÓM SINH TỒN` ngay sau Trang chủ với luồng tạo phòng, vào phòng, copy mã mời, xem trạng thái relay và rời phòng trong cùng workspace.
+- Phòng Free có giới hạn 7 người tính cả chủ phòng; phòng Pro có giới hạn 21 người. Client truyền tier/quota hint qua contract relay; relay production phải xác thực entitlement server-side trước khi cấp `MaxMembers`.
+- Trang Pro dùng luồng nhập key và xác minh Agent riêng của Undo.
+- Việt hóa trạng thái nhóm, tier phòng và thông báo lỗi chính trong launcher.
+
+# Isle Live Map 2.2.7
+
+## Launcher workspace dễ đọc hơn
+
+- Làm lại các nút server riêng trên Trang chủ với nền màu riêng, logo và tên server căn giữa trong đúng vùng nút: GACHA xanh lá nhạt, ORIGIN 5x xanh dương nhạt.
+- Tinh chỉnh nền server thành màu pastel đặc, mờ nhạt nhẹ và dễ nhận biết trên ảnh nền; không còn hiệu ứng xuyên thấu làm mất màu nút.
+- Rút gọn nhãn quyền Pro ở sidebar thành `PRO ĐANG BẬT` để không tràn, vẫn giữ tên trợ năng đầy đủ.
+- Tăng độ rộng rail ghi chú phiên bản, tăng tương phản, cỡ chữ và line-height; nội dung mở rộng dễ quét hơn.
+- Làm lại trang `PHÍM TẮT`: mỗi shortcut là một hàng riêng có hierarchy rõ, ô nhập nhận tổ hợp phím trực tiếp, trạng thái `HỢP LỆ` / `BỊ TRÙNG` / `CHƯA GÁN` / `KHÔNG HỢP LỆ`, nút mặc định gọn và footer lưu thay đổi.
+- Việt hóa toàn bộ nhãn thao tác mới và giữ các thay đổi trong workspace inline, không mở modal shortcut.
+- Đồng bộ nhãn Pro ngắn gọn trên title bar với sidebar, tránh lặp hoặc tràn trạng thái.
+
 # Isle Live Map 2.2.3
 
 ## Bản đồ nước tùy biến và HUD dễ đọc hơn

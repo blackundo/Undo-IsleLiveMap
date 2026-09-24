@@ -20,6 +20,8 @@ public sealed class TeamCoordinator : IAsyncDisposable
     private DateTimeOffset _lastPublishedAt;
     private Guid? _activeTeamId;
     private TeamRelayConnectionState _lastConnectionState;
+    private TeamAccessTier _accessTier = TeamAccessTier.Free;
+    private string? _entitlementProof;
     private bool _disposed;
 
     public TeamCoordinator(TeamRelayEndpoint? endpoint = null)
@@ -35,6 +37,13 @@ public sealed class TeamCoordinator : IAsyncDisposable
     public TeamRelayState CurrentState => _client.CurrentState;
 
     public TeamRelayEndpoint CurrentEndpoint { get; private set; }
+
+    public void ConfigureAccess(TeamAccessTier tier, string? entitlementProof)
+    {
+        _accessTier = tier;
+        _entitlementProof = entitlementProof;
+        _client.ConfigureAccess(tier, entitlementProof);
+    }
 
     public async Task SwitchRelayAsync(
         TeamRelayEndpoint endpoint,
@@ -59,6 +68,7 @@ public sealed class TeamCoordinator : IAsyncDisposable
             previous = _client;
             previous.StateChanged -= Client_StateChanged;
             _client = new TeamRelayClient(endpoint.BaseUri);
+            _client.ConfigureAccess(_accessTier, _entitlementProof);
             _client.StateChanged += Client_StateChanged;
             CurrentEndpoint = endpoint;
             _activeTeamId = null;
@@ -79,14 +89,31 @@ public sealed class TeamCoordinator : IAsyncDisposable
 
     public Task<TeamSession> CreateAsync(
         string displayName,
+        TeamAccessTier tier = TeamAccessTier.Free,
         CancellationToken cancellationToken = default) =>
-        _client.CreateAsync(displayName.Trim(), cancellationToken);
+        _client.CreateAsync(displayName.Trim(), tier, cancellationToken);
+
+    public Task<TeamSession> CreateAsync(
+        string displayName, TeamAccessTier tier, int requestedMaxMembers, CancellationToken cancellationToken = default) =>
+        _client.CreateAsync(displayName.Trim(), tier, requestedMaxMembers, cancellationToken);
+
+    public Task<TeamSession> CreateAsync(
+        string displayName,
+        CancellationToken cancellationToken) =>
+        CreateAsync(displayName, TeamAccessTier.Free, cancellationToken);
 
     public Task<TeamSession> JoinAsync(
         string inviteCode,
         string displayName,
+        TeamAccessTier tier = TeamAccessTier.Free,
         CancellationToken cancellationToken = default) =>
-        _client.JoinAsync(inviteCode, displayName.Trim(), cancellationToken);
+        _client.JoinAsync(inviteCode, displayName.Trim(), tier, cancellationToken);
+
+    public Task<TeamSession> JoinAsync(
+        string inviteCode,
+        string displayName,
+        CancellationToken cancellationToken) =>
+        JoinAsync(inviteCode, displayName, TeamAccessTier.Free, cancellationToken);
 
     public Task LeaveAsync(CancellationToken cancellationToken = default) =>
         _client.LeaveAsync(cancellationToken);

@@ -575,7 +575,6 @@ public sealed class ProAgentRemotePlayerSource :
             frame.LocalSpeciesShortName);
 
         var entities = (frame.RemoteEntities ?? [])
-            .Where(IsValidEntity)
             .Select(entity => new VerifiedRemoteEntityTelemetry(
                 entity.TrackId,
                 MapKind(entity.Kind),
@@ -597,7 +596,11 @@ public sealed class ProAgentRemotePlayerSource :
                 entity.DistanceFromLocal,
                 entity.ConfirmationHits,
                 entity.ObservedAt,
-                entity.IsProvisional))
+                entity.IsProvisional,
+                entity.LocationObservedAt,
+                entity.ActorNetRefHandle,
+                entity.PlayerStateNetRefHandle,
+                entity.PawnNetRefHandle))
             .ToArray();
 
         return new RemotePlayerTelemetryFrame(

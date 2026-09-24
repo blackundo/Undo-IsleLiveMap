@@ -80,6 +80,9 @@ public partial class MainWindow
                 ApplyPalette(dot, marker.Category);
                 ApplyProvisionalStyle(dot, marker.IsProvisional);
             }
+            dot.Visual.Opacity = marker.IsStale
+                ? 0.42d
+                : marker.IsProvisional ? 0.82d : 1d;
         }
 
         foreach (var key in _remotePlayerMapDots.Keys
@@ -214,10 +217,25 @@ public partial class MainWindow
         RemotePlayerCountLabel.Visibility = Visibility.Collapsed;
         RemoteEntityLegend.Visibility = Visibility.Collapsed;
         RemoteTrackingStatusLabel.Visibility = Visibility.Collapsed;
+        RemoteTrackingDiagnosticsLabel.Visibility = Visibility.Collapsed;
     }
 
     private void UpdateRemoteTrackingStatus(TelemetrySnapshot snapshot)
     {
+        if (snapshot.ProTrackingDiagnostics is { } diagnostics)
+        {
+            RemoteTrackingDiagnosticsLabel.Text =
+                $"REMOTE FRAME · NHẬN {diagnostics.ReceivedCount} · ĐỦ ĐK {diagnostics.EligibleCount} · HIỆN {diagnostics.RenderedCount} · CŨ {diagnostics.StaleCount} · LOẠI {diagnostics.RejectedCount}";
+            RemoteTrackingDiagnosticsLabel.ToolTip = diagnostics.Rejections.Count == 0
+                ? diagnostics.FrameState
+                : string.Join(", ", diagnostics.Rejections.Select(pair => $"{pair.Key}: {pair.Value}"));
+            RemoteTrackingDiagnosticsLabel.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            RemoteTrackingDiagnosticsLabel.Visibility = Visibility.Collapsed;
+        }
+
         var health = snapshot.ProPlayerCaptureHealth;
         if (health is null)
         {

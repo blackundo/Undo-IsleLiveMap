@@ -6,15 +6,10 @@ public static class LocalPositionSnapshotMerger
 {
     public static readonly TimeSpan LocalFreshness = TimeSpan.FromSeconds(2);
     public static readonly TimeSpan LocalVitalsFreshness = TimeSpan.FromSeconds(3);
-    // Pro/Iris frames arrive in sparse bursts and live measurements after a
-    // reconnect showed healthy gaps of roughly 1.1-4.3 seconds. Two seconds
-    // made an unchanged player roster flash to zero between valid frames.
-    // Endpoint changes still publish an empty roster immediately; this grace
-    // period is only the pipeline-liveness fallback for a stalled frame.
+    // Keep a reconnect grace window for sparse rosters. The latest-value lane
+    // prevents this grace period from becoming a substitute for queueing the
+    // newest position frame; diagnostics still expose the actual frame age.
     public static readonly TimeSpan RemotePlayerFreshness = TimeSpan.FromSeconds(6);
-    // Unreal coordinates are centimetres: 100,000 units = 1 kilometre.
-    public const double MaximumRemoteEntityDistance = 100_000d;
-
     public static TelemetrySnapshot Merge(
         TelemetrySnapshot? remote,
         LocalMovementObservation? local,
@@ -49,10 +44,14 @@ public static class LocalPositionSnapshotMerger
                                        && IsRemoteFrameFresh(fallback, now)
                                        && IsFinite(fallback.LocalLocation)
             && double.IsFinite(fallback.MapHeadingDegrees);
+        var hasFreshRemoteFrame = hasFreshVerifiedFallback && remotePlayers is not null;
+        var hasRemoteInput = remotePlayers is not null;
         if (requireFreshLocalMovement
             && !hasFreshLocal
             && !hasFreshVerifiedFallback
-            && !useLocalVitals)
+            && !useLocalVitals
+            && !hasFreshRemoteFrame
+            && !hasRemoteInput)
         {
             return remote is null
                 ? Waiting(sourceName)
@@ -64,7 +63,7 @@ public static class LocalPositionSnapshotMerger
                     StatusMessage = "Đang chờ The Isle và dữ liệu movement cục bộ."
                 };
         }
-        if (!hasFreshLocal && !hasFreshVerifiedFallback && !useLocalVitals)
+        if (!hasFreshLocal && !hasFreshVerifiedFallback && !useLocalVitals && !hasRemoteInput)
         {
             if (remote?.Player is { } previousPlayer
                 && string.Equals(
@@ -149,6 +148,13 @@ public static class LocalPositionSnapshotMerger
         // look globally live. Preserve the remote stale marker until refresh.
         var preserveRemoteStaleness = baseSnapshot.LiveDataStale;
 
+        var mergedRemote = remotePlayers is not null
+                           && (hasFreshLocal || hasFreshVerifiedFallback || hasFreshRemoteFrame)
+                           ? MergeRemotePlayers(baseSnapshot.Map, remotePlayers, now)
+                           : remotePlayers is not null
+                ? MergeRemotePlayers(baseSnapshot.Map, remotePlayers, now)
+                : null;
+
         return baseSnapshot with
         {
             Source = string.IsNullOrWhiteSpace(baseSnapshot.Source)
@@ -160,15 +166,13 @@ public static class LocalPositionSnapshotMerger
             PlayerOnline = true,
             UpdatedAt = observedAt,
             Player = player,
-            Map = hasFreshLocal || hasFreshVerifiedFallback
-                ? MergeRemotePlayers(
-                    baseSnapshot.Map,
-                    remotePlayers,
-                    location!)
-                : baseSnapshot.Map,
+            Map = mergedRemote?.Map ?? baseSnapshot.Map,
             ProPlayerTrackingActive = remotePlayers is not null,
             ProPlayerSequence = verifiedLocalFallback?.Sequence,
+            ProPlayerFrameObservedAt = verifiedLocalFallback?.ObservedAt,
+            ProPlayerFrameReceivedAt = verifiedLocalFallback?.ReceivedAt,
             ProPlayerSync = verifiedLocalFallback?.PlayerSync,
+            ProTrackingDiagnostics = mergedRemote?.Diagnostics ?? baseSnapshot.ProTrackingDiagnostics,
             SessionState = preserveRemoteStaleness
                 ? baseSnapshot.SessionState
                 : TelemetrySessionState.Live,
@@ -256,14 +260,16 @@ public static class LocalPositionSnapshotMerger
         return latest;
     }
 
-    private static MapTelemetry? MergeRemotePlayers(
+    private sealed record RemoteMergeResult(MapTelemetry? Map, RemoteTrackingDiagnostics Diagnostics);
+
+    private static RemoteMergeResult MergeRemotePlayers(
         MapTelemetry? map,
         IReadOnlyList<VerifiedRemoteEntityTelemetry>? remotePlayers,
-        WorldLocation localLocation)
+        DateTimeOffset now)
     {
         if (remotePlayers is null)
         {
-            return map;
+            return new RemoteMergeResult(map, RemoteTrackingDiagnostics.NoFrame);
         }
 
         var providerMarkers = (map?.Markers ?? [])
@@ -275,20 +281,24 @@ public static class LocalPositionSnapshotMerger
                                      "pro-entity:",
                                      StringComparison.Ordinal)))
             .ToArray();
-        // The ingame name remains a private proof field. It gates player
-        // markers here but is deliberately not copied into MapTelemetry or a
-        // label. AI is accepted only when the signed Pro Agent classified an
-        // exact non-player fauna archetype.
-        var proMarkers = remotePlayers
-            .Where(entity =>
-                IsMapReady(entity)
-                && IsWithinRemoteEntityDistance(entity.Location, localLocation))
-            .Select(entity =>
+        // Player names are optional presentation metadata and are never proof.
+        // Player markers require structural Iris identity (actor, PlayerState,
+        // or pawn handle); AI is accepted only when the signed Pro Agent
+        // classified an exact non-player fauna archetype.
+        var rejectionCounts = new Dictionary<RemoteEntityRejectionReason, int>();
+        var eligible = 0;
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var proMarkers = new List<MapMarkerTelemetry>();
+        var staleCount = 0;
+        foreach (var entity in remotePlayers)
+        {
+            if (!TryGetRejectionReason(entity, seen, now, out var reason))
             {
+                eligible++;
                 var speciesLabel = string.IsNullOrWhiteSpace(entity.SpeciesShortName)
                     ? "Player ?"
                     : entity.SpeciesShortName;
-                return new MapMarkerTelemetry
+                proMarkers.Add(new MapMarkerTelemetry
                 {
                     SteamId = $"pro-entity:{entity.Kind.ToString().ToLowerInvariant()}:{entity.TrackId}",
                     Label = CreatureMarkerLabelFormatter.Format(
@@ -302,42 +312,123 @@ public static class LocalPositionSnapshotMerger
                     ProCreatureDiet = entity.Diet,
                     CreatureMassKg = entity.MassKg,
                     ProEntityIsProvisional = entity.IsProvisional
-                };
-            })
-            .ToArray();
-        if (map is null && proMarkers.Length == 0)
+                });
+                continue;
+            }
+
+            rejectionCounts[reason] = rejectionCounts.GetValueOrDefault(reason) + 1;
+
+            // Presence and movement are separate signals. An actor with an
+            // old coordinate is retained in diagnostics only; projecting its
+            // old coordinate, even as a dim marker, makes users walk to a
+            // location where the dino is no longer present.
+            if (reason == RemoteEntityRejectionReason.StaleLocation)
+            {
+                staleCount++;
+            }
+        }
+        var diagnostics = new RemoteTrackingDiagnostics
         {
-            return null;
+            ReceivedCount = remotePlayers.Count,
+            EligibleCount = eligible,
+            RenderedCount = proMarkers.Count,
+            StaleCount = staleCount,
+            RejectedCount = remotePlayers.Count - proMarkers.Count,
+            Rejections = rejectionCounts,
+            FrameState = "frame"
+        };
+        if (map is null && proMarkers.Count == 0)
+        {
+            return new RemoteMergeResult(null, diagnostics);
         }
 
-        return (map ?? new MapTelemetry()) with
+        return new RemoteMergeResult((map ?? new MapTelemetry()) with
         {
             Markers = [.. providerMarkers, .. proMarkers]
-        };
+        }, diagnostics);
     }
 
-    private static bool IsMapReady(VerifiedRemoteEntityTelemetry entity) =>
-        entity.TrackId > 0
-        && (entity.Kind == RemoteEntityKind.Ai
-            && !string.IsNullOrWhiteSpace(entity.SpeciesId)
-            && !string.IsNullOrWhiteSpace(entity.SpeciesShortName)
-            || entity.Kind == RemoteEntityKind.Player
-            && (entity.IsProvisional
-                && !string.IsNullOrWhiteSpace(entity.SpeciesId)
-                && !string.IsNullOrWhiteSpace(entity.SpeciesShortName)
-                || !entity.IsProvisional
-                && !string.IsNullOrWhiteSpace(entity.PlayerProofName)));
+    private static bool HasVerifiedIdentity(VerifiedRemoteEntityTelemetry entity) =>
+        entity.Kind == RemoteEntityKind.Ai
+            ? !string.IsNullOrWhiteSpace(entity.SpeciesId)
+              && !string.IsNullOrWhiteSpace(entity.SpeciesShortName)
+            : !entity.IsProvisional
+              // Player names are optional metadata. Structural Iris handles
+              // are the only proof accepted by the render lifecycle.
+              && (entity.ActorNetRefHandle > 0
+                  || entity.PlayerStateNetRefHandle > 0
+                  || entity.PawnNetRefHandle > 0);
 
-    private static bool IsWithinRemoteEntityDistance(
-        WorldLocation entity,
-        WorldLocation local)
+    private static bool TryGetRejectionReason(
+        VerifiedRemoteEntityTelemetry entity,
+        HashSet<string> seen,
+        DateTimeOffset now,
+        out RemoteEntityRejectionReason reason)
     {
-        var deltaX = entity.X - local.X;
-        var deltaY = entity.Y - local.Y;
-        var deltaZ = (entity.Z ?? 0d) - (local.Z ?? 0d);
-        return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
-               <= MaximumRemoteEntityDistance * MaximumRemoteEntityDistance;
+        if (entity.TrackId <= 0)
+        {
+            reason = RemoteEntityRejectionReason.InvalidTrackId;
+            return true;
+        }
+
+        if (entity.Kind is not RemoteEntityKind.Player and not RemoteEntityKind.Ai)
+        {
+            reason = RemoteEntityRejectionReason.UnsupportedKind;
+            return true;
+        }
+
+        if (!IsFinite(entity.Location))
+        {
+            reason = RemoteEntityRejectionReason.InvalidCoordinate;
+            return true;
+        }
+
+        // Older Pro Agent frames did not carry a separate location timestamp.
+        // Keep those fixtures/backward-compatible agents valid by treating the
+        // entity observation as the location observation. New agents always
+        // provide LocationObservedAt, which prevents presence refreshes from
+        // making an old coordinate look live.
+        var locationObservedAt = entity.LocationObservedAt ?? entity.ObservedAt;
+        if (locationObservedAt > now
+            || now - locationObservedAt > VerifiedRemoteEntityTelemetry.LocationFreshness)
+        {
+            reason = RemoteEntityRejectionReason.StaleLocation;
+            return true;
+        }
+
+        if (entity.Kind == RemoteEntityKind.Ai
+            && (string.IsNullOrWhiteSpace(entity.SpeciesId)
+                || string.IsNullOrWhiteSpace(entity.SpeciesShortName)))
+        {
+            reason = RemoteEntityRejectionReason.MissingSpecies;
+            return true;
+        }
+
+        if (entity.Kind == RemoteEntityKind.Player
+            && (!HasStablePlayerIdentity(entity)
+                || entity.IsProvisional
+                && (string.IsNullOrWhiteSpace(entity.SpeciesId)
+                    || string.IsNullOrWhiteSpace(entity.SpeciesShortName))))
+        {
+            reason = RemoteEntityRejectionReason.MissingPlayerProof;
+            return true;
+        }
+
+        var key = $"{entity.Kind}:{entity.TrackId}";
+        if (!seen.Add(key))
+        {
+            reason = RemoteEntityRejectionReason.Duplicate;
+            return true;
+        }
+
+        reason = default;
+        return false;
     }
+
+    private static bool HasStablePlayerIdentity(VerifiedRemoteEntityTelemetry entity) =>
+        entity.ActorNetRefHandle > 0
+        || entity.PlayerStateNetRefHandle > 0
+        || entity.PawnNetRefHandle > 0;
 
     private static bool IsFinite(WorldLocation location) =>
         double.IsFinite(location.X)

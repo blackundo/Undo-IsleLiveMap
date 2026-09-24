@@ -225,7 +225,7 @@ public sealed class ProAccessService : IDisposable
 
         var snapshot = new ProAccessSnapshot(lease.ActivationId,
             version is not null ? new ProEntitlement("pro", "active", lease.ExpiresAt) : ProAccessSnapshot.SignedOut.Entitlement,
-            false, version is not null, version, lease.ExpiresAt, status);
+            false, version is not null, version, lease.ExpiresAt, status, lease.LeaseToken);
         return (snapshot, installation);
     }
 
@@ -280,8 +280,7 @@ public sealed class ProAccessService : IDisposable
             }
             if (_session is null ||
                 _installation is null ||
-                !_current.IsPro ||
-                !_current.AgentReady ||
+                !_current.Entitlement.IsProAt(_timeProvider.GetUtcNow()) ||
                 !_session.HasUsableOfflineLicense(_timeProvider.GetUtcNow()))
             {
                 return null;
@@ -473,7 +472,8 @@ public sealed class ProAccessService : IDisposable
         installation is not null,
         installation?.Version,
         session.OfflineLicenseExpiresAt,
-        statusCode);
+        statusCode,
+        session.OfflineLicenseToken);
 
     private ProAccessSnapshot SetState(
         StoredProSession? session,
