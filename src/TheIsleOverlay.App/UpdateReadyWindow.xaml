@@ -1,0 +1,104 @@
+<Window x:Class="TheIsleOverlay.App.UpdateReadyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cập nhật Isle Live Map"
+        Width="500" Height="310" MinWidth="500" MinHeight="310"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        FontFamily="Segoe UI" UseLayoutRounding="True"
+        PreviewKeyDown="Window_PreviewKeyDown">
+    <Window.Resources>
+        <SolidColorBrush x:Key="ModalSurface" Color="#F2070817" />
+        <SolidColorBrush x:Key="ModalInk" Color="#E9EFF4" />
+        <SolidColorBrush x:Key="ModalMuted" Color="#9EA4B3" />
+        <SolidColorBrush x:Key="ModalLine" Color="#353B55" />
+        <SolidColorBrush x:Key="ModalLineStrong" Color="#48506C" />
+        <SolidColorBrush x:Key="ModalAccent" Color="#3745D4" />
+        <SolidColorBrush x:Key="ModalAccentBright" Color="#E8EDFF" />
+        <SolidColorBrush x:Key="ModalHover" Color="#181D36" />
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Padding" Value="18,0" />
+            <Setter Property="Foreground" Value="{DynamicResource ModalInk}" />
+            <Setter Property="Background" Value="{DynamicResource ModalAccent}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ModalAccentBright}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.88" /></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.72" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="QuietButton" TargetType="Button">
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Padding" Value="18,0" />
+            <Setter Property="Foreground" Value="{DynamicResource ModalMuted}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ModalLine}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource ModalHover}" /><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource ModalLineStrong}" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border Margin="10" Background="{DynamicResource ModalSurface}" BorderBrush="{DynamicResource ModalLineStrong}" BorderThickness="1" CornerRadius="10">
+        <Border.Effect><DropShadowEffect Color="#000000" BlurRadius="28" ShadowDepth="5" Opacity="0.75" /></Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <Border BorderBrush="{DynamicResource ModalLine}" BorderThickness="0,0,0,1"
+                    PreviewMouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="18,0,12,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Fill="{DynamicResource ModalAccent}" Margin="0,0,9,0" />
+                        <TextBlock Text="CẬP NHẬT ISLE LIVE MAP" Foreground="{DynamicResource ModalInk}" FontSize="11" FontWeight="Bold" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="×" Width="28" Height="28" Padding="0"
+                            Background="Transparent" BorderBrush="Transparent" Foreground="{DynamicResource ModalMuted}"
+                            FontSize="18" AutomationProperties.Name="Đóng thông báo cập nhật"
+                            Click="LaterButton_Click" />
+                </Grid>
+            </Border>
+            <StackPanel Grid.Row="1" Margin="28,25,28,24">
+                <TextBlock Text="BẢN CẬP NHẬT ĐÃ SẴN SÀNG" Foreground="{DynamicResource ModalAccentBright}" FontSize="11" FontWeight="Bold" />
+                <TextBlock x:Name="VersionLabel" Text="v2.4.3" Foreground="{DynamicResource ModalInk}" FontSize="26" FontWeight="Black" Margin="0,5,0,0" />
+                <TextBlock Text="Bản mới đã tải xong. Hãy khởi động lại launcher để hoàn tất cập nhật trước khi mở map." Foreground="{DynamicResource ModalMuted}" FontSize="13" TextWrapping="Wrap" Margin="0,8,0,0" />
+                <Grid Margin="0,23,0,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <Button Content="ĐỂ SAU" Style="{StaticResource QuietButton}" AutomationProperties.Name="Để sau cập nhật" Click="LaterButton_Click" />
+                    <Button Grid.Column="1" Content="CẬP NHẬT &amp; KHỞI ĐỘNG LẠI" Style="{StaticResource PrimaryButton}"
+                            AutomationProperties.Name="Cập nhật và khởi động lại" IsDefault="True" Click="ApplyButton_Click" />
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
